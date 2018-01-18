@@ -121,6 +121,9 @@ namespace graphene { namespace chain {
              */
             maintenance_flag = 0x01
          };
+
+         // Total number of issued Welcome Bonus coins.
+         share_type welcome_bonus;
    };
 }}
 

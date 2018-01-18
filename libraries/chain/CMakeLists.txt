@@ -35,6 +35,9 @@ add_library( graphene_chain
              ${GRAPHENE_DB_FILES}
              fork_database.cpp
 
+             protocol/welcome_bonus.cpp
+             welcome_bonus_evaluator.cpp
+
              protocol/types.cpp
              protocol/address.cpp
              protocol/authority.cpp
@@ -96,7 +99,7 @@ add_library( graphene_chain
            )
 
 add_dependencies( graphene_chain build_hardfork_hpp )
-target_link_libraries( graphene_chain fc graphene_db )
+target_link_libraries( graphene_chain fc graphene_db graphene_app )
 target_include_directories( graphene_chain
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include" )
 
