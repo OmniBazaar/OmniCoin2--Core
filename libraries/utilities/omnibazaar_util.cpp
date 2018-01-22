@@ -1,7 +1,6 @@
 #include <graphene/utilities/omnibazaar_util.hpp>
 
 // Includes used to get hdd id and mac address of primary adapter.
-#pragma comment(lib, "iphlpapi")
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
@@ -10,6 +9,7 @@
 #include <assert.h>
 #include <cstring>
 #if _WIN32 || _WIN64
+#pragma comment(lib, "iphlpapi")
 #include <Shlobj.h>
 #include <windows.h>
 #include <iphlpapi.h>
@@ -94,7 +94,7 @@ namespace omnibazaar {
         return stdOutLines[1];
 #elif __linux__
         static char* root_fs_path = NULL;
-        static char disk_by_uuid_dir[] = "/dev/disk/by-uuid/";
+        static const char disk_by_uuid_dir[] = "/dev/disk/by-uuid/";
 
         FILE* mtab = setmntent("/etc/mtab", "r");
 
@@ -113,18 +113,39 @@ namespace omnibazaar {
 
         // 3. scan the directory containing UUID disks and return the one that point
         // to the root file system
-        struct dirent** namelist;
-        scandir(disk_by_uuid_dir, &namelist, [](const struct dirent* d_entry){
+        struct dirent** namelist = nullptr;
+
+        const auto filter_func = [&](const struct dirent* d_entry){
             char link_path[512];
-            char resolved_link_path[512];
-
             sprintf(link_path, "%s%s", disk_by_uuid_dir, d_entry->d_name);
-            realpath(link_path, resolved_link_path);
 
-            return strcmp(resolved_link_path, root_fs_path)== 0 ? 1 : 0;
-        }, alphasort);
+            // Removed statically allocated return buffer due to buffer overflow crashes.
+            // Using nullptr for second parameter because it's not trivial to determine proper buffer size
+            // for realpath() and it's safer to let it allocate return value on its own, see
+            // http://man7.org/linux/man-pages/man3/realpath.3.html
+            char *resolved_link_path = realpath(link_path, nullptr);
 
-        return namelist[0][0].d_name;
+            const int result = strcmp(resolved_link_path, root_fs_path) == 0 ? 1 : 0;
+            if(resolved_link_path)
+            {
+                free(resolved_link_path);
+            }
+            return result;
+        };
+
+        const int scanned_num = scandir(disk_by_uuid_dir, &namelist, filter_func, alphasort);
+
+        fc::string result;
+        if (scanned_num > 0)
+        {
+            result = namelist[0][0].d_name;
+            for(int i = 0; i < scanned_num; ++i)
+            {
+                free(namelist[i]);
+            }
+            free(namelist);
+        }
+        return result;
 #endif
     }
 
