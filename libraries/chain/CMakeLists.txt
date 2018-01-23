@@ -7,6 +7,7 @@ add_dependencies( build_hardfork_hpp cat-parts )
 
 file(GLOB HEADERS "include/graphene/chain/*.hpp")
 file(GLOB PROTOCOL_HEADERS "include/graphene/chain/protocol/*.hpp")
+file(GLOB OMNIBAZAAR_HEADERS "omnibazaar/*.hpp")
 
 if( GRAPHENE_DISABLE_UNITY_BUILD )
    set( GRAPHENE_DB_FILES
@@ -34,6 +35,9 @@ add_library( graphene_chain
              # As database takes the longest to compile, start it first
              ${GRAPHENE_DB_FILES}
              fork_database.cpp
+
+             omnibazaar/welcome_bonus.cpp
+             omnibazaar/welcome_bonus_evaluator.cpp
 
              protocol/types.cpp
              protocol/address.cpp
@@ -92,13 +96,15 @@ add_library( graphene_chain
 
              ${HEADERS}
              ${PROTOCOL_HEADERS}
+             ${OMNIBAZAAR_HEADERS}
              "${CMAKE_CURRENT_BINARY_DIR}/include/graphene/chain/hardfork.hpp"
            )
 
 add_dependencies( graphene_chain build_hardfork_hpp )
-target_link_libraries( graphene_chain fc graphene_db )
+target_link_libraries( graphene_chain fc graphene_db graphene_app )
 target_include_directories( graphene_chain
-                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include" )
+                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include"
+                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/omnibazaar" )
 
 if(MSVC)
   set_source_files_properties( db_init.cpp db_block.cpp database.cpp block_database.cpp PROPERTIES COMPILE_FLAGS "/bigobj" )
@@ -113,3 +119,4 @@ INSTALL( TARGETS
 )
 INSTALL( FILES ${HEADERS} DESTINATION "include/graphene/chain" )
 INSTALL( FILES ${PROTOCOL_HEADERS} DESTINATION "include/graphene/chain/protocol" )
+INSTALL( FILES ${OMNIBAZAAR_HEADERS} DESTINATION "omnibazaar" )
