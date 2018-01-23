@@ -39,7 +39,7 @@
 #include <graphene/chain/protocol/witness.hpp>
 #include <graphene/chain/protocol/worker.hpp>
 
-#include <graphene/chain/protocol/welcome_bonus.hpp>
+#include <../omnibazaar/welcome_bonus.hpp>
 
 namespace graphene { namespace chain {
 

@@ -1,4 +1,4 @@
-#include <graphene/chain/protocol/welcome_bonus.hpp>
+#include <welcome_bonus.hpp>
 
 namespace omnibazaar {
 

@@ -61,8 +61,7 @@
 #include <graphene/chain/withdraw_permission_evaluator.hpp>
 #include <graphene/chain/witness_evaluator.hpp>
 #include <graphene/chain/worker_evaluator.hpp>
-
-#include <graphene/chain/welcome_bonus_evaluator.hpp>
+#include <welcome_bonus_evaluator.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 

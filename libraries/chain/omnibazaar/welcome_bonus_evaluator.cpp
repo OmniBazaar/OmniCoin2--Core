@@ -1,4 +1,4 @@
-#include <graphene/chain/welcome_bonus_evaluator.hpp>
+#include <welcome_bonus_evaluator.hpp>
 #include <graphene/app/database_api.hpp>
 
 namespace omnibazaar {

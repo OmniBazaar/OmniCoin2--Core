@@ -72,8 +72,8 @@
 #include <graphene/debug_witness/debug_api.hpp>
 #include <fc/smart_ref_impl.hpp>
 
-#include <graphene/chain/protocol/welcome_bonus.hpp>
-#include <graphene/utilities/omnibazaar_util.hpp>
+#include <welcome_bonus.hpp>
+#include <omnibazaar_util.hpp>
 
 #ifndef WIN32
 # include <sys/types.h>

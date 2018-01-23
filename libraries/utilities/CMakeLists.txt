@@ -8,24 +8,28 @@ if(NOT GRAPHENE_GIT_REVISION_DESCRIPTION)
 endif(NOT GRAPHENE_GIT_REVISION_DESCRIPTION)
 
 file(GLOB HEADERS "include/graphene/utilities/*.hpp")
+file(GLOB OMNIBAZAAR_HEADERS "omnibazaar/*.hpp")
 
 set(sources
    key_conversion.cpp
    string_escape.cpp
    tempdir.cpp
    words.cpp
-   omnibazaar_util.cpp
-   ${HEADERS})
+   omnibazaar/omnibazaar_util.cpp
+   ${HEADERS}
+   ${OMNIBAZAAR_HEADERS} )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/git_revision.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_revision.cpp" @ONLY)
 list(APPEND sources "${CMAKE_CURRENT_BINARY_DIR}/git_revision.cpp")
 
 add_library( graphene_utilities
              ${sources}
-             ${HEADERS} )
+             ${HEADERS}
+             ${OMNIBAZAAR_HEADERS})
 target_link_libraries( graphene_utilities fc )
 target_include_directories( graphene_utilities
-                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/omnibazaar" )
 if (USE_PCH)
   set_target_properties(graphene_utilities PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
   cotire(graphene_utilities)
@@ -39,3 +43,4 @@ install( TARGETS
    ARCHIVE DESTINATION lib
 )
 install( FILES ${HEADERS} DESTINATION "include/graphene/utilities" )
+install( FILES ${OMNIBAZAAR_HEADERS} DESTINATION "omnibazaar" )

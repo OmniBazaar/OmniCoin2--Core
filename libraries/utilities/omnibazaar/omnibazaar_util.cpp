@@ -1,4 +1,4 @@
-#include <graphene/utilities/omnibazaar_util.hpp>
+#include <omnibazaar_util.hpp>
 
 // Includes used to get hdd id and mac address of primary adapter.
 #include <iostream>
