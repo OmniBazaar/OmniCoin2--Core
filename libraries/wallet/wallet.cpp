@@ -919,8 +919,8 @@ public:
    bool is_welcome_bonus_available(const string name)const
    {
        // Get HDD ID and MAC address.
-       const string harddrive_id = omnibazaar::get_harddrive_id();
-       const string mac_address = omnibazaar::get_primary_mac();
+       const string harddrive_id = omnibazaar::util::get_harddrive_id();
+       const string mac_address = omnibazaar::util::get_primary_mac();
 
        if (harddrive_id.empty() || mac_address.empty())
        {
@@ -1003,8 +1003,8 @@ public:
           omnibazaar::welcome_bonus_operation welcome_bonus_op;
           welcome_bonus_op.receiver_name = name;
           welcome_bonus_op.payer = account_create_op.fee_payer();
-          welcome_bonus_op.drive_id = omnibazaar::get_harddrive_id();
-          welcome_bonus_op.mac_address = omnibazaar::get_primary_mac();
+          welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
+          welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
           tx.operations.push_back( welcome_bonus_op );
       }
 
@@ -1140,8 +1140,8 @@ public:
              omnibazaar::welcome_bonus_operation welcome_bonus_op;
              welcome_bonus_op.receiver_name = account_name;
              welcome_bonus_op.payer = account_create_op.fee_payer();
-             welcome_bonus_op.drive_id = omnibazaar::get_harddrive_id();
-             welcome_bonus_op.mac_address = omnibazaar::get_primary_mac();
+             welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
+             welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
              tx.operations.push_back( welcome_bonus_op );
          }
 

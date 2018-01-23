@@ -30,7 +30,7 @@
 
 namespace omnibazaar {
 
-    fc::string get_harddrive_id()
+    fc::string util::get_harddrive_id()
     {
 #if _WIN32 || _WIN64
         const BOOL asCmdProcess = FALSE;
@@ -149,7 +149,7 @@ namespace omnibazaar {
 #endif
     }
 
-    fc::string get_primary_mac()
+    fc::string util::get_primary_mac()
     {
 #if _WIN32 || _WIN64
         char macAddress[20] = "";
