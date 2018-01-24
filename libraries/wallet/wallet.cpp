@@ -2059,8 +2059,28 @@ public:
          return sign_transaction(trx, broadcast);
    } FC_CAPTURE_AND_RETHROW((order_id)) }
 
+   bool is_sale_bonus_available(const string& seller_name, const string& buyer_name)const
+   {
+       if(_remote_db->get_dynamic_global_properties().sale_bonus >= OMNIBAZAAR_SALE_BONUS_LIMIT)
+       {
+           ilog("Sale Bonus depleted");
+           return false;
+       }
+
+       const account_object seller = get_account(seller_name);
+       if(seller.buyers.find(get_account_id(buyer_name)) != seller.buyers.end())
+       {
+           ilog("Sale bonus already received for seller '${seller}' and buyer '${buyer}'",
+                ("seller", seller_name)
+                ("buyer", buyer_name));
+           return false;
+       }
+
+       return true;
+   }
+
    signed_transaction transfer(string from, string to, string amount,
-                               string asset_symbol, string memo, bool broadcast = false)
+                               string asset_symbol, string memo, bool broadcast = false, bool is_sale = false)
    { try {
       FC_ASSERT( !self.is_locked() );
       fc::optional<asset_object> asset_obj = get_asset(asset_symbol);
@@ -2088,6 +2108,16 @@ public:
 
       signed_transaction tx;
       tx.operations.push_back(xfer_op);
+
+      if(is_sale_bonus_available(to, from))
+      {
+          omnibazaar::sale_bonus_operation sale_op;
+          sale_op.seller = to_id;
+          sale_op.buyer = from_id;
+          sale_op.payer = xfer_op.fee_payer();
+          tx.operations.push_back(sale_op);
+      }
+
       set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
       tx.validate();
 
@@ -3284,9 +3314,9 @@ signed_transaction wallet_api::issue_asset(string to_account, string amount, str
 }
 
 signed_transaction wallet_api::transfer(string from, string to, string amount,
-                                        string asset_symbol, string memo, bool broadcast /* = false */)
+                                        string asset_symbol, string memo, bool broadcast /* = false */, bool is_sale /* = false */)
 {
-   return my->transfer(from, to, amount, asset_symbol, memo, broadcast);
+   return my->transfer(from, to, amount, asset_symbol, memo, broadcast, is_sale);
 }
 signed_transaction wallet_api::create_asset(string issuer,
                                             string symbol,

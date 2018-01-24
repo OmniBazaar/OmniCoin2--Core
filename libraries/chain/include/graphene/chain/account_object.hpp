@@ -266,6 +266,9 @@ namespace graphene { namespace chain {
 
          // Flag to indicate that this account already received the registration welcome bonus.
          bool recieved_welcome_bonus = false;
+
+         // Users that bought something from this account. Used in Sale Bonus processing.
+         std::set<account_id_type> buyers;
    };
 
    /**
@@ -382,6 +385,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (owner_special_authority)(active_special_authority)
                     (top_n_control_flags)
                     (allowed_assets)
+                    (buyers)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

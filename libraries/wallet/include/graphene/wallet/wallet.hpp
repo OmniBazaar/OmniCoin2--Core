@@ -757,6 +757,7 @@ class wallet_api
        *             other than the limit imposed by maximum transaction size, but transaction
        *             increase with transaction size
        * @param broadcast true to broadcast the transaction on the network
+       * @param is_sale true to indicate that this is a purchase/sale transaction
        * @returns the signed transaction transferring funds
        */
       signed_transaction transfer(string from,
@@ -764,7 +765,8 @@ class wallet_api
                                   string amount,
                                   string asset_symbol,
                                   string memo,
-                                  bool broadcast = false);
+                                  bool broadcast = false,
+                                  bool is_sale = false);
 
       /**
        *  This method works just like transfer, except it always broadcasts and
