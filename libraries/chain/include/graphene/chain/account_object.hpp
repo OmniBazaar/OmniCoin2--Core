@@ -124,6 +124,8 @@ namespace graphene { namespace chain {
    class account_object : public graphene::db::abstract_object<account_object>
    {
       public:
+         enum class account_role_type { NONE = 0, REFERRER = 1, PUBLISHER = 2, TRANSACTION_PROCESSOR = 3, ESCROW = 4 }; 
+
          static const uint8_t space_id = protocol_ids;
          static const uint8_t type_id  = account_object_type;
 
@@ -262,7 +264,23 @@ namespace graphene { namespace chain {
             return !is_basic_account(now);
          }
 
+         void set_account_role(account_role_type new_account_role)
+         {
+               if (this->account_role == account_role_type::NONE)
+               {
+                  this->account_role = new_account_role;
+               }
+               else
+               {
+                     // throw some kind of error
+               }
+         }
+
          account_id_type get_id()const { return id; }
+      
+      private:
+         /// The role of the account (referrer, publisher, escrow, etc.)
+         account_role_type account_role = account_role_type::NONE;
    };
 
    /**

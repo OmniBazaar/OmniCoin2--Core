@@ -292,6 +292,10 @@ class wallet_api
       wallet_api( const wallet_data& initial_data, fc::api<login_api> rapi );
       virtual ~wallet_api();
 
+
+      /** Sets the role for the account (escrow, referrer, etc) */
+      void set_account_role(const std::string& account_name, uint32_t new_role_id);
+
       bool copy_wallet_file( string destination_filename );
 
       fc::ecc::private_key derive_private_key(const std::string& prefix_string, int sequence_number) const;
@@ -1637,6 +1641,7 @@ FC_API( graphene::wallet::wallet_api,
         (gethelp)
         (info)
         (about)
+        (set_account_role)
         (begin_builder_transaction)
         (add_operation_to_builder_transaction)
         (replace_operation_in_builder_transaction)

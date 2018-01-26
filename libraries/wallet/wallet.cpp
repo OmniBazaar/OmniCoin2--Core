@@ -447,6 +447,12 @@ public:
       fc::async([this]{resync();}, "Resync after block");
    }
 
+   void set_account_role(const std::string& account_name, uint32_t new_role_id)
+   {
+         account_object account_to_update = get_account(account_name);
+         account_to_update.set_account_role((account_object::account_role_type)new_role_id);
+   }
+
    bool copy_wallet_file( string destination_filename )
    {
       fc::path src_path = get_wallet_filename();
@@ -2766,6 +2772,11 @@ wallet_api::wallet_api(const wallet_data& initial_data, fc::api<login_api> rapi)
 
 wallet_api::~wallet_api()
 {
+}
+
+bool wallet_api::set_account_role(const std::string& account_name, uint32_t new_role_id)
+{
+      my->set_account_role(name, new_role_id);
 }
 
 bool wallet_api::copy_wallet_file(string destination_filename)
