@@ -1571,6 +1571,16 @@ class wallet_api
       fc::signal<void(bool)> lock_changed;
       std::shared_ptr<detail::wallet_api_impl> my;
       void encrypt_keys();
+
+      /** Interact with mail system.
+       *
+       * @param action Requested mail action type. For supported actions see omnibazaar::mail::mail_service.
+       * @param param1 Generic parameter. Contents depend on action type.
+       * @param param2 Generic parameter. Contents depend on action type.
+       * @param param3 Generic parameter. Contents depend on action type.
+       * @return depends on action type.
+       */
+      std::vector<std::string> mail_service(const std::string &action, const std::string &param1, const std::string &param2, const std::string &param3);
 };
 
 } }
@@ -1749,4 +1759,5 @@ FC_API( graphene::wallet::wallet_api,
         (blind_history)
         (receive_blind_transfer)
         (get_order_book)
+        (mail_service)
       )

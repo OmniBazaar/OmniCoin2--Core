@@ -74,6 +74,7 @@
 
 #include <welcome_bonus.hpp>
 #include <omnibazaar_util.hpp>
+#include <mail.hpp>
 
 #ifndef WIN32
 # include <sys/types.h>
@@ -3693,6 +3694,11 @@ bool wallet_api::is_new()const
 void wallet_api::encrypt_keys()
 {
    my->encrypt_keys();
+}
+
+std::vector<std::string> wallet_api::mail_service(const std::string &action, const std::string &param1, const std::string &param2, const std::string &param3)
+{
+    return omnibazaar::mail(*this).mail_service(action, param1, param2, param3);
 }
 
 void wallet_api::lock()

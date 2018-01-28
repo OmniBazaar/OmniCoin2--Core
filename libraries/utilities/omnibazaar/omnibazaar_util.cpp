@@ -1,4 +1,5 @@
 #include <omnibazaar_util.hpp>
+#include <fc/filesystem.hpp>
 
 // Includes used to get hdd id and mac address of primary adapter.
 #include <iostream>
@@ -257,6 +258,25 @@ namespace omnibazaar {
             return macp;
         }
 #endif
+    }
+
+    std::vector<std::string> util::get_files_in_folder(const std::string &folder)
+    {
+        std::vector<std::string> list;
+
+        fc::path p(folder);
+        if (is_directory(p))
+        {
+            for (fc::directory_iterator itr(p); itr != fc::directory_iterator(); ++itr)
+            {
+                if (!itr->filename().string().empty() && fc::is_regular_file(*itr))
+                {
+                    list.push_back(folder + "/" + itr->filename().string() );
+                }
+            }
+        }
+
+        return list;
     }
 
 }
