@@ -389,8 +389,7 @@ namespace omnibazaar
 
         if (param1 != "")
         {
-            // TODO: migrate P2P mail code.
-            //_p2p_node->mail_sendTo(param1);
+            wallet.mail_send_to(param1);
         }
 
         return return_data;

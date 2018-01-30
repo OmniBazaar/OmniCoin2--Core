@@ -1580,7 +1580,14 @@ class wallet_api
        * @param param3 Generic parameter. Contents depend on action type.
        * @return depends on action type.
        */
-      std::vector<std::string> mail_service(const std::string &action, const std::string &param1, const std::string &param2, const std::string &param3);
+      std::vector<std::string> mail_service(const std::string &action, const std::string &param1 = std::string(),
+                                            const std::string &param2 = std::string(), const std::string &param3 = std::string());
+
+      /** Send mail.
+       *
+       * @param comma_separated_mails Mail.
+       */
+      void mail_send_to(const std::string &comma_separated_mails);
 };
 
 } }
@@ -1760,4 +1767,5 @@ FC_API( graphene::wallet::wallet_api,
         (receive_blind_transfer)
         (get_order_book)
         (mail_service)
+        (mail_send_to)
       )
