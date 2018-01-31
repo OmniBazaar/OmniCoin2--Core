@@ -2109,6 +2109,24 @@ public:
       signed_transaction tx;
       tx.operations.push_back(xfer_op);
 
+      // Add Sale Fee. Receiver/seller pays this fee.
+      if(is_sale)
+      {
+          transfer_operation sale_fee_seller_op;
+          sale_fee_seller_op.from = to_id;
+          sale_fee_seller_op.to = to_account.referrer;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.005;
+
+          transfer_operation sale_fee_buyer_op;
+          sale_fee_buyer_op.from = to_id;
+          sale_fee_buyer_op.to = from_account.referrer;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.005;
+
+          tx.operations.push_back(sale_fee_seller_op);
+          tx.operations.push_back(sale_fee_buyer_op);
+      }
+
+      // Add Sale Bonus.
       if(is_sale_bonus_available(to, from))
       {
           omnibazaar::sale_bonus_operation sale_op;
