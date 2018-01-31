@@ -446,12 +446,53 @@ public:
    {
       fc::async([this]{resync();}, "Resync after block");
    }
-
-   void set_account_role(const std::string& account_name, uint32_t new_role_id)
+   
+   void set_account_as_a_publisher(const std::string& account_name, bool is_publisher)
    {
          account_object account_to_update = get_account(account_name);
-         account_to_update.set_account_role((account_object::account_role_type)new_role_id);
-         
+         account_to_update.set_to_be_a_publisher(is_publisher);
+   }
+
+   void set_account_as_an_escrow(const std::string& account_name, bool is_escrow)
+   {
+         account_object account_to_update = get_account(account_name);
+         account_to_update.set_to_be_an_escrow(is_escrow);
+   }
+
+   void set_account_as_a_referrer(const std::string& account_name, bool is_referrer)
+   {
+         account_object account_to_update = get_account(account_name);
+         account_to_update.set_to_be_a_referrer(is_referrer);
+   }
+
+   void set_account_as_a_transaction_processor(const std::string& account_name, bool is_transaction_processor)
+   {
+         account_object account_to_update = get_account(account_name);
+         account_to_update.set_to_be_a_transaction_processor(is_transaction_processor);
+   }
+   
+   bool is_account_a_publisher(const std::string& account_name)
+   {
+         account_object account_to_check = get_account(account_name);
+         return account_to_check.is_a_publisher();
+   }
+
+   bool is_account_an_escrow(const std::string& account_name)
+   {
+         account_object account_to_check = get_account(account_name);
+         return account_to_check.is_an_escrow();
+   }
+
+   bool is_account_a_referrer(const std::string& account_name)
+   {
+         account_object account_to_check = get_account(account_name);
+         return account_to_check.is_a_referrer();
+   }
+
+   bool is_account_a_transaction_processor(const std::string& account_name)
+   {
+         account_object account_to_check = get_account(account_name);
+         return account_to_check.is_a_transaction_processor();
    }
 
    bool copy_wallet_file( string destination_filename )
@@ -2775,9 +2816,44 @@ wallet_api::~wallet_api()
 {
 }
 
-void wallet_api::set_account_role(const std::string& account_name, uint32_t new_role_id)
+void wallet_api::set_account_as_a_publisher(const std::string& account_name, bool is_publisher)
 {
-      my->set_account_role(account_name, new_role_id);
+      my->set_account_as_a_publisher(account_name, is_publisher);
+}
+
+void wallet_api::set_account_as_an_escrow(const std::string& account_name, bool is_escrow)
+{
+      my->set_account_as_an_escrow(account_name, is_escrow);
+}
+
+void wallet_api::set_account_as_a_referrer(const std::string& account_name, bool is_referrer)
+{
+      my->set_account_as_a_referrer(account_name, is_referrer);
+}
+
+void wallet_api::set_account_as_a_transaction_processor(const std::string& account_name, bool is_transaction_processor)
+{
+      my->set_account_as_a_transaction_processor(account_name, is_transaction_processor);
+}
+
+bool wallet_api::is_account_a_publisher(const std::string& account_name)
+{
+      return my->is_account_a_publisher(account_name);
+}
+
+bool wallet_api::is_account_an_escrow(const std::string& account_name)
+{
+      return my->is_account_an_escrow(account_name);
+}
+
+bool wallet_api::is_account_a_referrer(const std::string& account_name)
+{
+      return my->is_account_a_referrer(account_name);
+}
+
+bool wallet_api::is_account_a_transaction_processor(const std::string& account_name)
+{
+      return my->is_account_a_transaction_processor(account_name);
 }
 
 bool wallet_api::copy_wallet_file(string destination_filename)

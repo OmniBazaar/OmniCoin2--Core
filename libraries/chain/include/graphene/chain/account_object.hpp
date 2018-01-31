@@ -124,7 +124,6 @@ namespace graphene { namespace chain {
    class account_object : public graphene::db::abstract_object<account_object>
    {
       public:
-         enum class account_role_type { NONE = 0, REFERRER = 1, PUBLISHER = 2, TRANSACTION_PROCESSOR = 3, ESCROW = 4 }; 
 
          static const uint8_t space_id = protocol_ids;
          static const uint8_t type_id  = account_object_type;
@@ -264,23 +263,54 @@ namespace graphene { namespace chain {
             return !is_basic_account(now);
          }
 
-         void set_account_role(account_role_type new_account_role)
+         void set_to_be_a_publisher(bool publisher)
          {
-               if (this->account_role == account_role_type::NONE)
-               {
-                  this->account_role = new_account_role;
-               }
-               else
-               {
-                     // throw some kind of error
-               }
+               this->is_publisher = publisher;
+         }
+
+         void set_to_be_an_escrow(bool escrow)
+         {
+               this->is_escrow = escrow;
+         }
+
+         void set_to_be_a_referrer(bool referrer)
+         {
+               this->is_referrer = referrer;
+         }
+
+         void set_to_be_a_transaction_processor(bool transaction_processor)
+         {
+               this->is_transaction_processor = transaction_processor;
+         }
+
+         bool is_a_publisher() const 
+         {
+               return is_publisher;
+         }
+
+         bool is_an_escrow() const
+         {
+               return is_escrow;
+         }
+
+         bool is_a_referrer() const
+         {
+               return is_referrer;
+         }
+
+         bool is_a_transaction_processor() const
+         {
+               return is_transaction_processor;
          }
 
          account_id_type get_id()const { return id; }
       
       private:
-         /// The role of the account (referrer, publisher, escrow, etc.)
-         account_role_type account_role = account_role_type::NONE;
+
+         bool is_referrer;
+         bool is_escrow;
+         bool is_publisher;
+         bool is_transaction_processor;
    };
 
    /**
