@@ -2112,16 +2112,22 @@ public:
       // Add Sale Fee. Receiver/seller pays this fee.
       if(is_sale)
       {
+          transfer_operation sale_fee_founder_op;
+          sale_fee_founder_op.from = to_id;
+          sale_fee_founder_op.to = OMNIBAZAAR_FOUNDER_ACCOUNT;
+          sale_fee_founder_op.amount = xfer_op.amount * 0.005;
+
           transfer_operation sale_fee_seller_op;
           sale_fee_seller_op.from = to_id;
           sale_fee_seller_op.to = to_account.referrer;
-          sale_fee_seller_op.amount = xfer_op.amount * 0.005;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.0025;
 
           transfer_operation sale_fee_buyer_op;
           sale_fee_buyer_op.from = to_id;
           sale_fee_buyer_op.to = from_account.referrer;
-          sale_fee_seller_op.amount = xfer_op.amount * 0.005;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.0025;
 
+          tx.operations.push_back(sale_fee_founder_op);
           tx.operations.push_back(sale_fee_seller_op);
           tx.operations.push_back(sale_fee_buyer_op);
       }
