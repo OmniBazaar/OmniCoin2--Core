@@ -171,3 +171,5 @@
 #define GRAPHENE_FBA_STEALTH_DESIGNATED_ASSET (asset_id_type(743))
 
 #define OMNIBAZAAR_REFERRAL_BONUS_LIMIT (3.0e9 * GRAPHENE_BLOCKCHAIN_PRECISION)
+/// Main OmniBazaar account object
+#define OMNIBAZAAR_FOUNDER_ACCOUNT (graphene::chain::account_id_type(6))
