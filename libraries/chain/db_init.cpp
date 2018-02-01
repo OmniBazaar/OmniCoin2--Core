@@ -63,6 +63,7 @@
 #include <graphene/chain/worker_evaluator.hpp>
 #include <welcome_bonus_evaluator.hpp>
 #include <referral_bonus_evaluator.hpp>
+#include <witness_bonus_evaluator.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -176,6 +177,7 @@ void database::initialize_evaluators()
    register_evaluator<asset_claim_fees_evaluator>();
    register_evaluator<omnibazaar::welcome_bonus_evaluator>();
    register_evaluator<omnibazaar::referral_bonus_evaluator>();
+   register_evaluator<omnibazaar::witness_bonus_evaluator>();
 }
 
 void database::initialize_indexes()
