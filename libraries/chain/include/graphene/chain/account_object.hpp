@@ -265,6 +265,9 @@ namespace graphene { namespace chain {
          }
 
          account_id_type get_id()const { return id; }
+
+         // Flag to indicate that this account already received the registration welcome bonus.
+         bool recieved_welcome_bonus = false;
    };
 
    /**

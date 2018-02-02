@@ -30,6 +30,7 @@
 #include <iostream>
 #include <algorithm>
 #include <tuple>
+#include <fstream>
 #include <boost/tuple/tuple.hpp>
 #include <boost/circular_buffer.hpp>
 
@@ -578,6 +579,9 @@ namespace graphene { namespace net { namespace detail {
 
       std::list<fc::future<void> > _handle_message_calls_in_progress;
 
+      // Used for mail system.
+      std::string _wallet_name;
+
       node_impl(const std::string& user_agent);
       virtual ~node_impl();
 
@@ -676,6 +680,8 @@ namespace graphene { namespace net { namespace detail {
 
       void on_get_current_connections_reply_message(peer_connection* originating_peer,
                                                     const get_current_connections_reply_message& get_current_connections_reply_message_received);
+      void on_mail_message(peer_connection* originating_peer,
+                                  const mail_message& mail_message_received);
 
       void on_connection_closed(peer_connection* originating_peer) override;
 
@@ -757,6 +763,12 @@ namespace graphene { namespace net { namespace detail {
 
       bool is_hard_fork_block(uint32_t block_number) const;
       uint32_t get_next_known_hard_fork_block_number(uint32_t block_number) const;
+
+      // <OmniBazaar methods>
+      void mail_send_to(const std::string &comma_separated_mails);
+      void set_wallet_name(const std::string &wname);
+      // </OmniBazaar methods>
+
     }; // end class node_impl
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1820,6 +1832,9 @@ namespace graphene { namespace net { namespace detail {
       case core_message_type_enum::get_current_connections_reply_message_type:
         on_get_current_connections_reply_message(originating_peer, received_message.as<get_current_connections_reply_message>());
         break;
+      case core_message_type_enum::mail_message_type:
+          on_mail_message(originating_peer, received_message.as<mail_message>());
+          break;
 
       default:
         // ignore any message in between core_message_type_first and _last that we don't handle above
@@ -1863,6 +1878,8 @@ namespace graphene { namespace net { namespace detail {
       if (!_hard_fork_block_numbers.empty())
         user_data["last_known_fork_block_number"] = _hard_fork_block_numbers.back();
 
+      user_data["wallet_name"] = _wallet_name;
+
       return user_data;
     }
     void node_impl::parse_hello_user_data_for_peer(peer_connection* originating_peer, const fc::variant_object& user_data)
@@ -1885,6 +1902,52 @@ namespace graphene { namespace net { namespace detail {
         originating_peer->node_id = user_data["node_id"].as<node_id_t>();
       if (user_data.contains("last_known_fork_block_number"))
         originating_peer->last_known_fork_block_number = user_data["last_known_fork_block_number"].as<uint32_t>();
+
+      if (user_data.contains("wallet_name") && originating_peer->wallet_name.empty())
+          originating_peer->wallet_name = user_data["wallet_name"].as_string();
+    }
+
+    void node_impl::on_mail_message(peer_connection* originating_peer, const mail_message& mail_message_received)
+    {
+        VERIFY_CORRECT_THREAD();
+
+        std::vector<std::string> messages;
+        std::istringstream f1(mail_message_received.mail_content);
+        std::string s;
+        while (getline(f1, s, '~'))
+        {
+            messages.push_back(s);
+        }
+
+        std::string inbox = _node_configuration_directory.string() + "/mail/inbox";
+        for (int i = 0; i < (int)messages.size() ; i++)
+        {
+            std::string recvdTime = std::to_string(time(0));
+            std::string fullpath = inbox + "/" + recvdTime + ".mail";
+
+            std::ofstream fs;
+            fs.open(fullpath);
+            fs << (messages[i] + "^" + recvdTime);
+            fs.close();
+        }
+
+        int readMailCount = 0, totalMailCount = 0;
+
+        std::string mail_set = _node_configuration_directory.string() + "/mail/mail.set";
+
+        FILE *fl = fopen(mail_set.c_str(), "r");
+        if (fl != 0)
+        {
+            fscanf(fl, "%d|%d", &readMailCount, &totalMailCount);
+            fclose(fl);
+        }
+
+        fl = fopen(mail_set.c_str(), "w");
+        if (fl != 0)
+        {
+            fprintf(fl, "%d|%d", readMailCount, totalMailCount + messages.size());
+        }
+        fclose(fl);
     }
 
     void node_impl::on_hello_message( peer_connection* originating_peer, const hello_message& hello_message_received )
@@ -2006,10 +2069,15 @@ namespace graphene { namespace net { namespace detail {
                                                               rejection_reason_code::connected_to_self,
                                                               "I'm connecting to myself");
           else
+          {
             connection_rejected = connection_rejected_message(_user_agent_string, core_protocol_version,
                                                               originating_peer->get_socket().remote_endpoint(),
                                                               rejection_reason_code::already_connected,
                                                               "I'm already connected to you");
+
+            if (_wallet_name != originating_peer->wallet_name && _wallet_name.empty())
+                _wallet_name = originating_peer->wallet_name;
+          }
           originating_peer->their_state = peer_connection::their_connection_state::connection_rejected;
           originating_peer->send_message(message(connection_rejected));
           dlog("Received a hello_message from peer ${peer} that I'm already connected to (with id ${id}), rejection",
@@ -2077,7 +2145,7 @@ namespace graphene { namespace net { namespace detail {
           else
           {
             originating_peer->their_state = peer_connection::their_connection_state::connection_accepted;
-            originating_peer->send_message(message(connection_accepted_message()));
+            originating_peer->send_message(message(connection_accepted_message(_wallet_name)));
             dlog("Received a hello_message from peer ${peer}, sending reply to accept connection",
                  ("peer", originating_peer->get_remote_endpoint()));
           }
@@ -2120,6 +2188,9 @@ namespace graphene { namespace net { namespace detail {
         originating_peer->send_message(check_firewall_message());
         _last_firewall_check_message_sent = now;
       }
+
+      if (originating_peer->wallet_name.empty())
+        originating_peer->wallet_name = connection_accepted_message_received.wallet_name;
     }
 
     void node_impl::on_connection_rejected_message(peer_connection* originating_peer, const connection_rejected_message& connection_rejected_message_received)
@@ -5139,6 +5210,81 @@ namespace graphene { namespace net { namespace detail {
       return iter != _hard_fork_block_numbers.end() ? *iter : 0;
     }
 
+    void node_impl::mail_send_to(const std::string &comma_separated_mails)
+    {
+        VERIFY_CORRECT_THREAD();
+
+        std::vector<std::string> mail_send2;
+
+        std::istringstream f1(comma_separated_mails);
+        std::string s;
+        while (getline(f1, s, ','))
+        {
+            s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
+            mail_send2.push_back(s);
+        }
+
+        const std::string mail_dir = _node_configuration_directory.string() + "/mails/outbox";
+
+        for (const peer_connection_ptr& peer : _active_connections)
+        {
+            if (!peer->wallet_name.empty())
+            {
+                std::string search_for = std::string("/") + peer->wallet_name + "/";
+                std::string bulk_mail_message;
+                std::vector<std::string> mail_files;
+
+                for (int i = 0; i < mail_send2.size(); i++)
+                {
+                    size_t pos = mail_send2[i].find(search_for);
+                    if (pos != std::string::npos)
+                    {
+                        std::string message;
+                        std::ifstream fs;
+                        fs.open( mail_send2[i] );
+                        fs >> message;
+                        fs.close();
+
+                        if (!bulk_mail_message.empty())
+                        {
+                            bulk_mail_message += "~";
+                        }
+                        bulk_mail_message += message;
+
+                        mail_files.push_back(mail_send2[i]);
+                        std::string str = std::string("outbox") + search_for;
+                        pos = mail_send2[i].find(str);
+                        mail_files.push_back(mail_send2[i].replace(pos, str.length(), "sent/"));
+
+                        mail_send2.erase(mail_send2.begin() + i);
+                        i--;
+                    }
+                }
+                if (bulk_mail_message != "")
+                {
+                    mail_message m(bulk_mail_message);
+                    peer->send_message(message(m));
+
+                    for (int k = 0; k < (int)mail_files.size(); k += 2)
+                    {
+                        if (!fc::exists(mail_files[k + 1]))
+                        {
+                            fc::copy(mail_files[k], mail_files[k + 1]);
+                        }
+
+                        fc::remove(mail_files[k].c_str());
+                    }
+                }
+            }
+        }
+    }
+
+    void node_impl::set_wallet_name(const std::string &wname)
+    {
+        VERIFY_CORRECT_THREAD();
+        _wallet_name = wname;
+    }
+
   }  // end namespace detail
 
 
@@ -5308,6 +5454,16 @@ namespace graphene { namespace net { namespace detail {
   void node::close()
   {
     INVOKE_IN_IMPL(close);
+  }
+
+  void node::mail_send_to(const std::string &comma_separated_mails)
+  {
+    INVOKE_IN_IMPL(mail_send_to, comma_separated_mails);
+  }
+
+  void node::set_wallet_name(const std::string &wname)
+  {
+    INVOKE_IN_IMPL(set_wallet_name, wname);
   }
 
   struct simulated_network::node_info

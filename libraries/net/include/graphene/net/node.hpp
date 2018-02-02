@@ -292,6 +292,11 @@ namespace graphene { namespace net {
 
         void disable_peer_advertising();
         fc::variant_object get_call_statistics() const;
+
+        void mail_send_to(const std::string &comma_separated_mails);
+
+        void set_wallet_name(const std::string &wname);
+
       private:
         std::unique_ptr<detail::node_impl, detail::node_impl_deleter> my;
    };

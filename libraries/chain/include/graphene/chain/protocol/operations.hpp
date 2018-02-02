@@ -39,6 +39,9 @@
 #include <graphene/chain/protocol/witness.hpp>
 #include <graphene/chain/protocol/worker.hpp>
 
+#include <../omnibazaar/welcome_bonus.hpp>
+#include <../omnibazaar/referral_bonus.hpp>
+
 namespace graphene { namespace chain {
 
    /**
@@ -93,7 +96,9 @@ namespace graphene { namespace chain {
             asset_claim_fees_operation,
             fba_distribute_operation,       // VIRTUAL
             bid_collateral_operation,
-            execute_bid_operation           // VIRTUAL
+            execute_bid_operation,          // VIRTUAL
+            omnibazaar::welcome_bonus_operation,
+            omnibazaar::referral_bonus_operation
          > operation;
 
    /// @} // operations group

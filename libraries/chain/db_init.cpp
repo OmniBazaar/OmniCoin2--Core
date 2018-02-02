@@ -61,6 +61,8 @@
 #include <graphene/chain/withdraw_permission_evaluator.hpp>
 #include <graphene/chain/witness_evaluator.hpp>
 #include <graphene/chain/worker_evaluator.hpp>
+#include <welcome_bonus_evaluator.hpp>
+#include <referral_bonus_evaluator.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -172,6 +174,8 @@ void database::initialize_evaluators()
    register_evaluator<transfer_from_blind_evaluator>();
    register_evaluator<blind_transfer_evaluator>();
    register_evaluator<asset_claim_fees_evaluator>();
+   register_evaluator<omnibazaar::welcome_bonus_evaluator>();
+   register_evaluator<omnibazaar::referral_bonus_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -393,6 +397,8 @@ void database::init_genesis(const genesis_state_type& genesis_state)
       p.dynamic_flags = 0;
       p.witness_budget = 0;
       p.recent_slots_filled = fc::uint128::max_value();
+      p.welcome_bonus = 0;
+      p.referral_bonus = 0;
    });
 
    FC_ASSERT( (genesis_state.immutable_parameters.min_witness_count & 1) == 1, "min_witness_count must be odd" );
