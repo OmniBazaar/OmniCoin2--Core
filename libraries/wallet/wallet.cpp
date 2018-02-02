@@ -458,7 +458,13 @@ public:
          publisher_info.couchbase_username = couchbase_username;
          publisher_info.couchbase_password = couchbase_password;
          fc::path publish_info_path(fc::path(account_id_or_name) / "publisher.txt");
-         publisher_info.writeToFile(publish_info_path);
+         publisher_info.write_to_file(publish_info_path);
+   }
+
+   bool is_a_publisher(const std::string& account_id_or_name)
+   {
+         fc::path publish_info_path(fc::path(account_id_or_name) / "publisher.txt");
+         return fc::exists(publish_info_path);
    }
 
    bool copy_wallet_file( string destination_filename )
@@ -2793,6 +2799,11 @@ void wallet_api::set_publisher_info(const std::string& account_id_or_name,
                               const std::string& couchbase_password)
 {
       my->set_publisher_info(account_id_or_name, couchbase_ip_address, couchbase_username, couchbase_password);
+}
+
+bool wallet_api::is_a_publisher(const std::string& account_id_or_name)
+{
+      return my->is_a_publisher(account_id_or_name);
 }
 
 optional<signed_block_with_info> wallet_api::get_block(uint32_t num)

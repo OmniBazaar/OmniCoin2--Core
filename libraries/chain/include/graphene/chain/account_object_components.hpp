@@ -12,8 +12,8 @@ namespace omnibazaar
         public:
             virtual ~account_object_component(){}
 
-            virtual void readFromFile(fc::path file_path);
-            virtual void writeToFile(fc::path file_path);
+            virtual void read_from_file(fc::path file_path);
+            virtual void write_to_file(fc::path file_path);
     };
 
     class publisher_component: public account_object_component 
@@ -21,7 +21,7 @@ namespace omnibazaar
         public:
             virtual ~publisher_component(){}
 
-            virtual void readFromFile(fc::path file_path)
+            virtual void read_from_file(fc::path file_path)
             {
                 std::ifstream file(file_path.string());
                 file >> couchbase_ip_address;
@@ -30,7 +30,7 @@ namespace omnibazaar
                 file.close();
             }
 
-            virtual void writeToFile(fc::path file_path)
+            virtual void write_to_file(fc::path file_path)
             {
                 std::ofstream file(file_path.string());
                 file << couchbase_ip_address << " ";
@@ -51,12 +51,12 @@ namespace omnibazaar
         public:
             virtual ~referrer_component(){}
 
-            virtual void readFromFile(fc::path file_path)
+            virtual void read_from_file(fc::path file_path)
             {
 
             }
 
-            virtual void writeToFile(fc::path file_path)
+            virtual void write_to_file(fc::path file_path)
             {
 
             }

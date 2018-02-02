@@ -296,6 +296,8 @@ class wallet_api
                               const std::string& couchbase_ip_address,
                               const std::string& couchbase_username,
                               const std::string& couchbase_password);
+
+      bool is_a_publisher(const std::string& account_id_or_name);
      
       bool copy_wallet_file( string destination_filename );
 
@@ -1642,6 +1644,8 @@ FC_API( graphene::wallet::wallet_api,
         (gethelp)
         (info)
         (about)
+        (set_publisher_info)
+        (is_a_publisher)
         (begin_builder_transaction)
         (add_operation_to_builder_transaction)
         (replace_operation_in_builder_transaction)
