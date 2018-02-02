@@ -466,10 +466,16 @@ public:
          account_object account = get_account(account_id_or_name);
          account.is_a_publisher = true;
 
-         fc::path account_dir(fc::path(account.name));
+         fc::path account_dir(get_account_dir_path(account.name));
          fc::create_directories(account_dir);
          fc::path publsher_info_path(account_dir / "publisher.txt");
          publisher_info.write_to_file(publsher_info_path);
+   }
+
+   fc::path get_account_dir_path(const std::string& account_id_or_name)
+   {
+        std::string account_name = get_account(account_id_or_name).name;
+        return fc::path(wallet.get_wallet_filename()).parent_path() / account_name;
    }
 
    bool is_a_publisher(const std::string& account_id_or_name)
@@ -2908,6 +2914,11 @@ void wallet_api::set_publisher_info(const std::string& account_id_or_name,
                               const std::string& couchbase_password)
 {
       my->set_publisher_info(account_id_or_name, couchbase_ip_address, couchbase_username, couchbase_password);
+}
+
+std::string wallet_api::get_account_dir_path(const std::string& account_id_or_name)
+{
+    my->get_account_dir_path(account_id_or_name).string();
 }
 
 bool wallet_api::is_a_publisher(const std::string& account_id_or_name)
