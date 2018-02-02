@@ -70,6 +70,7 @@
 #include <graphene/wallet/api_documentation.hpp>
 #include <graphene/wallet/reflect_util.hpp>
 #include <graphene/debug_witness/debug_api.hpp>
+#include <graphene/chain/account_object_components.hpp>
 #include <fc/smart_ref_impl.hpp>
 
 #ifndef WIN32
@@ -447,52 +448,17 @@ public:
       fc::async([this]{resync();}, "Resync after block");
    }
    
-   void set_account_as_a_publisher(const std::string& account_name, bool is_publisher)
+   void set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password)
    {
-         account_object account_to_update = get_account(account_name);
-         account_to_update.set_to_be_a_publisher(is_publisher);
-   }
-
-   void set_account_as_an_escrow(const std::string& account_name, bool is_escrow)
-   {
-         account_object account_to_update = get_account(account_name);
-         account_to_update.set_to_be_an_escrow(is_escrow);
-   }
-
-   void set_account_as_a_referrer(const std::string& account_name, bool is_referrer)
-   {
-         account_object account_to_update = get_account(account_name);
-         account_to_update.set_to_be_a_referrer(is_referrer);
-   }
-
-   void set_account_as_a_transaction_processor(const std::string& account_name, bool is_transaction_processor)
-   {
-         account_object account_to_update = get_account(account_name);
-         account_to_update.set_to_be_a_transaction_processor(is_transaction_processor);
-   }
-   
-   bool is_account_a_publisher(const std::string& account_name)
-   {
-         account_object account_to_check = get_account(account_name);
-         return account_to_check.is_a_publisher();
-   }
-
-   bool is_account_an_escrow(const std::string& account_name)
-   {
-         account_object account_to_check = get_account(account_name);
-         return account_to_check.is_an_escrow();
-   }
-
-   bool is_account_a_referrer(const std::string& account_name)
-   {
-         account_object account_to_check = get_account(account_name);
-         return account_to_check.is_a_referrer();
-   }
-
-   bool is_account_a_transaction_processor(const std::string& account_name)
-   {
-         account_object account_to_check = get_account(account_name);
-         return account_to_check.is_a_transaction_processor();
+         omnibazaar::publisher_component publisher_info;
+         publisher_info.couchbase_ip_address = couchbase_ip_address;
+         publisher_info.couchbase_username = couchbase_username;
+         publisher_info.couchbase_password = couchbase_password;
+         fc::path publish_info_path(fc::path(account_id_or_name) / "publisher.txt");
+         publisher_info.writeToFile(publish_info_path);
    }
 
    bool copy_wallet_file( string destination_filename )
@@ -2816,49 +2782,17 @@ wallet_api::~wallet_api()
 {
 }
 
-void wallet_api::set_account_as_a_publisher(const std::string& account_name, bool is_publisher)
-{
-      my->set_account_as_a_publisher(account_name, is_publisher);
-}
-
-void wallet_api::set_account_as_an_escrow(const std::string& account_name, bool is_escrow)
-{
-      my->set_account_as_an_escrow(account_name, is_escrow);
-}
-
-void wallet_api::set_account_as_a_referrer(const std::string& account_name, bool is_referrer)
-{
-      my->set_account_as_a_referrer(account_name, is_referrer);
-}
-
-void wallet_api::set_account_as_a_transaction_processor(const std::string& account_name, bool is_transaction_processor)
-{
-      my->set_account_as_a_transaction_processor(account_name, is_transaction_processor);
-}
-
-bool wallet_api::is_account_a_publisher(const std::string& account_name)
-{
-      return my->is_account_a_publisher(account_name);
-}
-
-bool wallet_api::is_account_an_escrow(const std::string& account_name)
-{
-      return my->is_account_an_escrow(account_name);
-}
-
-bool wallet_api::is_account_a_referrer(const std::string& account_name)
-{
-      return my->is_account_a_referrer(account_name);
-}
-
-bool wallet_api::is_account_a_transaction_processor(const std::string& account_name)
-{
-      return my->is_account_a_transaction_processor(account_name);
-}
-
 bool wallet_api::copy_wallet_file(string destination_filename)
 {
    return my->copy_wallet_file(destination_filename);
+}
+
+void wallet_api::set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password)
+{
+      my->set_publisher_info(account_id_or_name, couchbase_ip_address, couchbase_username, couchbase_password);
 }
 
 optional<signed_block_with_info> wallet_api::get_block(uint32_t num)

@@ -25,6 +25,7 @@
 #include <graphene/chain/protocol/operations.hpp>
 #include <graphene/db/generic_index.hpp>
 #include <boost/multi_index/composite_key.hpp>
+#include <graphene/chain/account_object_components.hpp>
 
 namespace graphene { namespace chain {
    class database;
@@ -263,54 +264,7 @@ namespace graphene { namespace chain {
             return !is_basic_account(now);
          }
 
-         void set_to_be_a_publisher(bool publisher)
-         {
-               this->is_publisher = publisher;
-         }
-
-         void set_to_be_an_escrow(bool escrow)
-         {
-               this->is_escrow = escrow;
-         }
-
-         void set_to_be_a_referrer(bool referrer)
-         {
-               this->is_referrer = referrer;
-         }
-
-         void set_to_be_a_transaction_processor(bool transaction_processor)
-         {
-               this->is_transaction_processor = transaction_processor;
-         }
-
-         bool is_a_publisher() const 
-         {
-               return is_publisher;
-         }
-
-         bool is_an_escrow() const
-         {
-               return is_escrow;
-         }
-
-         bool is_a_referrer() const
-         {
-               return is_referrer;
-         }
-
-         bool is_a_transaction_processor() const
-         {
-               return is_transaction_processor;
-         }
-
          account_id_type get_id()const { return id; }
-      
-      private:
-
-         bool is_referrer;
-         bool is_escrow;
-         bool is_publisher;
-         bool is_transaction_processor;
    };
 
    /**

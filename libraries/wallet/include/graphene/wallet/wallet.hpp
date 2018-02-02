@@ -292,16 +292,11 @@ class wallet_api
       wallet_api( const wallet_data& initial_data, fc::api<login_api> rapi );
       virtual ~wallet_api();
 
-      void set_account_as_a_publisher(const std::string& account_name, bool is_publisher);
-      void set_account_as_an_escrow(const std::string& account_name, bool is_escrow);
-      void set_account_as_a_referrer(const std::string& account_name, bool is_referrer);
-      void set_account_as_a_transaction_processor(const std::string& account_name, bool is_transaction_processor);
-
-      bool is_account_a_publisher(const std::string& account_name);
-      bool is_account_an_escrow(const std::string& account_name);
-      bool is_account_a_referrer(const std::string& account_name);
-      bool is_account_a_transaction_processor(const std::string& account_name);
-
+      void set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password);
+     
       bool copy_wallet_file( string destination_filename );
 
       fc::ecc::private_key derive_private_key(const std::string& prefix_string, int sequence_number) const;
@@ -1647,14 +1642,6 @@ FC_API( graphene::wallet::wallet_api,
         (gethelp)
         (info)
         (about)
-        (set_account_as_a_publisher)
-        (set_account_as_an_escrow)
-        (set_account_as_a_referrer)
-        (set_account_as_a_transaction_processor)
-        (is_account_a_publisher)
-        (is_account_an_escrow)
-        (is_account_a_referrer)
-        (is_account_a_transaction_processor)
         (begin_builder_transaction)
         (add_operation_to_builder_transaction)
         (replace_operation_in_builder_transaction)
