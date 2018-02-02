@@ -960,6 +960,11 @@ public:
        return true;
    }
 
+   bool is_referral_bonus_available()const
+   {
+       return _remote_db->get_dynamic_global_properties().referral_bonus < OMNIBAZAAR_REFERRAL_BONUS_LIMIT;
+   }
+
    signed_transaction register_account(string name,
                                        public_key_type owner,
                                        public_key_type active,
@@ -1007,6 +1012,14 @@ public:
           welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
           welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
           tx.operations.push_back( welcome_bonus_op );
+
+          if(is_referral_bonus_available())
+          {
+              omnibazaar::referral_bonus_operation referral_bonus_op;
+              referral_bonus_op.receiver = referrer_account_object.id;
+              referral_bonus_op.payer = account_create_op.fee_payer();
+              tx.operations.push_back(referral_bonus_op);
+          }
       }
 
       auto current_fees = _remote_db->get_global_properties().parameters.current_fees;
@@ -1144,6 +1157,14 @@ public:
              welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
              welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
              tx.operations.push_back( welcome_bonus_op );
+
+             if(is_referral_bonus_available())
+             {
+                 omnibazaar::referral_bonus_operation referral_bonus_op;
+                 referral_bonus_op.receiver = referrer_account_object.id;
+                 referral_bonus_op.payer = account_create_op.fee_payer();
+                 tx.operations.push_back(referral_bonus_op);
+             }
          }
 
          set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
