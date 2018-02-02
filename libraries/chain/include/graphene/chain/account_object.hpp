@@ -268,6 +268,9 @@ namespace graphene { namespace chain {
 
          // Flag to indicate that this account already received the registration welcome bonus.
          bool recieved_welcome_bonus = false;
+
+         // Flag to indicate if the account has chosen to be a publisher
+         bool is_a_publisher = false;
    };
 
    /**

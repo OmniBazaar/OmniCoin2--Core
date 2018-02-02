@@ -462,14 +462,20 @@ public:
          publisher_info.couchbase_ip_address = couchbase_ip_address;
          publisher_info.couchbase_username = couchbase_username;
          publisher_info.couchbase_password = couchbase_password;
-         fc::path publish_info_path(fc::path(account_id_or_name) / "publisher.txt");
-         publisher_info.write_to_file(publish_info_path);
+
+         account_object account = get_account(account_id_or_name);
+         account.is_a_publisher = true;
+
+         fc::path account_dir(fc::path(account.name));
+         fc::create_directories(account_dir);
+         fc::path publsher_info_path(account_dir / "publisher.txt");
+         publisher_info.write_to_file(publsher_info_path);
    }
 
    bool is_a_publisher(const std::string& account_id_or_name)
    {
-         fc::path publish_info_path(fc::path(account_id_or_name) / "publisher.txt");
-         return fc::exists(publish_info_path);
+      account_object account = get_account(account_id_or_name);
+      return account.is_a_publisher;
    }
 
    bool copy_wallet_file( string destination_filename )
