@@ -382,6 +382,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (owner_special_authority)(active_special_authority)
                     (top_n_control_flags)
                     (allowed_assets)
+                    (recieved_welcome_bonus)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,
