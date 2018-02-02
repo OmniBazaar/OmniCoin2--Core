@@ -1,4 +1,5 @@
 file(GLOB HEADERS "include/graphene/wallet/*.hpp")
+file(GLOB OMNIBAZAAR_HEADERS "omnibazaar/*.hpp")
 
 find_package( Perl )
 find_package( Doxygen )
@@ -22,9 +23,14 @@ else()
                       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/api_documentation_standin.cpp )
 endif()
 
-add_library( graphene_wallet wallet.cpp ${CMAKE_CURRENT_BINARY_DIR}/api_documentation.cpp ${HEADERS} )
+add_library( graphene_wallet
+            wallet.cpp
+            omnibazaar/mail.cpp
+            ${CMAKE_CURRENT_BINARY_DIR}/api_documentation.cpp
+            ${HEADERS}
+            ${OMNIBAZAAR_HEADERS} )
 target_link_libraries( graphene_wallet PRIVATE graphene_app graphene_net graphene_chain graphene_utilities fc ${CMAKE_DL_LIBS} ${PLATFORM_SPECIFIC_LIBS} )
-target_include_directories( graphene_db PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+target_include_directories( graphene_db PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/omnibazaar" )
 
 if(MSVC)
   set_source_files_properties( wallet.cpp PROPERTIES COMPILE_FLAGS "/bigobj" )
@@ -38,3 +44,4 @@ install( TARGETS
    ARCHIVE DESTINATION lib
 )
 install( FILES ${HEADERS} DESTINATION "include/graphene/wallet" )
+install( FILES ${OMNIBAZAAR_HEADERS} DESTINATION "omnibazaar" )
