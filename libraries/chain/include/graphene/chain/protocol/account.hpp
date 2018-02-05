@@ -141,6 +141,9 @@ namespace graphene { namespace chain {
       /// New active authority. This can be updated by the current active authority.
       optional<authority> active;
 
+      /// New is-publisher flag value
+      bool is_a_publisher;
+
       /// New account options
       optional<account_options> new_options;
       extension< ext > extensions;

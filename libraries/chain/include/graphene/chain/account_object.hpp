@@ -25,7 +25,7 @@
 #include <graphene/chain/protocol/operations.hpp>
 #include <graphene/db/generic_index.hpp>
 #include <boost/multi_index/composite_key.hpp>
-#include <graphene/chain/account_object_components.hpp>
+#include <../omnibazaar/account_object_components.hpp>
 
 namespace graphene { namespace chain {
    class database;

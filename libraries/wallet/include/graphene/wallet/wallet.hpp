@@ -299,7 +299,7 @@ class wallet_api
 
       bool is_a_publisher(const std::string& account_id_or_name);
 
-      std::string get_account_dir_path(const std::string& account_id_or_name)
+      std::string get_account_dir_path(const std::string& account_id_or_name);
      
       bool copy_wallet_file( string destination_filename );
 

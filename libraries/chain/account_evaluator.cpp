@@ -324,6 +324,8 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
          a.active_special_authority = *(o.extensions.value.active_special_authority);
          a.top_n_control_flags = 0;
       }
+
+      a.is_a_publisher = o.is_a_publisher;
       sa_after = a.has_special_authority();
    });
 

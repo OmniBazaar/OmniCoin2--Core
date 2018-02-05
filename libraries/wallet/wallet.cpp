@@ -59,6 +59,7 @@
 #include <fc/crypto/hex.hpp>
 #include <fc/thread/mutex.hpp>
 #include <fc/thread/scoped_lock.hpp>
+#include <fc/filesystem.hpp>
 
 #include <graphene/app/api.hpp>
 #include <graphene/chain/asset_object.hpp>
@@ -70,7 +71,7 @@
 #include <graphene/wallet/api_documentation.hpp>
 #include <graphene/wallet/reflect_util.hpp>
 #include <graphene/debug_witness/debug_api.hpp>
-#include <graphene/chain/account_object_components.hpp>
+#include <../omnibazaar/account_object_components.hpp>
 #include <fc/smart_ref_impl.hpp>
 
 #include <welcome_bonus.hpp>
@@ -458,24 +459,33 @@ public:
                               const std::string& couchbase_username,
                               const std::string& couchbase_password)
    {
-         omnibazaar::publisher_component publisher_info;
-         publisher_info.couchbase_ip_address = couchbase_ip_address;
-         publisher_info.couchbase_username = couchbase_username;
-         publisher_info.couchbase_password = couchbase_password;
+        account_object account = get_account(account_id_or_name);
+        
+        transaction trx;
+        trx.operations.clear();
+        account_update_operation op;
+        op.account = account.id;
+        op.is_a_publisher = true;
+        trx.operations.push_back(op);
+        _remote_net_broadcast->broadcast_transaction( trx );
 
-         account_object account = get_account(account_id_or_name);
-         account.is_a_publisher = true;
+        omnibazaar::publisher_component publisher_info;
+        publisher_info.couchbase_ip_address = couchbase_ip_address;
+        publisher_info.couchbase_username = couchbase_username;
+        publisher_info.couchbase_password = couchbase_password;
 
-         fc::path account_dir(get_account_dir_path(account.name));
-         fc::create_directories(account_dir);
-         fc::path publsher_info_path(account_dir / "publisher.txt");
-         publisher_info.write_to_file(publsher_info_path);
+        fc::path account_dir(get_account_dir_path(account.name));
+        fc::create_directories(account_dir);
+        fc::path publsher_info_path(account_dir / "publisher.txt");
+        publisher_info.write_to_file(publsher_info_path);
    }
 
    fc::path get_account_dir_path(const std::string& account_id_or_name)
    {
         std::string account_name = get_account(account_id_or_name).name;
-        return fc::path(wallet.get_wallet_filename()).parent_path() / account_name;
+        fc::path wallet_filename_path(get_wallet_filename());
+        fc::path result(wallet_filename_path.parent_path() / account_name);
+        return result;
    }
 
    bool is_a_publisher(const std::string& account_id_or_name)
