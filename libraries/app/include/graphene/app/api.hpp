@@ -260,6 +260,18 @@ namespace graphene { namespace app {
           */
          std::vector<net::potential_peer_record> get_potential_peers() const;
 
+         /**
+          * @brief Send user mails
+          * @param comma_separated_mails mails
+          */
+         void mail_send_to(const std::string &comma_separated_mails);
+
+         /**
+          * @brief Set wallet name that this node uses for mails
+          * @param wname wallet name
+          */
+         void set_wallet_name(const std::string &wname);
+
       private:
          application& _app;
    };
@@ -410,6 +422,8 @@ FC_API(graphene::app::network_node_api,
        (get_potential_peers)
        (get_advanced_node_parameters)
        (set_advanced_node_parameters)
+       (mail_send_to)
+       (set_wallet_name)
      )
 FC_API(graphene::app::crypto_api,
        (blind_sign)
