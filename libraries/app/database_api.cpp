@@ -153,6 +153,8 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       // Blinded balances
       vector<blinded_balance_object> get_blinded_balances( const flat_set<commitment_type>& commitments )const;
 
+      // Bonuses
+      bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
 
    //private:
       template<typename T>
@@ -2249,6 +2251,22 @@ void database_api_impl::on_applied_block()
             itr->second(fc::variant(item.second));
       }
    });
+}
+
+//////////////////////////////////////////////////////////////////////
+//                                                                  //
+// Bonuses                                                          //
+//                                                                  //
+//////////////////////////////////////////////////////////////////////
+
+bool database_api::is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const
+{
+    return my->is_welcome_bonus_available(harddrive_id, mac_address);
+}
+
+bool database_api_impl::is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const
+{
+    return _db.is_welcome_bonus_available(harddrive_id, mac_address);
 }
 
 } } // graphene::app
