@@ -632,6 +632,12 @@ class database_api
         */
       bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
 
+      /**
+        * @brief Check if Referral Bonus is available
+        * @return true if bonus is available, false otherwise
+        */
+      bool is_referral_bonus_available()const;
+
    private:
       std::shared_ptr< database_api_impl > my;
 };
@@ -746,4 +752,5 @@ FC_API(graphene::app::database_api,
 
     // Bonuses
     (is_welcome_bonus_available)
+    (is_referral_bonus_available)
 )
