@@ -155,6 +155,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
 
       // Bonuses
       bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
+      bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
 
    //private:
       template<typename T>
@@ -2267,6 +2268,16 @@ bool database_api::is_welcome_bonus_available(const string &harddrive_id, const 
 bool database_api_impl::is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const
 {
     return _db.is_welcome_bonus_available(harddrive_id, mac_address);
+}
+
+bool database_api::is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const
+{
+    return my->is_sale_bonus_available(seller_id, buyer_id);
+}
+
+bool database_api_impl::is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const
+{
+    return _db.is_sale_bonus_available(seller_id, buyer_id);
 }
 
 } } // graphene::app

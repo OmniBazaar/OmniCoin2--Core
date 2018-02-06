@@ -2041,26 +2041,6 @@ public:
          return sign_transaction(trx, broadcast);
    } FC_CAPTURE_AND_RETHROW((order_id)) }
 
-   bool is_sale_bonus_available(const string& seller_name, const string& buyer_name)const
-   {
-       if(_remote_db->get_dynamic_global_properties().sale_bonus >= OMNIBAZAAR_SALE_BONUS_LIMIT)
-       {
-           ilog("Sale Bonus depleted");
-           return false;
-       }
-
-       const account_object seller = get_account(seller_name);
-       if(seller.buyers.find(get_account_id(buyer_name)) != seller.buyers.end())
-       {
-           ilog("Sale bonus already received for seller '${seller}' and buyer '${buyer}'",
-                ("seller", seller_name)
-                ("buyer", buyer_name));
-           return false;
-       }
-
-       return true;
-   }
-
    signed_transaction transfer(string from, string to, string amount,
                                string asset_symbol, string memo, bool broadcast = false, bool is_sale = false)
    { try {
@@ -2115,7 +2095,7 @@ public:
       }
 
       // Add Sale Bonus.
-      if(is_sale_bonus_available(to, from))
+      if(_remote_db->is_sale_bonus_available(to_id, from_id))
       {
           omnibazaar::sale_bonus_operation sale_op;
           sale_op.seller = to_id;
