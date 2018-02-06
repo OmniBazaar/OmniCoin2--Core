@@ -620,6 +620,18 @@ class database_api
        */
       vector<blinded_balance_object> get_blinded_balances( const flat_set<commitment_type>& commitments )const;
 
+      /////////////
+      // Bonuses //
+      /////////////
+
+      /**
+        * @brief Check if Welcome Bonus is available for specified hardware config
+        * @param harddrive_id Hard Drive ID of user machine
+        * @param mac_address MAC address of user machine
+        * @return true if bonus is available, false otherwise
+        */
+      bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
+
    private:
       std::shared_ptr< database_api_impl > my;
 };
@@ -731,4 +743,7 @@ FC_API(graphene::app::database_api,
 
    // Blinded balances
    (get_blinded_balances)
+
+    // Bonuses
+    (is_welcome_bonus_available)
 )
