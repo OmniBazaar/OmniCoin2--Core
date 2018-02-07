@@ -638,6 +638,14 @@ class database_api
         */
       bool is_referral_bonus_available()const;
 
+      /**
+        * @brief Check if Sale Bonus is not depleted yet and is available for specified buyer and seller
+        * @param seller_id seller account ID
+        * @param buyer_id buyer account ID
+        * @return true if bonus is available, false otherwise
+        */
+      bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
+
    private:
       std::shared_ptr< database_api_impl > my;
 };
@@ -753,4 +761,5 @@ FC_API(graphene::app::database_api,
     // Bonuses
     (is_welcome_bonus_available)
     (is_referral_bonus_available)
+    (is_sale_bonus_available)
 )

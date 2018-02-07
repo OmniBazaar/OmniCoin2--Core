@@ -44,4 +44,24 @@ bool database::is_referral_bonus_available()const
     return get_dynamic_global_properties().referral_bonus < OMNIBAZAAR_REFERRAL_BONUS_LIMIT;
 }
 
+bool database::is_sale_bonus_available(const account_id_type &seller_id, const account_id_type &buyer_id)const
+{
+    if(get_dynamic_global_properties().sale_bonus >= OMNIBAZAAR_SALE_BONUS_LIMIT)
+    {
+        ilog("Sale Bonus depleted");
+        return false;
+    }
+
+    const account_object seller = seller_id(*this);
+    if(seller.buyers.find(buyer_id) != seller.buyers.end())
+    {
+        ilog("Sale bonus already received for seller '${seller}' and buyer '${buyer}'",
+             ("seller", seller.name)
+             ("buyer", buyer_id(*this).name));
+        return false;
+    }
+
+    return true;
+}
+
 }}

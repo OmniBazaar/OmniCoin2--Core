@@ -63,6 +63,7 @@
 #include <graphene/chain/worker_evaluator.hpp>
 #include <welcome_bonus_evaluator.hpp>
 #include <referral_bonus_evaluator.hpp>
+#include <sale_bonus_evaluator.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -176,6 +177,7 @@ void database::initialize_evaluators()
    register_evaluator<asset_claim_fees_evaluator>();
    register_evaluator<omnibazaar::welcome_bonus_evaluator>();
    register_evaluator<omnibazaar::referral_bonus_evaluator>();
+   register_evaluator<omnibazaar::sale_bonus_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -313,6 +315,16 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.network_fee_percentage = 0;
        a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT;
    }).get_id() == GRAPHENE_PROXY_TO_SELF_ACCOUNT);
+   FC_ASSERT(create<account_object>([this](account_object& a) {
+       a.name = "omnibazaar";
+       a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
+       a.owner.weight_threshold = 1;
+       a.active.weight_threshold = 1;
+       a.registrar = a.lifetime_referrer = a.referrer = OMNIBAZAAR_FOUNDER_ACCOUNT;
+       a.membership_expiration_date = time_point_sec::maximum();
+       a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
+       a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
+   }).get_id() == OMNIBAZAAR_FOUNDER_ACCOUNT);
 
    // Create more special accounts
    while( true )
@@ -399,6 +411,7 @@ void database::init_genesis(const genesis_state_type& genesis_state)
       p.recent_slots_filled = fc::uint128::max_value();
       p.welcome_bonus = 0;
       p.referral_bonus = 0;
+      p.sale_bonus = 0;
    });
 
    FC_ASSERT( (genesis_state.immutable_parameters.min_witness_count & 1) == 1, "min_witness_count must be odd" );

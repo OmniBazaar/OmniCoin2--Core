@@ -271,6 +271,9 @@ namespace graphene { namespace chain {
 
          // Flag to indicate if the account has chosen to be a publisher
          bool is_a_publisher = false;
+
+         // Users that bought something from this account. Used in Sale Bonus processing.
+         std::set<account_id_type> buyers;
    };
 
    /**
@@ -389,6 +392,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (allowed_assets)
                     (recieved_welcome_bonus)
                     (is_a_publisher)
+                    (buyers)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,
