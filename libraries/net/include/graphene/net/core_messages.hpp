@@ -86,6 +86,7 @@ namespace graphene { namespace net {
     check_firewall_reply_message_type            = 5015,
     get_current_connections_request_message_type = 5016,
     get_current_connections_reply_message_type   = 5017,
+    mail_message_type                            = 5018,
     core_message_type_last                       = 5099
   };
 
@@ -227,7 +228,10 @@ namespace graphene { namespace net {
   {
     static const core_message_type_enum type;
 
+    std::string wallet_name;
+
     connection_accepted_message() {}
+    connection_accepted_message(const std::string& wallet) : wallet_name(wallet) {}
   };
 
   enum class rejection_reason_code { unspecified,
@@ -400,6 +404,14 @@ namespace graphene { namespace net {
     std::vector<current_connection_data> current_connections;
   };
 
+  struct mail_message
+  {
+      static const core_message_type_enum type;
+      std::string mail_content;
+
+      mail_message() {}
+      mail_message(const std::string& c) : mail_content(c) {}
+  };
 
 } } // graphene::net
 
@@ -424,6 +436,7 @@ FC_REFLECT_ENUM( graphene::net::core_message_type_enum,
                  (check_firewall_reply_message_type)
                  (get_current_connections_request_message_type)
                  (get_current_connections_reply_message_type)
+                 (mail_message_type)
                  (core_message_type_last) )
 
 FC_REFLECT( graphene::net::trx_message, (trx) )
@@ -451,7 +464,7 @@ FC_REFLECT( graphene::net::hello_message, (user_agent)
                                      (chain_id)
                                      (user_data) )
 
-FC_REFLECT_EMPTY( graphene::net::connection_accepted_message )
+FC_REFLECT( graphene::net::connection_accepted_message, (wallet_name) )
 FC_REFLECT_ENUM(graphene::net::rejection_reason_code, (unspecified)
                                                  (different_chain)
                                                  (already_connected)
@@ -508,6 +521,8 @@ FC_REFLECT(graphene::net::get_current_connections_reply_message, (upload_rate_on
                                                             (upload_rate_one_hour)
                                                             (download_rate_one_hour)
                                                             (current_connections))
+
+FC_REFLECT(graphene::net::mail_message, (mail_content))
 
 #include <unordered_map>
 #include <fc/crypto/city.hpp>
