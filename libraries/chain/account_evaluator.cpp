@@ -327,7 +327,7 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
 
       if (o.is_a_publisher)
       {
-         a.is_a_publisher = o.is_a_publisher;
+         a.is_a_publisher = *o.is_a_publisher;
       }
             
       sa_after = a.has_special_authority();
