@@ -958,50 +958,6 @@ public:
       _builder_transactions.erase(handle);
    }
 
-   // Check if Welcome Bonus is available for specified account.
-   bool is_welcome_bonus_available(const string name)const
-   {
-       // Get HDD ID and MAC address.
-       const string harddrive_id = omnibazaar::util::get_harddrive_id();
-       const string mac_address = omnibazaar::util::get_primary_mac();
-
-       if (harddrive_id.empty() || mac_address.empty())
-       {
-           wlog("We can't get your machine identity. "
-                "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
-           return false;
-       }
-
-       // Scan blockchain to check if these HDD ID and MAC were already registered.
-       for(uint32_t block_num = 1, total_blocks = _remote_db->get_dynamic_global_properties().head_block_number; block_num <= total_blocks; ++block_num)
-       {
-           const fc::optional<signed_block> block = _remote_db->get_block(block_num);
-           if(block.valid())
-           {
-               for(size_t tx_num = 0; tx_num < block->transactions.size(); ++tx_num)
-               {
-                   const processed_transaction& tx = block->transactions.at(tx_num);
-                   for(size_t op_num = 0; op_num < tx.operations.size(); ++op_num)
-                   {
-                       const operation& op = tx.operations.at(op_num);
-                       if(op.which() == operation::tag<omnibazaar::welcome_bonus_operation>::value)
-                       {
-                           const omnibazaar::welcome_bonus_operation& welcome_op = op.get<omnibazaar::welcome_bonus_operation>();
-                           if (welcome_op.drive_id == harddrive_id || welcome_op.mac_address == mac_address)
-                           {
-                               wlog("You have already received a sign-up bonus for a user on this machine. "
-                                    "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
-                               return false;
-                           }
-                       }
-                   }
-               }
-           }
-       }
-
-       return true;
-   }
-
    bool is_referral_bonus_available()const
    {
        return _remote_db->get_dynamic_global_properties().referral_bonus < OMNIBAZAAR_REFERRAL_BONUS_LIMIT;
@@ -1046,13 +1002,15 @@ public:
 
       tx.operations.push_back( account_create_op );
 
-      if(is_welcome_bonus_available(name))
+      const string harddrive_id = omnibazaar::util::get_harddrive_id();
+      const string mac_address = omnibazaar::util::get_primary_mac();
+      if(_remote_db->is_welcome_bonus_available(harddrive_id, mac_address))
       {
           omnibazaar::welcome_bonus_operation welcome_bonus_op;
           welcome_bonus_op.receiver_name = name;
           welcome_bonus_op.payer = account_create_op.fee_payer();
-          welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
-          welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
+          welcome_bonus_op.drive_id = harddrive_id;
+          welcome_bonus_op.mac_address = mac_address;
           tx.operations.push_back( welcome_bonus_op );
 
           if(is_referral_bonus_available())
@@ -1191,13 +1149,15 @@ public:
 
          tx.operations.push_back( account_create_op );
 
-         if(is_welcome_bonus_available(account_name))
+         const string harddrive_id = omnibazaar::util::get_harddrive_id();
+         const string mac_address = omnibazaar::util::get_primary_mac();
+         if(_remote_db->is_welcome_bonus_available(harddrive_id, mac_address))
          {
              omnibazaar::welcome_bonus_operation welcome_bonus_op;
              welcome_bonus_op.receiver_name = account_name;
              welcome_bonus_op.payer = account_create_op.fee_payer();
-             welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
-             welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
+             welcome_bonus_op.drive_id = harddrive_id;
+             welcome_bonus_op.mac_address = mac_address;
              tx.operations.push_back( welcome_bonus_op );
 
              if(is_referral_bonus_available())
