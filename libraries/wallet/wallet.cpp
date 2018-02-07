@@ -59,6 +59,7 @@
 #include <fc/crypto/hex.hpp>
 #include <fc/thread/mutex.hpp>
 #include <fc/thread/scoped_lock.hpp>
+#include <fc/filesystem.hpp>
 
 #include <graphene/app/api.hpp>
 #include <graphene/chain/asset_object.hpp>
@@ -70,6 +71,7 @@
 #include <graphene/wallet/api_documentation.hpp>
 #include <graphene/wallet/reflect_util.hpp>
 #include <graphene/debug_witness/debug_api.hpp>
+#include <../omnibazaar/account_object_components.hpp>
 #include <fc/smart_ref_impl.hpp>
 
 #include <welcome_bonus.hpp>
@@ -450,6 +452,46 @@ public:
    void on_block_applied( const variant& block_id )
    {
       fc::async([this]{resync();}, "Resync after block");
+   }
+   
+   void set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password)
+   {
+        account_object account = get_account(account_id_or_name);
+        
+        transaction trx;
+        trx.operations.clear();
+        account_update_operation op;
+        op.account = account.id;
+        op.is_a_publisher = true;
+        trx.operations.push_back(op);
+        _remote_net_broadcast->broadcast_transaction( trx );
+
+        omnibazaar::publisher_component publisher_info;
+        publisher_info.couchbase_ip_address = couchbase_ip_address;
+        publisher_info.couchbase_username = couchbase_username;
+        publisher_info.couchbase_password = couchbase_password;
+
+        fc::path account_dir(get_account_dir_path(account.name));
+        fc::create_directories(account_dir);
+        fc::path publsher_info_path(account_dir / "publisher.txt");
+        publisher_info.write_to_file(publsher_info_path);
+   }
+
+   fc::path get_account_dir_path(const std::string& account_id_or_name)
+   {
+        std::string account_name = get_account(account_id_or_name).name;
+        fc::path wallet_filename_path(get_wallet_filename());
+        fc::path result(wallet_filename_path.parent_path() / account_name);
+        return result;
+   }
+
+   bool is_a_publisher(const std::string& account_id_or_name)
+   {
+      account_object account = get_account(account_id_or_name);
+      return account.is_a_publisher;
    }
 
    bool copy_wallet_file( string destination_filename )
@@ -915,6 +957,7 @@ public:
    {
       _builder_transactions.erase(handle);
    }
+
 
    signed_transaction register_account(string name,
                                        public_key_type owner,
@@ -2829,6 +2872,24 @@ wallet_api::~wallet_api()
 bool wallet_api::copy_wallet_file(string destination_filename)
 {
    return my->copy_wallet_file(destination_filename);
+}
+
+void wallet_api::set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password)
+{
+      my->set_publisher_info(account_id_or_name, couchbase_ip_address, couchbase_username, couchbase_password);
+}
+
+std::string wallet_api::get_account_dir_path(const std::string& account_id_or_name)
+{
+    my->get_account_dir_path(account_id_or_name).string();
+}
+
+bool wallet_api::is_a_publisher(const std::string& account_id_or_name)
+{
+      return my->is_a_publisher(account_id_or_name);
 }
 
 optional<signed_block_with_info> wallet_api::get_block(uint32_t num)
