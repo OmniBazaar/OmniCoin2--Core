@@ -25,6 +25,7 @@
 #include <graphene/chain/protocol/operations.hpp>
 #include <graphene/db/generic_index.hpp>
 #include <boost/multi_index/composite_key.hpp>
+#include <../omnibazaar/account_object_components.hpp>
 
 namespace graphene { namespace chain {
    class database;
@@ -124,6 +125,7 @@ namespace graphene { namespace chain {
    class account_object : public graphene::db::abstract_object<account_object>
    {
       public:
+
          static const uint8_t space_id = protocol_ids;
          static const uint8_t type_id  = account_object_type;
 
@@ -267,6 +269,9 @@ namespace graphene { namespace chain {
          // Flag to indicate that this account already received the registration welcome bonus.
          bool recieved_welcome_bonus = false;
 
+         // Flag to indicate if the account has chosen to be a publisher
+         bool is_a_publisher = false;
+
          // Users that bought something from this account. Used in Sale Bonus processing.
          std::set<account_id_type> buyers;
    };
@@ -385,6 +390,8 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (owner_special_authority)(active_special_authority)
                     (top_n_control_flags)
                     (allowed_assets)
+                    (recieved_welcome_bonus)
+                    (is_a_publisher)
                     (buyers)
                     )
 
