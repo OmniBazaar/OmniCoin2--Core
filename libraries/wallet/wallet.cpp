@@ -958,10 +958,6 @@ public:
       _builder_transactions.erase(handle);
    }
 
-   bool is_referral_bonus_available()const
-   {
-       return _remote_db->get_dynamic_global_properties().referral_bonus < OMNIBAZAAR_REFERRAL_BONUS_LIMIT;
-   }
 
    signed_transaction register_account(string name,
                                        public_key_type owner,
@@ -1013,7 +1009,7 @@ public:
           welcome_bonus_op.mac_address = mac_address;
           tx.operations.push_back( welcome_bonus_op );
 
-          if(is_referral_bonus_available())
+          if(_remote_db->is_referral_bonus_available())
           {
               omnibazaar::referral_bonus_operation referral_bonus_op;
               referral_bonus_op.receiver = referrer_account_object.id;
@@ -1160,7 +1156,7 @@ public:
              welcome_bonus_op.mac_address = mac_address;
              tx.operations.push_back( welcome_bonus_op );
 
-             if(is_referral_bonus_available())
+             if(_remote_db->is_referral_bonus_available())
              {
                  omnibazaar::referral_bonus_operation referral_bonus_op;
                  referral_bonus_op.receiver = referrer_account_object.id;

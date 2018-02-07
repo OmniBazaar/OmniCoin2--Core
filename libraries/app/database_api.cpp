@@ -155,6 +155,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
 
       // Bonuses
       bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
+      bool is_referral_bonus_available()const;
       bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
 
    //private:
@@ -2268,6 +2269,16 @@ bool database_api::is_welcome_bonus_available(const string &harddrive_id, const 
 bool database_api_impl::is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const
 {
     return _db.is_welcome_bonus_available(harddrive_id, mac_address);
+}
+
+bool database_api::is_referral_bonus_available()const
+{
+    return my->is_referral_bonus_available();
+}
+
+bool database_api_impl::is_referral_bonus_available()const
+{
+    return _db.is_referral_bonus_available();
 }
 
 bool database_api::is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const

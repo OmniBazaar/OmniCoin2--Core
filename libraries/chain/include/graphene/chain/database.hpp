@@ -420,6 +420,12 @@ namespace graphene { namespace chain {
          bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
 
          /**
+           * @brief Check if Referral Bonus is available
+           * @return true if bonus is available, false otherwise
+           */
+         bool is_referral_bonus_available()const;
+
+         /**
            * @brief Check if Sale Bonus is not depleted yet and is available for specified buyer and seller
            * @param seller_id seller account ID
            * @param buyer_id buyer account ID

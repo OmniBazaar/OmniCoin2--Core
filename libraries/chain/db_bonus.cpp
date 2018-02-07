@@ -39,6 +39,11 @@ bool database::is_welcome_bonus_available(const string &harddrive_id, const stri
     return true;
 }
 
+bool database::is_referral_bonus_available()const
+{
+    return get_dynamic_global_properties().referral_bonus < OMNIBAZAAR_REFERRAL_BONUS_LIMIT;
+}
+
 bool database::is_sale_bonus_available(const account_id_type &seller_id, const account_id_type &buyer_id)const
 {
     if(get_dynamic_global_properties().sale_bonus >= OMNIBAZAAR_SALE_BONUS_LIMIT)
