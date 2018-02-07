@@ -142,7 +142,7 @@ namespace graphene { namespace chain {
       optional<authority> active;
 
       /// New is-publisher flag value
-      bool is_a_publisher;
+      optional<bool> is_a_publisher;
 
       /// New account options
       optional<account_options> new_options;
@@ -279,7 +279,7 @@ FC_REFLECT( graphene::chain::account_create_operation,
 
 FC_REFLECT(graphene::chain::account_update_operation::ext, (null_ext)(owner_special_authority)(active_special_authority) )
 FC_REFLECT( graphene::chain::account_update_operation,
-            (fee)(account)(owner)(active)(new_options)(extensions)
+            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)
           )
 
 FC_REFLECT( graphene::chain::account_upgrade_operation,
