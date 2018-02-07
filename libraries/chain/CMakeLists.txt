@@ -41,6 +41,8 @@ add_library( graphene_chain
              omnibazaar/welcome_bonus_evaluator.cpp
              omnibazaar/referral_bonus.cpp
              omnibazaar/referral_bonus_evaluator.cpp
+             omnibazaar/sale_bonus.cpp
+             omnibazaar/sale_bonus_evaluator.cpp
 
              omnibazaar/referrer_component.cpp
              omnibazaar/publisher_component.cpp

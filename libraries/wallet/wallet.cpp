@@ -2084,7 +2084,7 @@ public:
    } FC_CAPTURE_AND_RETHROW((order_id)) }
 
    signed_transaction transfer(string from, string to, string amount,
-                               string asset_symbol, string memo, bool broadcast = false)
+                               string asset_symbol, string memo, bool broadcast = false, bool is_sale = false)
    { try {
       FC_ASSERT( !self.is_locked() );
       fc::optional<asset_object> asset_obj = get_asset(asset_symbol);
@@ -2112,6 +2112,40 @@ public:
 
       signed_transaction tx;
       tx.operations.push_back(xfer_op);
+
+      // Add Sale Fee. Receiver/seller pays this fee.
+      if(is_sale)
+      {
+          transfer_operation sale_fee_founder_op;
+          sale_fee_founder_op.from = to_id;
+          sale_fee_founder_op.to = OMNIBAZAAR_FOUNDER_ACCOUNT;
+          sale_fee_founder_op.amount = xfer_op.amount * 0.005;
+
+          transfer_operation sale_fee_seller_op;
+          sale_fee_seller_op.from = to_id;
+          sale_fee_seller_op.to = to_account.referrer;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.0025;
+
+          transfer_operation sale_fee_buyer_op;
+          sale_fee_buyer_op.from = to_id;
+          sale_fee_buyer_op.to = from_account.referrer;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.0025;
+
+          tx.operations.push_back(sale_fee_founder_op);
+          tx.operations.push_back(sale_fee_seller_op);
+          tx.operations.push_back(sale_fee_buyer_op);
+      }
+
+      // Add Sale Bonus.
+      if(_remote_db->is_sale_bonus_available(to_id, from_id))
+      {
+          omnibazaar::sale_bonus_operation sale_op;
+          sale_op.seller = to_id;
+          sale_op.buyer = from_id;
+          sale_op.payer = xfer_op.fee_payer();
+          tx.operations.push_back(sale_op);
+      }
+
       set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
       tx.validate();
 
@@ -3334,9 +3368,9 @@ signed_transaction wallet_api::issue_asset(string to_account, string amount, str
 }
 
 signed_transaction wallet_api::transfer(string from, string to, string amount,
-                                        string asset_symbol, string memo, bool broadcast /* = false */)
+                                        string asset_symbol, string memo, bool broadcast /* = false */, bool is_sale /* = false */)
 {
-   return my->transfer(from, to, amount, asset_symbol, memo, broadcast);
+   return my->transfer(from, to, amount, asset_symbol, memo, broadcast, is_sale);
 }
 signed_transaction wallet_api::create_asset(string issuer,
                                             string symbol,
