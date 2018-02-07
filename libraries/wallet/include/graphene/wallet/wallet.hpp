@@ -292,6 +292,15 @@ class wallet_api
       wallet_api( const wallet_data& initial_data, fc::api<login_api> rapi );
       virtual ~wallet_api();
 
+      void set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password);
+
+      bool is_a_publisher(const std::string& account_id_or_name);
+
+      std::string get_account_dir_path(const std::string& account_id_or_name);
+     
       bool copy_wallet_file( string destination_filename );
 
       fc::ecc::private_key derive_private_key(const std::string& prefix_string, int sequence_number) const;
@@ -1654,6 +1663,8 @@ FC_API( graphene::wallet::wallet_api,
         (gethelp)
         (info)
         (about)
+        (set_publisher_info)
+        (is_a_publisher)
         (begin_builder_transaction)
         (add_operation_to_builder_transaction)
         (replace_operation_in_builder_transaction)
