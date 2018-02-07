@@ -65,6 +65,7 @@
 #include <referral_bonus_evaluator.hpp>
 #include <sale_bonus_evaluator.hpp>
 #include <founder_bonus_evaluator.hpp>
+#include <witness_bonus_evaluator.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -180,6 +181,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::referral_bonus_evaluator>();
    register_evaluator<omnibazaar::sale_bonus_evaluator>();
    register_evaluator<omnibazaar::founder_bonus_evaluator>();
+   register_evaluator<omnibazaar::witness_bonus_evaluator>();
 }
 
 void database::initialize_indexes()
