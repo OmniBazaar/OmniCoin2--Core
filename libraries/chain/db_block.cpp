@@ -39,6 +39,8 @@
 
 #include <fc/smart_ref_impl.hpp>
 
+#include <../omnibazaar/founder_bonus.hpp>
+
 namespace graphene { namespace chain {
 
 bool database::is_known_block( const block_id_type& id )const
@@ -226,7 +228,7 @@ processed_transaction database::push_transaction( const signed_transaction& trx,
    return result;
 } FC_CAPTURE_AND_RETHROW( (trx) ) }
 
-processed_transaction database::_push_transaction( const signed_transaction& trx )
+processed_transaction database::_push_transaction( const signed_transaction& trx, const bool push_to_back )
 {
    // If this is the first transaction pushed after applying a block, start a new undo session.
    // This allows us to quickly rewind to the clean state of the head block, in case a new block arrives.
@@ -240,7 +242,10 @@ processed_transaction database::_push_transaction( const signed_transaction& trx
 
    auto temp_session = _undo_db.start_undo_session();
    auto processed_trx = _apply_transaction( trx );
-   _pending_tx.push_back(processed_trx);
+   if(push_to_back)
+       _pending_tx.push_back(processed_trx);
+   else
+       _pending_tx.insert(_pending_tx.begin(), processed_trx);
 
    // notify_changed_objects();
    // The transaction applied successfully. Merge its changes into the pending block session.
@@ -330,6 +335,9 @@ signed_block database::_generate_block(
    static const size_t max_block_header_size = fc::raw::pack_size( signed_block_header() ) + 4;
    auto maximum_block_size = get_global_properties().parameters.maximum_block_size;
    size_t total_block_size = max_block_header_size;
+
+   // Add Founder Bonus
+   omnibazaar::founder_bonus_operation::check_and_add_bonus(*this, block_signing_private_key);
 
    signed_block pending_block;
 
