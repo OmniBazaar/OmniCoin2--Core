@@ -221,12 +221,22 @@ struct get_impacted_account_visitor
       _impacted.insert( op.payer );
    }
 
+   void operator()( const omnibazaar::sale_bonus_operation& op )
+   {
+      _impacted.insert( op.payer );
+   }
+
+   void operator()( const omnibazaar::founder_bonus_operation& op )
+   {
+      _impacted.insert( op.payer );
+      _impacted.insert( OMNIBAZAAR_FOUNDER_ACCOUNT );
+   }
+
    void operator()( const omnibazaar::witness_bonus_operation& op )
    {
       _impacted.insert( op.payer );
       _impacted.insert( op.receiver );
    }
-
 };
 
 void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )

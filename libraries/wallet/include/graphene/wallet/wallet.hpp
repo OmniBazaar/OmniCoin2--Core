@@ -292,6 +292,15 @@ class wallet_api
       wallet_api( const wallet_data& initial_data, fc::api<login_api> rapi );
       virtual ~wallet_api();
 
+      void set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password);
+
+      bool is_a_publisher(const std::string& account_id_or_name);
+
+      std::string get_account_dir_path(const std::string& account_id_or_name);
+     
       bool copy_wallet_file( string destination_filename );
 
       fc::ecc::private_key derive_private_key(const std::string& prefix_string, int sequence_number) const;
@@ -757,6 +766,7 @@ class wallet_api
        *             other than the limit imposed by maximum transaction size, but transaction
        *             increase with transaction size
        * @param broadcast true to broadcast the transaction on the network
+       * @param is_sale true to indicate that this is a purchase/sale transaction
        * @returns the signed transaction transferring funds
        */
       signed_transaction transfer(string from,
@@ -764,7 +774,8 @@ class wallet_api
                                   string amount,
                                   string asset_symbol,
                                   string memo,
-                                  bool broadcast = false);
+                                  bool broadcast = false,
+                                  bool is_sale = false);
 
       /**
        *  This method works just like transfer, except it always broadcasts and
@@ -774,8 +785,9 @@ class wallet_api
                                                              string to,
                                                              string amount,
                                                              string asset_symbol,
-                                                             string memo ) {
-         auto trx = transfer( from, to, amount, asset_symbol, memo, true );
+                                                             string memo,
+                                                             bool is_sale = false) {
+         auto trx = transfer( from, to, amount, asset_symbol, memo, true, is_sale );
          return std::make_pair(trx.id(),trx);
       }
 
@@ -1571,6 +1583,23 @@ class wallet_api
       fc::signal<void(bool)> lock_changed;
       std::shared_ptr<detail::wallet_api_impl> my;
       void encrypt_keys();
+
+      /** Interact with mail system.
+       *
+       * @param action Requested mail action type. For supported actions see omnibazaar::mail::mail_service.
+       * @param param1 Generic parameter. Contents depend on action type.
+       * @param param2 Generic parameter. Contents depend on action type.
+       * @param param3 Generic parameter. Contents depend on action type.
+       * @return depends on action type.
+       */
+      std::vector<std::string> mail_service(const std::string &action, const std::string &param1 = std::string(),
+                                            const std::string &param2 = std::string(), const std::string &param3 = std::string());
+
+      /** Send mail.
+       *
+       * @param comma_separated_mails Mail.
+       */
+      void mail_send_to(const std::string &comma_separated_mails);
 };
 
 } }
@@ -1637,6 +1666,8 @@ FC_API( graphene::wallet::wallet_api,
         (gethelp)
         (info)
         (about)
+        (set_publisher_info)
+        (is_a_publisher)
         (begin_builder_transaction)
         (add_operation_to_builder_transaction)
         (replace_operation_in_builder_transaction)
@@ -1749,4 +1780,6 @@ FC_API( graphene::wallet::wallet_api,
         (blind_history)
         (receive_blind_transfer)
         (get_order_book)
+        (mail_service)
+        (mail_send_to)
       )

@@ -265,6 +265,10 @@ namespace graphene { namespace net
       fc::future<void> accept_or_connect_task_done;
 
       firewall_check_state_data *firewall_check_state;
+
+      // Used in mail system.
+      std::string wallet_name;
+
 #ifndef NDEBUG
     private:
       fc::thread* _thread;

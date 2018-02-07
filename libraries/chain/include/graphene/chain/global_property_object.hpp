@@ -126,6 +126,8 @@ namespace graphene { namespace chain {
          share_type welcome_bonus;
          // Total number of issued Referral Bonus coins.
          share_type referral_bonus;
+         // Total number of issued Sale Bonus coins.
+         share_type sale_bonus;
    };
 }}
 
@@ -144,6 +146,7 @@ FC_REFLECT_DERIVED( graphene::chain::dynamic_global_property_object, (graphene::
                     (dynamic_flags)
                     (last_irreversible_block_num)
                     (referral_bonus)
+                    (sale_bonus)
                   )
 
 FC_REFLECT_DERIVED( graphene::chain::global_property_object, (graphene::db::object),

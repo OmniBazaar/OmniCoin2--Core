@@ -408,6 +408,31 @@ namespace graphene { namespace chain {
          /**
           * @}
           */
+
+         //////////////////// db_bonus.cpp ////////////////////
+
+         /**
+           * @brief Check if Welcome Bonus is available for specified hardware config
+           * @param harddrive_id Hard Drive ID of user machine
+           * @param mac_address MAC address of user machine
+           * @return true if bonus is available, false otherwise
+           */
+         bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
+
+         /**
+           * @brief Check if Referral Bonus is available
+           * @return true if bonus is available, false otherwise
+           */
+         bool is_referral_bonus_available()const;
+
+         /**
+           * @brief Check if Sale Bonus is not depleted yet and is available for specified buyer and seller
+           * @param seller_id seller account ID
+           * @param buyer_id buyer account ID
+           * @return true if bonus is available, false otherwise
+           */
+         bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
+
    protected:
          //Mark pop_undo() as protected -- we do not want outside calling pop_undo(); it should call pop_block() instead
          void pop_undo() { object_database::pop_undo(); }

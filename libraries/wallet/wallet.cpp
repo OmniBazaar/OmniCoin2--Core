@@ -59,6 +59,7 @@
 #include <fc/crypto/hex.hpp>
 #include <fc/thread/mutex.hpp>
 #include <fc/thread/scoped_lock.hpp>
+#include <fc/filesystem.hpp>
 
 #include <graphene/app/api.hpp>
 #include <graphene/chain/asset_object.hpp>
@@ -70,10 +71,12 @@
 #include <graphene/wallet/api_documentation.hpp>
 #include <graphene/wallet/reflect_util.hpp>
 #include <graphene/debug_witness/debug_api.hpp>
+#include <../omnibazaar/account_object_components.hpp>
 #include <fc/smart_ref_impl.hpp>
 
 #include <welcome_bonus.hpp>
 #include <omnibazaar_util.hpp>
+#include <mail.hpp>
 
 #ifndef WIN32
 # include <sys/types.h>
@@ -449,6 +452,46 @@ public:
    void on_block_applied( const variant& block_id )
    {
       fc::async([this]{resync();}, "Resync after block");
+   }
+   
+   void set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password)
+   {
+        account_object account = get_account(account_id_or_name);
+        
+        transaction trx;
+        trx.operations.clear();
+        account_update_operation op;
+        op.account = account.id;
+        op.is_a_publisher = true;
+        trx.operations.push_back(op);
+        _remote_net_broadcast->broadcast_transaction( trx );
+
+        omnibazaar::publisher_component publisher_info;
+        publisher_info.couchbase_ip_address = couchbase_ip_address;
+        publisher_info.couchbase_username = couchbase_username;
+        publisher_info.couchbase_password = couchbase_password;
+
+        fc::path account_dir(get_account_dir_path(account.name));
+        fc::create_directories(account_dir);
+        fc::path publsher_info_path(account_dir / "publisher.txt");
+        publisher_info.write_to_file(publsher_info_path);
+   }
+
+   fc::path get_account_dir_path(const std::string& account_id_or_name)
+   {
+        std::string account_name = get_account(account_id_or_name).name;
+        fc::path wallet_filename_path(get_wallet_filename());
+        fc::path result(wallet_filename_path.parent_path() / account_name);
+        return result;
+   }
+
+   bool is_a_publisher(const std::string& account_id_or_name)
+   {
+      account_object account = get_account(account_id_or_name);
+      return account.is_a_publisher;
    }
 
    bool copy_wallet_file( string destination_filename )
@@ -915,54 +958,6 @@ public:
       _builder_transactions.erase(handle);
    }
 
-   // Check if Welcome Bonus is available for specified account.
-   bool is_welcome_bonus_available(const string name)const
-   {
-       // Get HDD ID and MAC address.
-       const string harddrive_id = omnibazaar::util::get_harddrive_id();
-       const string mac_address = omnibazaar::util::get_primary_mac();
-
-       if (harddrive_id.empty() || mac_address.empty())
-       {
-           wlog("We can't get your machine identity. "
-                "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
-           return false;
-       }
-
-       // Scan blockchain to check if these HDD ID and MAC were already registered.
-       for(uint32_t block_num = 1, total_blocks = _remote_db->get_dynamic_global_properties().head_block_number; block_num <= total_blocks; ++block_num)
-       {
-           const fc::optional<signed_block> block = _remote_db->get_block(block_num);
-           if(block.valid())
-           {
-               for(size_t tx_num = 0; tx_num < block->transactions.size(); ++tx_num)
-               {
-                   const processed_transaction& tx = block->transactions.at(tx_num);
-                   for(size_t op_num = 0; op_num < tx.operations.size(); ++op_num)
-                   {
-                       const operation& op = tx.operations.at(op_num);
-                       if(op.which() == operation::tag<omnibazaar::welcome_bonus_operation>::value)
-                       {
-                           const omnibazaar::welcome_bonus_operation& welcome_op = op.get<omnibazaar::welcome_bonus_operation>();
-                           if (welcome_op.drive_id == harddrive_id || welcome_op.mac_address == mac_address)
-                           {
-                               wlog("You have already received a sign-up bonus for a user on this machine. "
-                                    "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
-                               return false;
-                           }
-                       }
-                   }
-               }
-           }
-       }
-
-       return true;
-   }
-
-   bool is_referral_bonus_available()const
-   {
-       return _remote_db->get_dynamic_global_properties().referral_bonus < OMNIBAZAAR_REFERRAL_BONUS_LIMIT;
-   }
 
    signed_transaction register_account(string name,
                                        public_key_type owner,
@@ -1003,16 +998,18 @@ public:
 
       tx.operations.push_back( account_create_op );
 
-      if(is_welcome_bonus_available(name))
+      const string harddrive_id = omnibazaar::util::get_harddrive_id();
+      const string mac_address = omnibazaar::util::get_primary_mac();
+      if(_remote_db->is_welcome_bonus_available(harddrive_id, mac_address))
       {
           omnibazaar::welcome_bonus_operation welcome_bonus_op;
           welcome_bonus_op.receiver_name = name;
           welcome_bonus_op.payer = account_create_op.fee_payer();
-          welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
-          welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
+          welcome_bonus_op.drive_id = harddrive_id;
+          welcome_bonus_op.mac_address = mac_address;
           tx.operations.push_back( welcome_bonus_op );
 
-          if(is_referral_bonus_available())
+          if(_remote_db->is_referral_bonus_available())
           {
               omnibazaar::referral_bonus_operation referral_bonus_op;
               referral_bonus_op.receiver = referrer_account_object.id;
@@ -1148,16 +1145,18 @@ public:
 
          tx.operations.push_back( account_create_op );
 
-         if(is_welcome_bonus_available(account_name))
+         const string harddrive_id = omnibazaar::util::get_harddrive_id();
+         const string mac_address = omnibazaar::util::get_primary_mac();
+         if(_remote_db->is_welcome_bonus_available(harddrive_id, mac_address))
          {
              omnibazaar::welcome_bonus_operation welcome_bonus_op;
              welcome_bonus_op.receiver_name = account_name;
              welcome_bonus_op.payer = account_create_op.fee_payer();
-             welcome_bonus_op.drive_id = omnibazaar::util::get_harddrive_id();
-             welcome_bonus_op.mac_address = omnibazaar::util::get_primary_mac();
+             welcome_bonus_op.drive_id = harddrive_id;
+             welcome_bonus_op.mac_address = mac_address;
              tx.operations.push_back( welcome_bonus_op );
 
-             if(is_referral_bonus_available())
+             if(_remote_db->is_referral_bonus_available())
              {
                  omnibazaar::referral_bonus_operation referral_bonus_op;
                  referral_bonus_op.receiver = referrer_account_object.id;
@@ -2081,7 +2080,7 @@ public:
    } FC_CAPTURE_AND_RETHROW((order_id)) }
 
    signed_transaction transfer(string from, string to, string amount,
-                               string asset_symbol, string memo, bool broadcast = false)
+                               string asset_symbol, string memo, bool broadcast = false, bool is_sale = false)
    { try {
       FC_ASSERT( !self.is_locked() );
       fc::optional<asset_object> asset_obj = get_asset(asset_symbol);
@@ -2109,6 +2108,40 @@ public:
 
       signed_transaction tx;
       tx.operations.push_back(xfer_op);
+
+      // Add Sale Fee. Receiver/seller pays this fee.
+      if(is_sale)
+      {
+          transfer_operation sale_fee_founder_op;
+          sale_fee_founder_op.from = to_id;
+          sale_fee_founder_op.to = OMNIBAZAAR_FOUNDER_ACCOUNT;
+          sale_fee_founder_op.amount = xfer_op.amount * 0.005;
+
+          transfer_operation sale_fee_seller_op;
+          sale_fee_seller_op.from = to_id;
+          sale_fee_seller_op.to = to_account.referrer;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.0025;
+
+          transfer_operation sale_fee_buyer_op;
+          sale_fee_buyer_op.from = to_id;
+          sale_fee_buyer_op.to = from_account.referrer;
+          sale_fee_seller_op.amount = xfer_op.amount * 0.0025;
+
+          tx.operations.push_back(sale_fee_founder_op);
+          tx.operations.push_back(sale_fee_seller_op);
+          tx.operations.push_back(sale_fee_buyer_op);
+      }
+
+      // Add Sale Bonus.
+      if(_remote_db->is_sale_bonus_available(to_id, from_id))
+      {
+          omnibazaar::sale_bonus_operation sale_op;
+          sale_op.seller = to_id;
+          sale_op.buyer = from_id;
+          sale_op.payer = xfer_op.fee_payer();
+          tx.operations.push_back(sale_op);
+      }
+
       set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
       tx.validate();
 
@@ -2674,6 +2707,14 @@ public:
       return it->second;
    }
 
+   void mail_send_to(const std::string &comma_separated_mails)
+   {
+       if(_remote_net_node.valid())
+       {
+           (*_remote_net_node)->mail_send_to(comma_separated_mails);
+       }
+   }
+
    string                  _wallet_filename;
    wallet_data             _wallet;
 
@@ -2865,6 +2906,24 @@ wallet_api::~wallet_api()
 bool wallet_api::copy_wallet_file(string destination_filename)
 {
    return my->copy_wallet_file(destination_filename);
+}
+
+void wallet_api::set_publisher_info(const std::string& account_id_or_name,
+                              const std::string& couchbase_ip_address,
+                              const std::string& couchbase_username,
+                              const std::string& couchbase_password)
+{
+      my->set_publisher_info(account_id_or_name, couchbase_ip_address, couchbase_username, couchbase_password);
+}
+
+std::string wallet_api::get_account_dir_path(const std::string& account_id_or_name)
+{
+    my->get_account_dir_path(account_id_or_name).string();
+}
+
+bool wallet_api::is_a_publisher(const std::string& account_id_or_name)
+{
+      return my->is_a_publisher(account_id_or_name);
 }
 
 optional<signed_block_with_info> wallet_api::get_block(uint32_t num)
@@ -3305,9 +3364,9 @@ signed_transaction wallet_api::issue_asset(string to_account, string amount, str
 }
 
 signed_transaction wallet_api::transfer(string from, string to, string amount,
-                                        string asset_symbol, string memo, bool broadcast /* = false */)
+                                        string asset_symbol, string memo, bool broadcast /* = false */, bool is_sale /* = false */)
 {
-   return my->transfer(from, to, amount, asset_symbol, memo, broadcast);
+   return my->transfer(from, to, amount, asset_symbol, memo, broadcast, is_sale);
 }
 signed_transaction wallet_api::create_asset(string issuer,
                                             string symbol,
@@ -3716,6 +3775,16 @@ void wallet_api::encrypt_keys()
    my->encrypt_keys();
 }
 
+std::vector<std::string> wallet_api::mail_service(const std::string &action, const std::string &param1, const std::string &param2, const std::string &param3)
+{
+    return omnibazaar::mail(*this).mail_service(action, param1, param2, param3);
+}
+
+void wallet_api::mail_send_to(const string &comma_separated_mails)
+{
+    my->mail_send_to(comma_separated_mails);
+}
+
 void wallet_api::lock()
 { try {
    FC_ASSERT( !is_locked() );
@@ -3737,6 +3806,20 @@ void wallet_api::unlock(string password)
    my->_keys = std::move(pk.keys);
    my->_checksum = pk.checksum;
    my->self.lock_changed(false);
+
+   const auto accounts = list_my_accounts();
+   if (accounts.size() > 0)
+   {
+       // Set wallet name to broadcast with hello message.
+       if(my->_remote_net_node.valid())
+       {
+           (*my->_remote_net_node)->set_wallet_name(accounts[0].name);
+       }
+   }
+
+   // Create mail structure.
+   mail_service("create_structure");
+
 } FC_CAPTURE_AND_RETHROW() }
 
 void wallet_api::set_password( string password )

@@ -21,6 +21,7 @@ if( GRAPHENE_DISABLE_UNITY_BUILD )
         db_market.cpp
         db_update.cpp
         db_witness_schedule.cpp
+        db_bonus.cpp
       )
    message( STATUS "Graphene database unity build disabled" )
 else( GRAPHENE_DISABLE_UNITY_BUILD )
@@ -40,8 +41,15 @@ add_library( graphene_chain
              omnibazaar/welcome_bonus_evaluator.cpp
              omnibazaar/referral_bonus.cpp
              omnibazaar/referral_bonus_evaluator.cpp
+             omnibazaar/sale_bonus.cpp
+             omnibazaar/sale_bonus_evaluator.cpp
+             omnibazaar/founder_bonus.cpp
+             omnibazaar/founder_bonus_evaluator.cpp
              omnibazaar/witness_bonus.cpp
              omnibazaar/witness_bonus_evaluator.cpp
+
+             omnibazaar/referrer_component.cpp
+             omnibazaar/publisher_component.cpp
 
              protocol/types.cpp
              protocol/address.cpp
