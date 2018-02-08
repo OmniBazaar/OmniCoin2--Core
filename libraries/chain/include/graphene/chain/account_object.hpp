@@ -272,6 +272,9 @@ namespace graphene { namespace chain {
          // Flag to indicate if the account has chosen to be a publisher
          bool is_a_publisher = false;
 
+         // Flag to indicate if the account has chosen to be a escrow
+         bool is_an_escrow = false;
+
          // Users that bought something from this account. Used in Sale Bonus processing.
          std::set<account_id_type> buyers;
    };
@@ -392,6 +395,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (allowed_assets)
                     (recieved_welcome_bonus)
                     (is_a_publisher)
+                    (is_an_escrow)
                     (buyers)
                     )
 
