@@ -329,6 +329,11 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
       {
          a.is_a_publisher = *o.is_a_publisher;
       }
+
+      if(o.is_an_escrow)
+      {
+         a.is_an_escrow = *o.is_an_escrow;
+      }
             
       sa_after = a.has_special_authority();
    });
