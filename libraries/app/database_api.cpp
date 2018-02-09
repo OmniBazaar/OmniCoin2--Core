@@ -90,6 +90,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       vector<optional<account_object>> lookup_account_names(const vector<string>& account_names)const;
       map<string,account_id_type> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
       uint64_t get_account_count()const;
+      std::vector<std::string> get_publisher_nodes_names();
 
       // Balances
       vector<asset> get_account_balances(account_id_type id, const flat_set<asset_id_type>& assets)const;
@@ -797,6 +798,27 @@ map<string,account_id_type> database_api_impl::lookup_accounts(const string& low
    }
 
    return result;
+}
+
+std::vector<std::string> database_api::get_publisher_nodes_names() const
+{
+    return my->get_publisher_nodes_names();
+}
+
+std::vector<std::string> database_api_impl::get_publisher_nodes_names()
+{
+   std::vector<std::string> accounts_names;
+
+   const auto& accounts_index = _db.get_index_type<account_index>().indices().get<by_name>();
+
+   for (auto it = accounts_index.begin(); it != accounts_index.end(); ++it)
+   {
+        account_object account = (*it);
+        if (account.is_a_publisher)
+            accounts_names.push_back(account.name);
+   }
+
+   return accounts_names;
 }
 
 uint64_t database_api::get_account_count()const
