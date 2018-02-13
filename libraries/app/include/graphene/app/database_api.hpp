@@ -284,6 +284,11 @@ class database_api
        */
       map<string,account_id_type> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
 
+      /**
+       * Returns the vector containing all of the publisher nodes ids 
+       */
+      std::vector<std::string> get_publisher_nodes_names() const;
+
       //////////////
       // Balances //
       //////////////
@@ -695,6 +700,7 @@ FC_API(graphene::app::database_api,
    (lookup_account_names)
    (lookup_accounts)
    (get_account_count)
+   (get_publisher_nodes_names)
 
    // Balances
    (get_account_balances)
