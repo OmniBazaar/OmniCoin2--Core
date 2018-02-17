@@ -4,7 +4,12 @@ add_library( graphene_elasticsearch
         elasticsearch_plugin.cpp
            )
 
+if( WIN32 )
+target_link_libraries( graphene_elasticsearch graphene_chain graphene_app )
+else( WIN32 )
 target_link_libraries( graphene_elasticsearch graphene_chain graphene_app curl )
+endif( WIN32 )
+
 target_include_directories( graphene_elasticsearch
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 

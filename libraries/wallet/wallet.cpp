@@ -2918,12 +2918,12 @@ void wallet_api::set_publisher_info(const std::string& account_id_or_name,
 
 std::string wallet_api::get_account_dir_path(const std::string& account_id_or_name)
 {
-    my->get_account_dir_path(account_id_or_name).string();
+    return my->get_account_dir_path(account_id_or_name).string();
 }
 
 bool wallet_api::is_a_publisher(const std::string& account_id_or_name)
 {
-      return my->is_a_publisher(account_id_or_name);
+	return my->is_a_publisher(account_id_or_name);
 }
 
 optional<signed_block_with_info> wallet_api::get_block(uint32_t num)
