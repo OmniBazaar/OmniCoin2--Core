@@ -3,6 +3,7 @@
 #include <graphene/chain/database.hpp>
 #include <fc/crypto/elliptic.hpp>
 #include <graphene/chain/witness_object.hpp>
+#include <fc/smart_ref_impl.hpp>
 
 namespace omnibazaar {
 

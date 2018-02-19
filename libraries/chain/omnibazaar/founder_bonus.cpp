@@ -1,6 +1,7 @@
 #include <founder_bonus.hpp>
 #include <graphene/chain/database.hpp>
 #include <fc/crypto/elliptic.hpp>
+#include <fc/smart_ref_impl.hpp>
 
 namespace omnibazaar {
 
