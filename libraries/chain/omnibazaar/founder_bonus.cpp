@@ -1,5 +1,6 @@
 #include <founder_bonus.hpp>
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/witness_object.hpp>
 #include <fc/crypto/elliptic.hpp>
 #include <fc/smart_ref_impl.hpp>
 
@@ -10,7 +11,9 @@ namespace omnibazaar {
         FC_ASSERT( fee.amount >= 0 );
     }
 
-    bool founder_bonus_operation::check_and_add_bonus(graphene::chain::database &db, const fc::ecc::private_key &witness_private_key)
+    bool founder_bonus_operation::check_and_add_bonus(graphene::chain::database &db,
+                                                      const graphene::chain::witness_id_type witness_id,
+                                                      const fc::ecc::private_key &witness_private_key)
     {
         // Check that bonus is still available.
         const auto dyn_props = db.get_dynamic_global_properties();
@@ -19,7 +22,7 @@ namespace omnibazaar {
 
         // Create bonus operation and transaction.
         founder_bonus_operation bonus_op;
-        bonus_op.payer = OMNIBAZAAR_FOUNDER_ACCOUNT;
+        bonus_op.payer = witness_id(db).witness_account;
 
         graphene::chain::signed_transaction tx;
         tx.operations.push_back(bonus_op);
