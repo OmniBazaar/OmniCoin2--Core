@@ -26,7 +26,8 @@ namespace omnibazaar {
 
         // Check if bonus is available and add it to pending transactions during block creation.
         // Returns true if bonus was added.
-        static bool check_and_add_bonus(graphene::chain::database &db, const fc::ecc::private_key &witness_private_key);
+        static bool check_and_add_bonus(graphene::chain::database &db, const graphene::chain::witness_id_type witness_id,
+                                        const fc::ecc::private_key &witness_private_key);
     };
 }
 
