@@ -58,6 +58,7 @@
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
+#include <boost/thread.hpp>
 
 #include <fc/thread/thread.hpp>
 #include <fc/thread/future.hpp>
@@ -78,6 +79,7 @@
 #include <graphene/net/stcp_socket.hpp>
 #include <graphene/net/config.hpp>
 #include <graphene/net/exceptions.hpp>
+#include <graphene/net/mail_object.hpp>
 
 #include <graphene/chain/config.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
@@ -766,6 +768,11 @@ namespace graphene { namespace net { namespace detail {
 
       // <OmniBazaar methods>
       void mail_send_to(const std::string &comma_separated_mails);
+	  void store_undelivered_email(const graphene::net::mail_object& mail);
+	  void start_mail_sending_loop(const std::string& sender);
+	  void mail_sending_thread(const std::string& sender);
+	  std::vector<graphene::net::mail_object> get_emails_from_folder(const fc::path& dir_path);
+
       void set_wallet_name(const std::string &wname);
       // </OmniBazaar methods>
 
@@ -5210,6 +5217,79 @@ namespace graphene { namespace net { namespace detail {
       return iter != _hard_fork_block_numbers.end() ? *iter : 0;
     }
 
+	void node_impl::store_undelivered_email(const graphene::net::mail_object& mail)
+	{
+		fc::path undelivered_path = _node_configuration_directory / "mails/undelivered";
+		fc::path sender_undelivered_path = undelivered_path / mail.sender;
+		fc::path new_mail_path = sender_undelivered_path / (mail.uuid + ".txt");
+		mail.write_to_file(new_mail_path);
+	}
+
+	void node_impl::start_mail_sending_loop(const std::string& sender)
+	{
+		boost::thread(&node_impl::mail_sending_thread, this, sender);
+	}
+
+	void node_impl::mail_sending_thread(const std::string& sender)
+	{
+		while (1)
+		{
+			// extract the undelivered mail object from senders' folder
+			fc::path sender_mail_dir_path = _node_configuration_directory / "mails/undelivered" / sender;
+			std::vector<graphene::net::mail_object> unsent_emails = get_emails_from_folder(sender_mail_dir_path);
+
+			for (const peer_connection_ptr& peer : _active_connections)
+			{
+				std::vector<graphene::net::mail_object> mails_to_send_to_peer;
+
+				// extract all the undelivered mails for the current peer
+				std::copy_if(unsent_emails.begin(), unsent_emails.end(), std::back_inserter(mails_to_send_to_peer), [&](graphene::net::mail_object unsent_email) {
+					return unsent_email.recepient == peer->wallet_name;
+				});
+
+				if (mails_to_send_to_peer.size() > 0)
+				{
+					//	// prepare a bulk message
+					std::stringstream bulk_message_stream;
+					std::for_each(mails_to_send_to_peer.begin(), mails_to_send_to_peer.end(), [&](graphene::net::mail_object unsent_mail_object) {
+						bulk_message_stream << unsent_mail_object.to_string() << "~";
+					});
+
+					mail_message m(bulk_message_stream.str());
+					peer->send_message(message(m));
+
+					// remove sent files
+					std::for_each(mails_to_send_to_peer.begin(), mails_to_send_to_peer.end(), [&](graphene::net::mail_object sent_mail_object) {
+						fc::path mail_path = sender_mail_dir_path / (sent_mail_object.uuid + ".txt");
+						fc::remove(mail_path);
+					});
+				}
+			}
+
+			boost::posix_time::seconds workTime(1);
+			boost::this_thread::sleep(workTime);
+		}
+	}
+
+	std::vector<graphene::net::mail_object> node_impl::get_emails_from_folder(const fc::path& dir_path)
+	{
+		std::vector<graphene::net::mail_object> result;
+
+		if (is_directory(dir_path))
+		{
+			for (fc::directory_iterator itr(dir_path); itr != fc::directory_iterator(); ++itr)
+			{
+				if (!itr->filename().string().empty() && fc::is_regular_file(*itr))
+				{
+					graphene::net::mail_object current_mail;
+					current_mail.read_from_file(itr->string());
+					result.push_back(current_mail);
+				}
+			}
+		}
+		return result;
+	}
+
     void node_impl::mail_send_to(const std::string &comma_separated_mails)
     {
         VERIFY_CORRECT_THREAD();
@@ -5459,6 +5539,16 @@ namespace graphene { namespace net { namespace detail {
   void node::mail_send_to(const std::string &comma_separated_mails)
   {
     INVOKE_IN_IMPL(mail_send_to, comma_separated_mails);
+  }
+
+  void node::store_undelivered_email(const graphene::net::mail_object& mail)
+  {
+	  INVOKE_IN_IMPL(store_undelivered_email, mail);
+  }
+
+  void node::start_mail_sending_loop(const std::string& sender)
+  {
+	  INVOKE_IN_IMPL(start_mail_sending_loop, sender);
   }
 
   void node::set_wallet_name(const std::string &wname)

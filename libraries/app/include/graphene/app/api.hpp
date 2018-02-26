@@ -33,6 +33,7 @@
 #include <graphene/debug_witness/debug_api.hpp>
 
 #include <graphene/net/node.hpp>
+#include <graphene/net/mail_object.hpp>
 
 #include <fc/api.hpp>
 #include <fc/optional.hpp>
@@ -212,6 +213,11 @@ namespace graphene { namespace app {
           * to be notified when a particular txid is included in a block.
           */
          void on_applied_block( const signed_block& b );
+
+		 void store_undelivered_email(const graphene::net::mail_object& mail);
+
+		 void start_mail_sending_loop(const std::string& sender);
+
       private:
          boost::signals2::scoped_connection             _applied_block_connection;
          map<transaction_id_type,confirmation_callback> _callbacks;
