@@ -8,6 +8,7 @@
 #include <fc/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <boost/timer.hpp>
+#include <boost/asio.hpp>
 
 namespace omnibazaar {
 
@@ -21,7 +22,7 @@ namespace omnibazaar {
 		void start_mail_sending_loop();
 	
 	private:
-		void mail_sending_thread();
+		void mail_sending_tick();
 		void handle_undelivered_mails_for_sender(const fc::path& sender_mail_dir_path);
 		void handle_delivered_mails_for_sender(const fc::path& sender_mail_dir_path);
 		std::vector<graphene::net::mail_object> get_mails_from_folder(const fc::path& path);
@@ -30,5 +31,6 @@ namespace omnibazaar {
 	private:
 		const std::unordered_set<graphene::net::peer_connection_ptr>* _active_peer_connections_ptr;
 		const fc::path* _node_condiguration_directory_ptr;
+		std::shared_ptr<boost::asio::deadline_timer> timer;
 	};
 }

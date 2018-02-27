@@ -5,6 +5,8 @@ static const std::string UNDELIVERED_STR = "undelivered";
 static const std::string MAILS_STR = "mails";
 static const std::string TXT_EXTENSION = ".txt";
 
+static const int TIMER_TICK_INTERVAL_IN_SECONDS = 1;
+
 omnibazaar::mail_sender::mail_sender(const std::unordered_set<graphene::net::peer_connection_ptr>& active_peer_connections, const fc::path& node_configuration_directory)
 {
 	this->_active_peer_connections_ptr = &active_peer_connections;
@@ -26,30 +28,32 @@ void omnibazaar::mail_sender::store_undelivered_email(const graphene::net::mail_
 
 void omnibazaar::mail_sender::start_mail_sending_loop()
 {
-	boost::thread(&omnibazaar::mail_sender::mail_sending_thread, this);
+	boost::asio::io_service io_service;
+	boost::posix_time::seconds interval(TIMER_TICK_INTERVAL_IN_SECONDS);
+	timer = std::make_shared<boost::asio::deadline_timer>(io_service, interval);
+
+	timer->async_wait(boost::bind(&omnibazaar::mail_sender::mail_sending_tick, this));
+	io_service.run();
 }
 
-void omnibazaar::mail_sender::mail_sending_thread()
+void omnibazaar::mail_sender::mail_sending_tick()
 {
-	while (1)
-	{
-		fc::path mail_dir_path = (*_node_condiguration_directory_ptr) / MAILS_STR;
+	fc::path mail_dir_path = (*_node_condiguration_directory_ptr) / MAILS_STR;
 
-		std::vector<fc::path> senders_dirs = get_files_in_folder(mail_dir_path);
+	std::vector<fc::path> senders_dirs = get_files_in_folder(mail_dir_path);
 
-		std::for_each(senders_dirs.begin(), senders_dirs.end(), [&](const fc::path& sender_mail_dir_path) {
+	std::for_each(senders_dirs.begin(), senders_dirs.end(), [&](const fc::path& sender_mail_dir_path) {
 
-			// handle undelivered mails
-			handle_undelivered_mails_for_sender(sender_mail_dir_path);
+		// handle undelivered mails
+		handle_undelivered_mails_for_sender(sender_mail_dir_path);
 			
-			// handle mails that are delivered, but not notified to sender
-			handle_delivered_mails_for_sender(sender_mail_dir_path);
+		// handle mails that are delivered, but not notified to sender
+		handle_delivered_mails_for_sender(sender_mail_dir_path);
 
-		});
+	});
 
-		boost::posix_time::seconds workTime(1);
-		boost::this_thread::sleep(workTime);
-	}
+	timer->expires_at(timer->expires_at() + boost::posix_time::seconds(TIMER_TICK_INTERVAL_IN_SECONDS));
+	timer->async_wait(boost::bind(&omnibazaar::mail_sender::mail_sending_tick, this));
 }
 
 void omnibazaar::mail_sender::handle_undelivered_mails_for_sender(const fc::path& sender_mail_dir_path)
