@@ -22,6 +22,8 @@ namespace omnibazaar {
 	
 	private:
 		void mail_sending_thread();
+		void handle_undelivered_mails_for_sender(const fc::path& sender_mail_dir_path);
+		void handle_delivered_mails_for_sender(const fc::path& sender_mail_dir_path);
 		std::vector<graphene::net::mail_object> get_mails_from_folder(const fc::path& path);
 		std::vector<fc::path> get_files_in_folder(const fc::path& path);
 

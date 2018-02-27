@@ -209,6 +209,7 @@ namespace detail {
          _p2p_network->sync_from(net::item_id(net::core_message_type_enum::block_message_type,
                                               _chain_db->head_block_id()),
                                  std::vector<uint32_t>());
+		 _p2p_network->initialize_mail_sender();
       } FC_CAPTURE_AND_RETHROW() }
 
       std::vector<fc::ip::endpoint> resolve_string_to_ip_endpoints(const std::string& endpoint_string)
@@ -889,7 +890,7 @@ namespace detail {
       api_access _apiaccess;
 
       std::shared_ptr<graphene::chain::database>            _chain_db;
-      std::shared_ptr<graphene::net::node>                  _p2p_network;
+	  std::shared_ptr<graphene::net::node>                  _p2p_network;
       std::shared_ptr<fc::http::websocket_server>      _websocket_server;
       std::shared_ptr<fc::http::websocket_tls_server>  _websocket_tls_server;
 

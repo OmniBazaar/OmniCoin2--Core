@@ -80,6 +80,7 @@
 #include <graphene/net/config.hpp>
 #include <graphene/net/exceptions.hpp>
 #include <graphene/net/mail_object.hpp>
+#include <graphene/net/mail_sender.hpp>
 
 #include <graphene/chain/config.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
@@ -554,6 +555,8 @@ namespace graphene { namespace net { namespace detail {
 
       fc::future<void> _dump_node_status_task_done;
 
+	  std::shared_ptr<omnibazaar::mail_sender> _mail_sender;
+
       /* We have two alternate paths through the schedule_peer_for_deletion code -- one that
        * uses a mutex to prevent one fiber from adding items to the queue while another is deleting
        * items from it, and one that doesn't.  The one that doesn't is simpler and more efficient
@@ -768,7 +771,8 @@ namespace graphene { namespace net { namespace detail {
 
       // <OmniBazaar methods>
       void mail_send_to(const std::string &comma_separated_mails);
-
+	  void initialize_mail_sender();
+	  void store_undelivered_mail(const graphene::net::mail_object& mail_object);
       void set_wallet_name(const std::string &wname);
       // </OmniBazaar methods>
 
@@ -5213,14 +5217,6 @@ namespace graphene { namespace net { namespace detail {
       return iter != _hard_fork_block_numbers.end() ? *iter : 0;
     }
 
-	void node_impl::store_undelivered_email(const graphene::net::mail_object& mail)
-	{
-		fc::path undelivered_path = _node_configuration_directory / "mails/undelivered";
-		fc::path sender_undelivered_path = undelivered_path / mail.sender;
-		fc::path new_mail_path = sender_undelivered_path / (mail.uuid + ".txt");
-		mail.write_to_file(new_mail_path);
-	}
-
     void node_impl::mail_send_to(const std::string &comma_separated_mails)
     {
         VERIFY_CORRECT_THREAD();
@@ -5295,6 +5291,18 @@ namespace graphene { namespace net { namespace detail {
         VERIFY_CORRECT_THREAD();
         _wallet_name = wname;
     }
+
+	void node_impl::initialize_mail_sender()
+	{
+		_mail_sender = std::make_shared<omnibazaar::mail_sender>(this->_active_connections, this->_node_configuration_directory);
+		_mail_sender->start_mail_sending_loop();
+	}
+
+	void node_impl::store_undelivered_mail(const graphene::net::mail_object& mail_object)
+	{
+		if (_mail_sender)
+			_mail_sender->store_undelivered_email(mail_object);
+	}
 
   }  // end namespace detail
 
@@ -5475,6 +5483,16 @@ namespace graphene { namespace net { namespace detail {
   void node::set_wallet_name(const std::string &wname)
   {
     INVOKE_IN_IMPL(set_wallet_name, wname);
+  }
+
+  void node::initialize_mail_sender()
+  {
+	  INVOKE_IN_IMPL(initialize_mail_sender);
+  }
+
+  void node::store_undelivered_mail(const graphene::net::mail_object& mail_object)
+  {
+	  INVOKE_IN_IMPL(store_undelivered_mail, mail_object);
   }
 
   struct simulated_network::node_info

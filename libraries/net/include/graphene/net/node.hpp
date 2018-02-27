@@ -298,6 +298,10 @@ namespace graphene { namespace net {
 
         void set_wallet_name(const std::string &wname);
 
+		void initialize_mail_sender();
+
+		void store_undelivered_mail(const graphene::net::mail_object& mail_object);
+
       private:
         std::unique_ptr<detail::node_impl, detail::node_impl_deleter> my;
    };
