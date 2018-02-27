@@ -155,12 +155,12 @@ namespace graphene { namespace app {
 
 	void network_broadcast_api::store_undelivered_email(const graphene::net::mail_object& mail)
 	{
-		_app.p2p_node()->store_undelivered_email(mail);
+		
 	}
 
-	void network_broadcast_api::start_mail_sending_loop(const std::string& sender)
+	void network_broadcast_api::start_mail_sending_loop()
 	{
-		_app.p2p_node()->start_mail_sending_loop(sender);
+		
 	}
 
     void network_broadcast_api::broadcast_transaction(const signed_transaction& trx)

@@ -295,8 +295,6 @@ namespace graphene { namespace net {
         fc::variant_object get_call_statistics() const;
 
         void mail_send_to(const std::string &comma_separated_mails);
-		void store_undelivered_email(const graphene::net::mail_object& mail);
-		void start_mail_sending_loop(const std::string& sender);
 
         void set_wallet_name(const std::string &wname);
 

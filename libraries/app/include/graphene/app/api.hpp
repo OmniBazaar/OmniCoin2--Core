@@ -216,7 +216,7 @@ namespace graphene { namespace app {
 
 		 void store_undelivered_email(const graphene::net::mail_object& mail);
 
-		 void start_mail_sending_loop(const std::string& sender);
+		 void start_mail_sending_loop();
 
       private:
          boost::signals2::scoped_connection             _applied_block_connection;
