@@ -44,6 +44,7 @@
 #include <../omnibazaar/sale_bonus.hpp>
 #include <../omnibazaar/founder_bonus.hpp>
 #include <../omnibazaar/witness_bonus.hpp>
+#include <../omnibazaar/escrow.hpp>
 
 namespace graphene { namespace chain {
 
@@ -104,7 +105,8 @@ namespace graphene { namespace chain {
             omnibazaar::referral_bonus_operation,
             omnibazaar::sale_bonus_operation,
             omnibazaar::founder_bonus_operation,
-            omnibazaar::witness_bonus_operation
+            omnibazaar::witness_bonus_operation,
+            omnibazaar::escrow_create_operation
          > operation;
 
    /// @} // operations group
