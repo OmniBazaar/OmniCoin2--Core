@@ -184,6 +184,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::founder_bonus_evaluator>();
    register_evaluator<omnibazaar::witness_bonus_evaluator>();
    register_evaluator<omnibazaar::escrow_create_evaluator>();
+   register_evaluator<omnibazaar::escrow_release_evaluator>();
 }
 
 void database::initialize_indexes()

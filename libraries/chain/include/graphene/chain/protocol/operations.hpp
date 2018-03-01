@@ -106,7 +106,8 @@ namespace graphene { namespace chain {
             omnibazaar::sale_bonus_operation,
             omnibazaar::founder_bonus_operation,
             omnibazaar::witness_bonus_operation,
-            omnibazaar::escrow_create_operation
+            omnibazaar::escrow_create_operation,
+            omnibazaar::escrow_release_operation
          > operation;
 
    /// @} // operations group

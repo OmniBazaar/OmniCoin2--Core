@@ -46,6 +46,10 @@
 #include <graphene/db/object_id.hpp>
 #include <graphene/chain/protocol/config.hpp>
 
+namespace omnibazaar {
+    class escrow_object;
+}
+
 namespace graphene { namespace chain {
    using namespace graphene::db;
 
@@ -177,7 +181,6 @@ namespace graphene { namespace chain {
    class worker_object;
    class balance_object;
    class blinded_balance_object;
-   class escrow_object;
 
    typedef object_id< protocol_ids, account_object_type,            account_object>               account_id_type;
    typedef object_id< protocol_ids, asset_object_type,              asset_object>                 asset_id_type;
@@ -193,7 +196,7 @@ namespace graphene { namespace chain {
    typedef object_id< protocol_ids, vesting_balance_object_type,    vesting_balance_object>       vesting_balance_id_type;
    typedef object_id< protocol_ids, worker_object_type,             worker_object>                worker_id_type;
    typedef object_id< protocol_ids, balance_object_type,            balance_object>               balance_id_type;
-   typedef object_id< protocol_ids, escrow_object_type,             escrow_object>                escrow_id_type;
+   typedef object_id< protocol_ids, escrow_object_type,             omnibazaar::escrow_object>    escrow_id_type;
 
    // implementation types
    class global_property_object;
