@@ -1,14 +1,19 @@
 #pragma once
 
-#include <vector>
-#include <unordered_set>
-#include <graphene/net/mail_object.hpp>
 #include <graphene/net/node.hpp>
 #include <graphene/net/peer_connection.hpp>
+#include <graphene/chain/protocol/fee_schedule.hpp>
+#include <graphene/net/mail_object.hpp>
+
 #include <fc/filesystem.hpp>
+
 #include <boost/thread.hpp>
 #include <boost/timer.hpp>
 #include <boost/asio.hpp>
+
+#include <vector>
+#include <unordered_set>
+
 
 namespace omnibazaar {
 
