@@ -40,6 +40,7 @@
 #include <graphene/chain/proposal_object.hpp>
 #include <graphene/chain/worker_object.hpp>
 #include <graphene/chain/witness_object.hpp>
+#include <../omnibazaar/escrow_object.hpp>
 
 #include <graphene/market_history/market_history_plugin.hpp>
 
@@ -650,6 +651,15 @@ class database_api
         * @return true if bonus is available, false otherwise
         */
       bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
+
+      /////////////
+      // Escrows //
+      /////////////
+
+      /**
+       *  @return the set of escrow processes relevant to the specified account id.
+       */
+      vector<omnibazaar::escrow_object> get_escrow_objects( const account_id_type& id )const;
 
    private:
       std::shared_ptr< database_api_impl > my;

@@ -26,6 +26,18 @@ namespace omnibazaar {
         graphene::chain::asset amount;
     };
 
+    // Tracks all of the escrow objects that are relevant for an individual account.
+    class escrow_account_index : public graphene::chain::secondary_index
+    {
+    public:
+        virtual void object_inserted( const graphene::chain::object& obj ) override;
+        virtual void object_removed( const graphene::chain::object& obj ) override;
+
+        void remove( const graphene::chain::account_id_type& a, const graphene::chain::escrow_id_type& e );
+
+        std::map<graphene::chain::account_id_type, std::set<graphene::chain::escrow_id_type> > account_to_escrows;
+    };
+
     struct by_expiration{};
     typedef boost::multi_index_container<
        escrow_object,

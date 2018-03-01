@@ -210,7 +210,8 @@ void database::initialize_indexes()
    auto prop_index = add_index< primary_index<proposal_index > >();
    prop_index->add_secondary_index<required_approval_index>();
 
-   add_index< primary_index<omnibazaar::escrow_index> >();
+   auto escr_index = add_index< primary_index<omnibazaar::escrow_index> >();
+   escr_index->add_secondary_index<omnibazaar::escrow_account_index>();
 
    add_index< primary_index<withdraw_permission_index > >();
    add_index< primary_index<vesting_balance_index> >();

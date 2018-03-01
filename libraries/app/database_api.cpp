@@ -159,6 +159,9 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       bool is_referral_bonus_available()const;
       bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
 
+      // Escrows
+      vector<omnibazaar::escrow_object> get_escrow_objects( const account_id_type& id )const;
+
    //private:
       template<typename T>
       void subscribe_to_item( const T& i )const
@@ -671,6 +674,8 @@ std::map<std::string, full_account> database_api_impl::get_full_accounts( const 
             acnt.proposals.push_back( proposal_id(_db) );
       }
 
+      // Add account's escrow objects.
+      acnt.escrows = get_escrow_objects(account->id);
 
       // Add the account's balances
       auto balance_range = _db.get_index_type<account_balance_index>().indices().get<by_account_asset>().equal_range(boost::make_tuple(account->id));
@@ -2311,6 +2316,36 @@ bool database_api::is_sale_bonus_available(const account_id_type& seller_id, con
 bool database_api_impl::is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const
 {
     return _db.is_sale_bonus_available(seller_id, buyer_id);
+}
+
+//////////////////////////////////////////////////////////////////////
+//                                                                  //
+// Escrows                                                          //
+//                                                                  //
+//////////////////////////////////////////////////////////////////////
+
+vector<omnibazaar::escrow_object> database_api::get_escrow_objects( const account_id_type& id )const
+{
+    return my->get_escrow_objects(id);
+}
+
+vector<omnibazaar::escrow_object> database_api_impl::get_escrow_objects( const account_id_type& id )const
+{
+    vector<omnibazaar::escrow_object> result;
+
+    const auto& escrow_idx = dynamic_cast<const primary_index<omnibazaar::escrow_index>&>(_db.get_index_type<omnibazaar::escrow_index>());
+    const auto& escrow_by_account_idx = escrow_idx.get_secondary_index<omnibazaar::escrow_account_index>();
+    const auto& account_iter = escrow_by_account_idx.account_to_escrows.find(id);
+    if(account_iter != escrow_by_account_idx.account_to_escrows.end())
+    {
+        result.reserve(account_iter->second.size());
+        for(const auto& escrow_id : account_iter->second)
+        {
+            result.push_back(escrow_id(_db));
+        }
+    }
+
+    return result;
 }
 
 } } // graphene::app
