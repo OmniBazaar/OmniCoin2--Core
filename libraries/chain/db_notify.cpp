@@ -231,6 +231,11 @@ struct get_impacted_account_visitor
    {
       _impacted.insert( op.fee_paying_account );
    }
+
+   void operator()( const omnibazaar::escrow_return_operation& op )
+   {
+      _impacted.insert( op.fee_paying_account );
+   }
 };
 
 static void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )

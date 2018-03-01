@@ -88,4 +88,38 @@ namespace omnibazaar {
         FC_CAPTURE_AND_RETHROW( (op) )
     }
 
+    graphene::chain::void_result escrow_return_evaluator::do_evaluate( const escrow_return_operation& op )
+    {
+        try
+        {
+            const graphene::chain::database& d = db();
+            const escrow_object& escrow_obj = op.escrow(d);
+
+            // Check that this operation specifies correct accounts.
+            FC_ASSERT( op.seller_account == escrow_obj.seller, "Seller specified in this operation doesn't match initial seller." );
+            FC_ASSERT( op.escrow_account == escrow_obj.escrow, "Escrow agent specified in this operation doesn't match initial agent." );
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
+    graphene::chain::void_result escrow_return_evaluator::do_apply( const escrow_return_operation& op )
+    {
+        try
+        {
+            graphene::chain::database& d = db();
+            const escrow_object& escrow_obj = op.escrow(d);
+
+            // Return funds to buyer.
+            d.adjust_balance(escrow_obj.buyer, escrow_obj.amount);
+
+            // Remove escrow thus closing the process.
+            d.remove(escrow_obj);
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
 }
