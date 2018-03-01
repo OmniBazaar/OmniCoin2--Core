@@ -277,6 +277,9 @@ namespace graphene { namespace chain {
 
          // Users that bought something from this account. Used in Sale Bonus processing.
          std::set<account_id_type> buyers;
+
+         // Users that this account added to acceptable Escrow agents.
+         std::set<account_id_type> escrows;
    };
 
    /**
@@ -397,6 +400,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (is_a_publisher)
                     (is_an_escrow)
                     (buyers)
+                    (escrows)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

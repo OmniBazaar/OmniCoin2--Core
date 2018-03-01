@@ -334,6 +334,11 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
       {
          a.is_an_escrow = *o.is_an_escrow;
       }
+
+      if(o.escrows)
+      {
+          a.escrows = *o.escrows;
+      }
             
       sa_after = a.has_special_authority();
    });

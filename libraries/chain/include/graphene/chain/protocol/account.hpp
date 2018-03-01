@@ -147,6 +147,9 @@ namespace graphene { namespace chain {
       /// New is-escrow flag value
       optional<bool> is_an_escrow;
 
+      /// New list of acceptable escrows
+      optional<std::set<account_id_type>> escrows;
+
       /// New account options
       optional<account_options> new_options;
       extension< ext > extensions;
@@ -282,7 +285,7 @@ FC_REFLECT( graphene::chain::account_create_operation,
 
 FC_REFLECT(graphene::chain::account_update_operation::ext, (null_ext)(owner_special_authority)(active_special_authority) )
 FC_REFLECT( graphene::chain::account_update_operation,
-            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(is_an_escrow)
+            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(is_an_escrow)(escrows)
           )
 
 FC_REFLECT( graphene::chain::account_upgrade_operation,

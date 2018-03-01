@@ -238,6 +238,7 @@ void account_update_operation::validate()const
       || new_options.valid()
       || extensions.value.owner_special_authority.valid()
       || extensions.value.active_special_authority.valid()
+      || escrows.valid()
       );
 
    FC_ASSERT( has_action );
