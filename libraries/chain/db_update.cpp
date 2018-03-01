@@ -33,6 +33,7 @@
 #include <graphene/chain/transaction_object.hpp>
 #include <graphene/chain/withdraw_permission_object.hpp>
 #include <graphene/chain/witness_object.hpp>
+#include <../omnibazaar/escrow_object.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -186,6 +187,38 @@ void database::clear_expired_proposals()
       }
       remove(proposal);
    }
+}
+
+void database::clear_expired_escrows()
+{
+    const auto& escrow_expiration_index = get_index_type<omnibazaar::escrow_index>().indices().get<omnibazaar::by_expiration>();
+    while( !escrow_expiration_index.empty() && escrow_expiration_index.begin()->expiration_time <= head_block_time() )
+    {
+        const omnibazaar::escrow_object& escrow = *escrow_expiration_index.begin();
+        processed_transaction result;
+        try
+        {
+            try
+            {
+                result = push_escrow(escrow, true);
+                continue;
+            }
+            catch( const fc::exception& e )
+            {
+                elog("Failed to release escrow on its expiration. Trying refund.\n${escrow}\n${error}",
+                     ("escrow", escrow)("error", e.to_detail_string()));
+
+                result = push_escrow(escrow, false);
+                continue;
+            }
+        }
+        catch( const fc::exception& e )
+        {
+            elog("Failed to close escrow on its expiration. Deleting it.\n${escrow}\n${error}",
+                 ("escrow", escrow)("error", e.to_detail_string()));
+        }
+        remove(escrow);
+    }
 }
 
 /**

@@ -67,6 +67,7 @@
 #include <founder_bonus_evaluator.hpp>
 #include <witness_bonus_evaluator.hpp>
 #include <escrow_evaluator.hpp>
+#include <escrow_object.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -208,6 +209,8 @@ void database::initialize_indexes()
 
    auto prop_index = add_index< primary_index<proposal_index > >();
    prop_index->add_secondary_index<required_approval_index>();
+
+   add_index< primary_index<omnibazaar::escrow_index> >();
 
    add_index< primary_index<withdraw_permission_index > >();
    add_index< primary_index<vesting_balance_index> >();

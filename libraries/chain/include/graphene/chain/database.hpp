@@ -144,6 +144,8 @@ namespace graphene { namespace chain {
 
          ///@throws fc::exception if the proposed transaction fails to apply.
          processed_transaction push_proposal( const proposal_object& proposal );
+         ///@throws fc::exception if the escrow fails to apply.
+         processed_transaction push_escrow( const omnibazaar::escrow_object& escrow, const bool release );
 
          signed_block generate_block(
             const fc::time_point_sec when,
@@ -471,6 +473,7 @@ namespace graphene { namespace chain {
          void clear_expired_transactions();
          void clear_expired_proposals();
          void clear_expired_orders();
+         void clear_expired_escrows();
          void update_expired_feeds();
          void update_maintenance_flag( bool new_maintenance_flag );
          void update_withdraw_permissions();

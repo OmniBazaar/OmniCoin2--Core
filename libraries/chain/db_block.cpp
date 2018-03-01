@@ -41,6 +41,7 @@
 
 #include <../omnibazaar/founder_bonus.hpp>
 #include <../omnibazaar/witness_bonus.hpp>
+#include <../omnibazaar/escrow_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -300,6 +301,71 @@ processed_transaction database::push_proposal(const proposal_object& proposal)
    return ptrx;
 } FC_CAPTURE_AND_RETHROW( (proposal) ) }
 
+processed_transaction database::push_escrow(const omnibazaar::escrow_object& escrow , const bool release)
+{
+    try
+    {
+        transaction_evaluation_state eval_state(this);
+
+        processed_transaction ptrx;
+        ptrx.expiration = escrow.expiration_time;
+        if(release)
+        {
+            omnibazaar::escrow_release_operation escrow_op;
+            escrow_op.escrow = escrow.id;
+            escrow_op.buyer_account = escrow.buyer;
+            escrow_op.escrow_account = escrow.escrow;
+            escrow_op.fee_paying_account = escrow.buyer;
+            ptrx.operations.push_back(escrow_op);
+        }
+        else
+        {
+            omnibazaar::escrow_return_operation escrow_op;
+            escrow_op.escrow = escrow.id;
+            escrow_op.seller_account = escrow.seller;
+            escrow_op.escrow_account = escrow.escrow;
+            escrow_op.fee_paying_account = escrow.seller;
+            ptrx.operations.push_back(escrow_op);
+        }
+        ptrx.validate();
+        eval_state._trx = &ptrx;
+
+        size_t old_applied_ops_size = _applied_ops.size();
+
+        try
+        {
+            auto session = _undo_db.start_undo_session(true);
+            for(const auto& op : ptrx.operations)
+            {
+                eval_state.operation_results.emplace_back(apply_operation(eval_state, op));
+            }
+            remove(escrow);
+            session.merge();
+        }
+        catch ( const fc::exception& e )
+        {
+            if( head_block_time() <= HARDFORK_483_TIME )
+            {
+                for( size_t i = old_applied_ops_size, n = _applied_ops.size(); i < n; i++ )
+                {
+                    ilog( "removing failed operation from applied_ops: ${op}", ("op", *(_applied_ops[i])) );
+                    _applied_ops[i].reset();
+                }
+            }
+            else
+            {
+                _applied_ops.resize( old_applied_ops_size );
+            }
+            elog( "e", ("e",e.to_detail_string() ) );
+            throw;
+        }
+
+        ptrx.operation_results = std::move(eval_state.operation_results);
+        return ptrx;
+    }
+    FC_CAPTURE_AND_RETHROW( (escrow) )
+}
+
 signed_block database::generate_block(
    fc::time_point_sec when,
    witness_id_type witness_id,
@@ -535,6 +601,7 @@ void database::_apply_block( const signed_block& next_block )
    clear_expired_transactions();
    clear_expired_proposals();
    clear_expired_orders();
+   clear_expired_escrows();
    update_expired_feeds();
    update_withdraw_permissions();
 

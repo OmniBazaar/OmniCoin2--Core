@@ -3,6 +3,7 @@
 #include <graphene/db/object.hpp>
 #include <graphene/chain/protocol/types.hpp>
 #include <graphene/chain/asset_object.hpp>
+#include <graphene/db/generic_index.hpp>
 
 namespace omnibazaar {
 
@@ -24,6 +25,16 @@ namespace omnibazaar {
         // Funds amount reserved in escrow.
         graphene::chain::asset amount;
     };
+
+    struct by_expiration{};
+    typedef boost::multi_index_container<
+       escrow_object,
+       graphene::chain::indexed_by<
+          graphene::chain::ordered_unique< graphene::chain::tag< graphene::chain::by_id >, graphene::chain::member< graphene::chain::object, graphene::chain::object_id_type, &graphene::chain::object::id > >,
+          graphene::chain::ordered_non_unique< graphene::chain::tag< by_expiration >, graphene::chain::member< escrow_object, fc::time_point_sec, &escrow_object::expiration_time > >
+       >
+    > escrow_multi_index_container;
+    typedef graphene::chain::generic_index<escrow_object, escrow_multi_index_container> escrow_index;
 
 }
 
