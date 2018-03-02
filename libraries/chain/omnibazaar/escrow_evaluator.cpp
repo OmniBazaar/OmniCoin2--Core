@@ -11,6 +11,17 @@ namespace omnibazaar {
             const graphene::chain::database& d = db();
             const auto& global_parameters = d.get_global_properties().parameters;
 
+            // Check mutually acceptable escrow agents.
+            FC_ASSERT( op.buyer(d).escrows.find(op.escrow) != op.buyer(d).escrows.end(), "Escrow agent is not buyer's acceptable list of agents." );
+            FC_ASSERT( op.seller(d).escrows.find(op.escrow) != op.seller(d).escrows.end(), "Escrow agent is not seller's acceptable list of agents." );
+
+            // Check funds.
+            FC_ASSERT( d.get_balance(op.buyer, op.amount.asset_id).amount >= op.amount.amount,
+                       "Insufficient Balance: ${balance}, unable to transfer '${total_transfer}' to escrow from account '${a}'",
+                       ("a", op.buyer(d).name)
+                       ("total_transfer", d.to_pretty_string(op.amount))
+                       ("balance", d.to_pretty_string(d.get_balance(op.buyer, op.amount.asset_id))) );
+
             // Check expiration time.
             FC_ASSERT( op.expiration_time > d.head_block_time(), "Escrow has already expired on creation." );
             FC_ASSERT( op.expiration_time <= (d.head_block_time() + global_parameters.maximum_escrow_lifetime),
