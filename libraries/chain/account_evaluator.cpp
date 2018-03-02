@@ -335,6 +335,11 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
          a.is_an_escrow = *o.is_an_escrow;
       }
 
+      if(o.escrow_fee)
+      {
+          a.escrow_fee = *o.escrow_fee;
+      }
+
       if(o.escrows)
       {
           a.escrows = *o.escrows;

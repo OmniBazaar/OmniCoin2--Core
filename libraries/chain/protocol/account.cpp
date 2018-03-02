@@ -239,6 +239,7 @@ void account_update_operation::validate()const
       || extensions.value.owner_special_authority.valid()
       || extensions.value.active_special_authority.valid()
       || escrows.valid()
+      || escrow_fee.valid()
       );
 
    FC_ASSERT( has_action );
@@ -262,6 +263,11 @@ void account_update_operation::validate()const
       validate_special_authority( *extensions.value.owner_special_authority );
    if( extensions.value.active_special_authority.valid() )
       validate_special_authority( *extensions.value.active_special_authority );
+
+   if( escrow_fee )
+   {
+       FC_ASSERT( (*escrow_fee) < GRAPHENE_100_PERCENT, "Escrow fee cannot be 100% or more" );
+   }
 }
 
 share_type account_upgrade_operation::calculate_fee(const fee_parameters_type& k) const
