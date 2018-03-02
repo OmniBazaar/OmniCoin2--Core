@@ -22,8 +22,10 @@ namespace omnibazaar {
         graphene::chain::account_id_type seller;
         // Escrow agent account.
         graphene::chain::account_id_type escrow;
-        // Funds amount reserved in escrow.
+        // Funds amount reserved in escrow (excluding escrow fee).
         graphene::chain::asset amount;
+        // Reserved escrow fee.
+        graphene::chain::asset escrow_fee;
     };
 
     // Tracks all of the escrow objects that are relevant for an individual account.
@@ -55,4 +57,5 @@ FC_REFLECT_DERIVED(omnibazaar::escrow_object, (graphene::chain::object),
                    (buyer)
                    (seller)
                    (escrow)
-                   (amount))
+                   (amount)
+                   (escrow_fee))

@@ -30,6 +30,8 @@
 namespace graphene { namespace chain {
    class database;
 
+   share_type cut_fee(share_type a, uint16_t p);
+
    /**
     * @class account_statistics_object
     * @ingroup object

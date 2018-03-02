@@ -54,10 +54,14 @@ namespace omnibazaar {
                 e.buyer = op.buyer;
                 e.seller = op.seller;
                 e.escrow = op.escrow;
-                e.amount = op.amount;
+                // Calculate fee and store it separately.
+                const graphene::chain::share_type fee = graphene::chain::cut_fee(op.amount.amount, op.escrow(d).escrow_fee);
+                e.escrow_fee = graphene::chain::asset(fee, op.amount.asset_id);
+                // Store amount excluding the fee.
+                e.amount = op.amount - e.escrow_fee;
             });
 
-            // Lock buyer funds.
+            // Lock buyer funds. Deduct entire amount (including escrow fee).
             d.adjust_balance(op.buyer, -op.amount);
 
             return escrow.id;
@@ -88,7 +92,10 @@ namespace omnibazaar {
             graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
 
-            // Send funds to seller.
+            // Pay escrow fee.
+            d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
+
+            // Send remaining funds to seller.
             d.adjust_balance(escrow_obj.seller, escrow_obj.amount);
 
             // Remove escrow thus closing the process.
@@ -122,7 +129,10 @@ namespace omnibazaar {
             graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
 
-            // Return funds to buyer.
+            // Pay escrow fee
+            d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
+
+            // Return remaining funds to buyer.
             d.adjust_balance(escrow_obj.buyer, escrow_obj.amount);
 
             // Remove escrow thus closing the process.
