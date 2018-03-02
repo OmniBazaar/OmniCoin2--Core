@@ -54,6 +54,7 @@ namespace omnibazaar {
                 e.buyer = op.buyer;
                 e.seller = op.seller;
                 e.escrow = op.escrow;
+                e.transfer_to_escrow = op.transfer_to_escrow;
                 // Calculate fee and store it separately.
                 const graphene::chain::share_type fee = graphene::chain::cut_fee(op.amount.amount, op.escrow(d).escrow_fee);
                 e.escrow_fee = graphene::chain::asset(fee, op.amount.asset_id);
@@ -63,6 +64,12 @@ namespace omnibazaar {
 
             // Lock buyer funds. Deduct entire amount (including escrow fee).
             d.adjust_balance(op.buyer, -op.amount);
+
+            // Store funds in escrow account.
+            if(op.transfer_to_escrow)
+            {
+                d.adjust_balance(op.escrow, op.amount);
+            }
 
             return escrow.id;
         }
@@ -80,6 +87,17 @@ namespace omnibazaar {
             FC_ASSERT( op.buyer_account == escrow_obj.buyer, "Buyer specified in this operation doesn't match initial buyer." );
             FC_ASSERT( op.escrow_account == escrow_obj.escrow, "Escrow agent specified in this operation doesn't match initial agent." );
 
+            if(escrow_obj.transfer_to_escrow)
+            {
+                // Check escrow funds.
+                FC_ASSERT( d.get_balance(op.escrow_account, escrow_obj.amount.asset_id).amount >= escrow_obj.amount.amount,
+                           "Insufficient Balance: ${balance}, unable to transfer '${total_transfer}' from escrow '${e}' to account '${a}'",
+                           ("a", escrow_obj.seller(d).name)
+                           ("e", op.escrow_account(d).name)
+                           ("total_transfer", d.to_pretty_string(escrow_obj.amount))
+                           ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
+            }
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -92,8 +110,16 @@ namespace omnibazaar {
             graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
 
-            // Pay escrow fee.
-            d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
+            if(escrow_obj.transfer_to_escrow)
+            {
+                // Funds were initially stored in escrow account, so remove base amount, but keep escrow fee.
+                d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
+            }
+            else
+            {
+                // Funds were locked in blockchain, so just pay escrow fee.
+                d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
+            }
 
             // Send remaining funds to seller.
             d.adjust_balance(escrow_obj.seller, escrow_obj.amount);
@@ -117,6 +143,17 @@ namespace omnibazaar {
             FC_ASSERT( op.seller_account == escrow_obj.seller, "Seller specified in this operation doesn't match initial seller." );
             FC_ASSERT( op.escrow_account == escrow_obj.escrow, "Escrow agent specified in this operation doesn't match initial agent." );
 
+            if(escrow_obj.transfer_to_escrow)
+            {
+                // Check escrow funds.
+                FC_ASSERT( d.get_balance(op.escrow_account, escrow_obj.amount.asset_id).amount >= escrow_obj.amount.amount,
+                           "Insufficient Balance: ${balance}, unable to transfer '${total_transfer}' from escrow '${e}' to account '${a}'",
+                           ("a", escrow_obj.buyer(d).name)
+                           ("e", op.escrow_account(d).name)
+                           ("total_transfer", d.to_pretty_string(escrow_obj.amount))
+                           ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
+            }
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -129,8 +166,16 @@ namespace omnibazaar {
             graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
 
-            // Pay escrow fee
-            d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
+            if(escrow_obj.transfer_to_escrow)
+            {
+                // Funds were initially stored in escrow account, so remove base amount, but keep escrow fee.
+                d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
+            }
+            else
+            {
+                // Funds were locked in blockchain, so just pay escrow fee.
+                d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
+            }
 
             // Return remaining funds to buyer.
             d.adjust_balance(escrow_obj.buyer, escrow_obj.amount);

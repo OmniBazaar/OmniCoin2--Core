@@ -26,6 +26,8 @@ namespace omnibazaar {
         graphene::chain::asset amount;
         // Reserved escrow fee.
         graphene::chain::asset escrow_fee;
+        // Flag indicating that all funds should be kept in escrow account instead of blockchain.
+        bool transfer_to_escrow;
     };
 
     // Tracks all of the escrow objects that are relevant for an individual account.
@@ -58,4 +60,5 @@ FC_REFLECT_DERIVED(omnibazaar::escrow_object, (graphene::chain::object),
                    (seller)
                    (escrow)
                    (amount)
-                   (escrow_fee))
+                   (escrow_fee)
+                   (transfer_to_escrow))
