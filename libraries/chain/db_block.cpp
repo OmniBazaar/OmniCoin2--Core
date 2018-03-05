@@ -338,7 +338,7 @@ signed_block database::_generate_block(
    size_t total_block_size = max_block_header_size;
 
    // Add Founder Bonus
-   omnibazaar::founder_bonus_operation::check_and_add_bonus(*this, block_signing_private_key);
+   omnibazaar::founder_bonus_operation::check_and_add_bonus(*this, witness_id, block_signing_private_key);
    // Add Witness Bonus.
    omnibazaar::witness_bonus_operation::check_and_add_bonus(*this, witness_id, block_signing_private_key);
 
