@@ -191,6 +191,7 @@ void database::clear_expired_proposals()
 
 void database::clear_expired_escrows()
 {
+    // Go through the list of escrow objects and close those that are expired.
     const auto& escrow_expiration_index = get_index_type<omnibazaar::escrow_index>().indices().get<omnibazaar::by_expiration>();
     while( !escrow_expiration_index.empty() && escrow_expiration_index.begin()->expiration_time <= head_block_time() )
     {
@@ -198,11 +199,13 @@ void database::clear_expired_escrows()
         processed_transaction result;
         try
         {
+            // First, try to close escrow by releasing funds to Seller (default behavior).
             try
             {
                 result = push_escrow(escrow, true);
                 continue;
             }
+            // If that fails, try to return funds to buyer.
             catch( const fc::exception& e )
             {
                 elog("Failed to release escrow on its expiration. Trying refund.\n${escrow}\n${error}",
@@ -217,6 +220,16 @@ void database::clear_expired_escrows()
             elog("Failed to close escrow on its expiration. Deleting it.\n${escrow}\n${error}",
                  ("escrow", escrow)("error", e.to_detail_string()));
         }
+
+        // If we end up here it means that push_escrow failed both times
+        // and escrow funds are now locked in blockchain forever (unless "transfer to escrow" option was used).
+        // Normally this should not happen, and at the moment there is no established process
+        // of returning those funds to either account.
+        // However it will be possible to prove that funds are in locked state by examining blockchain
+        // and finding that a particular escrow_object has neither escrow_release_operation nor escrow_return_operation
+        // associated with it in the list of recorded transactions.
+        // Remove escrow_object anyway so as not to keep it in memory, it will be possible to reconstruct it from
+        // escrow_create_operation that created it initially.
         remove(escrow);
     }
 }

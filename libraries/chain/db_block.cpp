@@ -307,10 +307,12 @@ processed_transaction database::push_escrow(const omnibazaar::escrow_object& esc
     {
         transaction_evaluation_state eval_state(this);
 
+        // Create transaction that closes this escrow process.
         processed_transaction ptrx;
         ptrx.expiration = escrow.expiration_time;
         if(release)
         {
+            // Release funds to Seller.
             omnibazaar::escrow_release_operation escrow_op;
             escrow_op.escrow = escrow.id;
             escrow_op.buyer_account = escrow.buyer;
@@ -320,6 +322,7 @@ processed_transaction database::push_escrow(const omnibazaar::escrow_object& esc
         }
         else
         {
+            // Return funds to Buyer.
             omnibazaar::escrow_return_operation escrow_op;
             escrow_op.escrow = escrow.id;
             escrow_op.seller_account = escrow.seller;
@@ -332,6 +335,7 @@ processed_transaction database::push_escrow(const omnibazaar::escrow_object& esc
 
         size_t old_applied_ops_size = _applied_ops.size();
 
+        // Apply transaction to the database.
         try
         {
             auto session = _undo_db.start_undo_session(true);
