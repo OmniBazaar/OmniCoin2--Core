@@ -33,7 +33,7 @@
 #include <graphene/debug_witness/debug_api.hpp>
 
 #include <graphene/net/node.hpp>
-#include <graphene/net/mail_object.hpp>
+#include <../omnibazaar/mail_object.hpp>
 
 #include <fc/api.hpp>
 #include <fc/optional.hpp>
@@ -214,7 +214,7 @@ namespace graphene { namespace app {
           */
          void on_applied_block( const signed_block& b );
 
-		 void store_undelivered_email(const graphene::net::mail_object& mail);
+         void store_undelivered_email(const omnibazaar::mail_object& mail);
 
       private:
          boost::signals2::scoped_connection             _applied_block_connection;

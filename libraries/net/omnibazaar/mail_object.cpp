@@ -1,9 +1,9 @@
-#include <graphene/net/mail_object.hpp>
+#include <mail_object.hpp>
 #include <fstream>
 #include <sstream>
 #include <fc/io/json.hpp>
 
-void graphene::net::mail_object::read_from_file(const fc::path & file_path)
+void omnibazaar::mail_object::read_from_file(const fc::path & file_path)
 {
 	std::ifstream in_file(file_path.string());
 	in_file >> uuid;
@@ -15,7 +15,7 @@ void graphene::net::mail_object::read_from_file(const fc::path & file_path)
 	in_file >> creation_time;
 }
 
-void graphene::net::mail_object::write_to_file(const fc::path& file_path) const
+void omnibazaar::mail_object::write_to_file(const fc::path& file_path) const
 {
 	std::ofstream out_file(file_path.string());
 	out_file << uuid;
@@ -29,7 +29,7 @@ void graphene::net::mail_object::write_to_file(const fc::path& file_path) const
 	out_file.close();
 }
 
-std::string graphene::net::mail_object::to_string() const
+std::string omnibazaar::mail_object::to_string() const
 {
 	std::stringstream stream;
 	stream << uuid << "^";

@@ -26,8 +26,8 @@
 #include <graphene/net/core_messages.hpp>
 #include <graphene/net/message.hpp>
 #include <graphene/net/peer_database.hpp>
-#include <graphene/net/mail_object.hpp>
 #include <graphene/chain/protocol/types.hpp>
+#include <../omnibazaar/mail_object.hpp>
 
 #include <list>
 #include <string>
@@ -300,7 +300,7 @@ namespace graphene { namespace net {
 
 		void initialize_mail_sender();
 
-		void store_undelivered_mail(const graphene::net::mail_object& mail_object);
+        void store_undelivered_mail(const omnibazaar::mail_object& mail_object);
 
       private:
         std::unique_ptr<detail::node_impl, detail::node_impl_deleter> my;

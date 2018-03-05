@@ -153,7 +153,7 @@ namespace graphene { namespace app {
        }
     }
 
-	void network_broadcast_api::store_undelivered_email(const graphene::net::mail_object& mail)
+    void network_broadcast_api::store_undelivered_email(const omnibazaar::mail_object& mail)
 	{
 		_app.p2p_node()->store_undelivered_mail(mail);
 	}
