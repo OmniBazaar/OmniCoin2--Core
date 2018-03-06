@@ -60,6 +60,8 @@
 
 #include <graphene/utilities/git_revision.hpp>
 
+#include <../omnibazaar/mail_storage.hpp>
+
 namespace graphene { namespace app {
 using net::item_hash_t;
 using net::item_id;
@@ -442,6 +444,7 @@ namespace detail {
          reset_p2p_node(_data_dir);
          reset_websocket_server();
          reset_websocket_tls_server();
+         _mail_storage = std::make_shared<omnibazaar::mail_storage>(_data_dir);
       } FC_LOG_AND_RETHROW() }
 
       optional< api_access_info > get_api_access_info(const string& username)const
@@ -899,6 +902,8 @@ namespace detail {
       std::map<string, std::shared_ptr<abstract_plugin>> _available_plugins;
 
       bool _is_finished_syncing = false;
+
+      std::shared_ptr<omnibazaar::mail_storage> _mail_storage;
    };
 
 }
@@ -1107,6 +1112,11 @@ void application::startup_plugins()
    for( auto& entry : my->_active_plugins )
       entry.second->plugin_startup();
    return;
+}
+
+std::shared_ptr<omnibazaar::mail_storage> application::mail_storage()const
+{
+    return my->_mail_storage;
 }
 
 // namespace detail

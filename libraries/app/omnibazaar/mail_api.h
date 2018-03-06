@@ -30,6 +30,7 @@ namespace omnibazaar {
 
         // Subscribe for receiving new mail for specified user.
         // Callback argument is of type "mail_object".
+        // Upon call to this method it also triggers callback for any pending mails for specified receiver.
         void subscribe(callback_type cb, const std::string& receiver_name);
 
         // Notify the network that mail with specified UUID was successfully received.
@@ -40,6 +41,8 @@ namespace omnibazaar {
         void on_new_mail(const mail_object& mail);
         // Triggered when receive notification is received for specified mail.
         void on_mail_received(const std::string& mail_uuid);
+
+        void exec_mail_callback(callback_type callback, const std::vector<mail_object>& mails);
 
         graphene::app::application& _app;
         std::unordered_map<std::string, callback_type> _send_callbacks;

@@ -81,6 +81,7 @@
 #include <graphene/net/exceptions.hpp>
 #include <../omnibazaar/mail_object.hpp>
 #include <../omnibazaar/mail_sender.hpp>
+#include <../omnibazaar/mail_storage.hpp>
 
 #include <graphene/chain/config.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
@@ -772,7 +773,7 @@ namespace graphene { namespace net { namespace detail {
       // <OmniBazaar methods>
       void mail_send_to(const std::string &comma_separated_mails);
 	  void initialize_mail_sender();
-      void store_undelivered_mail(const omnibazaar::mail_object& mail_object);
+      void mail_send(const omnibazaar::mail_object& mail_object);
       void set_wallet_name(const std::string &wname);
       // </OmniBazaar methods>
 
@@ -5298,10 +5299,10 @@ namespace graphene { namespace net { namespace detail {
 		_mail_sender->start_mail_sending_loop();
 	}
 
-    void node_impl::store_undelivered_mail(const omnibazaar::mail_object& mail_object)
+    void node_impl::mail_send(const omnibazaar::mail_object& mail_object)
 	{
 		if (_mail_sender)
-			_mail_sender->store_undelivered_email(mail_object);
+            _mail_sender->store_undelivered_email(mail_object);
 	}
 
   }  // end namespace detail
@@ -5490,9 +5491,9 @@ namespace graphene { namespace net { namespace detail {
 	  INVOKE_IN_IMPL(initialize_mail_sender);
   }
 
-  void node::store_undelivered_mail(const omnibazaar::mail_object& mail_object)
+  void node::mail_send(const omnibazaar::mail_object& mail_object)
   {
-	  INVOKE_IN_IMPL(store_undelivered_mail, mail_object);
+      INVOKE_IN_IMPL(mail_send, mail_object);
   }
 
   struct simulated_network::node_info

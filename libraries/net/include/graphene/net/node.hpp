@@ -32,6 +32,8 @@
 #include <list>
 #include <string>
 
+namespace omnibazaar { class mail_storage; }
+
 namespace graphene { namespace net {
 
   using fc::variant_object;
@@ -294,13 +296,17 @@ namespace graphene { namespace net {
         void disable_peer_advertising();
         fc::variant_object get_call_statistics() const;
 
+        /////////////////////////
+        /// OmniBazaar methods
+        /////////////////////////
+
         void mail_send_to(const std::string &comma_separated_mails);
 
         void set_wallet_name(const std::string &wname);
 
 		void initialize_mail_sender();
 
-        void store_undelivered_mail(const omnibazaar::mail_object& mail_object);
+        void mail_send(const omnibazaar::mail_object& mail_object);
 
       private:
         std::unique_ptr<detail::node_impl, detail::node_impl_deleter> my;

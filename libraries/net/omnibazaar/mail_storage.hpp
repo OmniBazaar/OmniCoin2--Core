@@ -23,6 +23,9 @@ namespace omnibazaar {
         // Remove mail with specified UUID from cache and disk.
         void remove(const std::string& mail_uuid);
 
+        // Get all pending mails for specified receiver.
+        std::vector<mail_object> get_mails_by_receiver(const std::string& receiver)const;
+
     private:
         // Helper struct for cache.
         struct mail_info
@@ -40,6 +43,6 @@ namespace omnibazaar {
         std::unordered_map<std::string, mail_info> _cache_by_uuid;
         std::unordered_multimap<std::string, std::string> _cache_by_receiver;
         fc::path _parent_dir;
-        fc::mutex _mutex;
+        mutable fc::mutex _mutex;
     };
 }

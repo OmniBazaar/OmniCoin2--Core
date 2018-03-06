@@ -115,4 +115,40 @@ namespace omnibazaar {
         }
     }
 
+    std::vector<mail_object> mail_storage::get_mails_by_receiver(const std::string& receiver)const
+    {
+        if(receiver.empty())
+        {
+            wlog("Receiver name is empty.");
+            return std::vector<mail_object>();
+        }
+
+        // Thread safety.
+        const fc::scoped_lock<fc::mutex> lock(_mutex);
+
+        if(!fc::exists(_parent_dir))
+        {
+            wlog("Mails directory does not exist.");
+            return std::vector<mail_object>();
+        }
+
+        // Read and return mail.
+        std::vector<mail_object> mails;
+        typedef std::unordered_multimap<std::string, std::string>::const_iterator iter_type;
+        std::pair<iter_type, iter_type> itrs = _cache_by_receiver.equal_range(receiver);
+        while(itrs.first != itrs.second)
+        {
+            const fc::path mail_path = _parent_dir / ((*itrs.first).second + TXT_EXTENSION);
+            if(fc::exists(mail_path))
+            {
+                mail_object new_mail_object;
+                new_mail_object.read_from_file(mail_path);
+                mails.push_back(new_mail_object);
+            }
+
+            ++itrs.first;
+        }
+        return mails;
+    }
+
 }

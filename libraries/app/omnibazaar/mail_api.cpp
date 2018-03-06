@@ -1,5 +1,6 @@
-#include "mail_api.h"
+#include <mail_api.h>
 #include <mail_object.hpp>
+#include <mail_storage.hpp>
 #include <graphene/app/application.hpp>
 
 namespace omnibazaar {
@@ -14,7 +15,8 @@ namespace omnibazaar {
         FC_ASSERT( !mail.uuid.empty(), "Mail UUID is empty" );
 
         _send_callbacks[mail.uuid] = cb;
-        _app.p2p_node()->store_undelivered_mail(mail);
+        _app.mail_storage()->store(mail);
+        _app.p2p_node()->mail_send(mail);
     }
 
     void mail_api::subscribe(callback_type cb, const std::string& receiver_name)
@@ -22,6 +24,7 @@ namespace omnibazaar {
         FC_ASSERT( !receiver_name.empty(), "Mail receiver name cannot be empty." );
 
         _receive_callbacks[receiver_name] = cb;
+        exec_mail_callback(cb, _app.mail_storage()->get_mails_by_receiver(receiver_name));
     }
 
     void mail_api::set_received(const std::string& mail_uuid)
@@ -47,14 +50,7 @@ namespace omnibazaar {
             return;
         }
 
-        // Need to ensure the object is not deleted for the life of the async operation.
-        auto capture_this = shared_from_this();
-
-        // Invoke the callback.
-        auto callback = iter->second;
-        fc::async( [capture_this, this, mail, callback](){
-           callback( fc::variant(mail) );
-        } );
+        exec_mail_callback(iter->second, {mail});
     }
 
     void mail_api::on_mail_received(const std::string& mail_uuid)
@@ -87,5 +83,19 @@ namespace omnibazaar {
         fc::async( [capture_this, this, mail_uuid, callback](){
            callback( fc::variant(send_confirmation{mail_uuid}) );
         } );
+    }
+
+    void mail_api::exec_mail_callback(callback_type callback, const std::vector<mail_object>& mails)
+    {
+        // Need to ensure the object is not deleted for the life of the async operation.
+        auto capture_this = shared_from_this();
+
+        // Invoke the callback.
+        for(auto& mail : mails)
+        {
+            fc::async( [capture_this, this, mail, callback](){
+               callback( fc::variant(mail) );
+            } );
+        }
     }
 }
