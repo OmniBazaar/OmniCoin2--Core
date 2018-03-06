@@ -229,11 +229,6 @@ namespace graphene { namespace app {
        return _app.p2p_node()->set_advanced_node_parameters(params);
     }
 
-    void network_node_api::mail_send_to(const std::string &comma_separated_mails)
-    {
-        _app.p2p_node()->mail_send_to(comma_separated_mails);
-    }
-
     void network_node_api::set_wallet_name(const std::string &wname)
     {
         _app.p2p_node()->set_wallet_name(wname);

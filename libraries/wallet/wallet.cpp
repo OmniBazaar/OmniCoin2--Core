@@ -76,7 +76,6 @@
 
 #include <welcome_bonus.hpp>
 #include <omnibazaar_util.hpp>
-#include <mail.hpp>
 
 #ifndef WIN32
 # include <sys/types.h>
@@ -2707,14 +2706,6 @@ public:
       return it->second;
    }
 
-   void mail_send_to(const std::string &comma_separated_mails)
-   {
-       if(_remote_net_node.valid())
-       {
-           (*_remote_net_node)->mail_send_to(comma_separated_mails);
-       }
-   }
-
    string                  _wallet_filename;
    wallet_data             _wallet;
 
@@ -3775,16 +3766,6 @@ void wallet_api::encrypt_keys()
    my->encrypt_keys();
 }
 
-std::vector<std::string> wallet_api::mail_service(const std::string &action, const std::string &param1, const std::string &param2, const std::string &param3)
-{
-    return omnibazaar::mail(*this).mail_service(action, param1, param2, param3);
-}
-
-void wallet_api::mail_send_to(const string &comma_separated_mails)
-{
-    my->mail_send_to(comma_separated_mails);
-}
-
 void wallet_api::lock()
 { try {
    FC_ASSERT( !is_locked() );
@@ -3816,9 +3797,6 @@ void wallet_api::unlock(string password)
            (*my->_remote_net_node)->set_wallet_name(accounts[0].name);
        }
    }
-
-   // Create mail structure.
-   mail_service("create_structure");
 
 } FC_CAPTURE_AND_RETHROW() }
 

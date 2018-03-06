@@ -771,7 +771,6 @@ namespace graphene { namespace net { namespace detail {
       uint32_t get_next_known_hard_fork_block_number(uint32_t block_number) const;
 
       // <OmniBazaar methods>
-      void mail_send_to(const std::string &comma_separated_mails);
 	  void initialize_mail_sender();
       void mail_send(const omnibazaar::mail_object& mail_object);
       void set_wallet_name(const std::string &wname);
@@ -5218,75 +5217,6 @@ namespace graphene { namespace net { namespace detail {
       return iter != _hard_fork_block_numbers.end() ? *iter : 0;
     }
 
-    void node_impl::mail_send_to(const std::string &comma_separated_mails)
-    {
-        VERIFY_CORRECT_THREAD();
-
-        std::vector<std::string> mail_send2;
-
-        std::istringstream f1(comma_separated_mails);
-        std::string s;
-        while (getline(f1, s, ','))
-        {
-            s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
-            mail_send2.push_back(s);
-        }
-
-        const std::string mail_dir = _node_configuration_directory.string() + "/mails/outbox";
-
-        for (const peer_connection_ptr& peer : _active_connections)
-        {
-            if (!peer->wallet_name.empty())
-            {
-                std::string search_for = std::string("/") + peer->wallet_name + "/";
-                std::string bulk_mail_message;
-                std::vector<std::string> mail_files;
-
-                for (int i = 0; i < mail_send2.size(); i++)
-                {
-                    size_t pos = mail_send2[i].find(search_for);
-                    if (pos != std::string::npos)
-                    {
-                        std::string message;
-                        std::ifstream fs;
-                        fs.open( mail_send2[i] );
-                        fs >> message;
-                        fs.close();
-
-                        if (!bulk_mail_message.empty())
-                        {
-                            bulk_mail_message += "~";
-                        }
-                        bulk_mail_message += message;
-
-                        mail_files.push_back(mail_send2[i]);
-                        std::string str = std::string("outbox") + search_for;
-                        pos = mail_send2[i].find(str);
-                        mail_files.push_back(mail_send2[i].replace(pos, str.length(), "sent/"));
-
-                        mail_send2.erase(mail_send2.begin() + i);
-                        i--;
-                    }
-                }
-                if (bulk_mail_message != "")
-                {
-                    mail_message m(bulk_mail_message);
-                    peer->send_message(message(m));
-
-                    for (int k = 0; k < (int)mail_files.size(); k += 2)
-                    {
-                        if (!fc::exists(mail_files[k + 1]))
-                        {
-                            fc::copy(mail_files[k], mail_files[k + 1]);
-                        }
-
-                        fc::remove(mail_files[k].c_str());
-                    }
-                }
-            }
-        }
-    }
-
     void node_impl::set_wallet_name(const std::string &wname)
     {
         VERIFY_CORRECT_THREAD();
@@ -5474,11 +5404,6 @@ namespace graphene { namespace net { namespace detail {
   void node::close()
   {
     INVOKE_IN_IMPL(close);
-  }
-
-  void node::mail_send_to(const std::string &comma_separated_mails)
-  {
-    INVOKE_IN_IMPL(mail_send_to, comma_separated_mails);
   }
 
   void node::set_wallet_name(const std::string &wname)
