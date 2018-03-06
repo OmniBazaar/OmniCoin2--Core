@@ -1,5 +1,6 @@
 file(GLOB HEADERS "include/graphene/app/*.hpp")
 file(GLOB EGENESIS_HEADERS "../egenesis/include/graphene/app/*.hpp")
+file(GLOB OMNIBAZAAR_HEADERS "omnibazaar/*.hpp")
 
 add_library( graphene_app 
              api.cpp
@@ -7,14 +8,16 @@ add_library( graphene_app
              database_api.cpp
              impacted.cpp
              plugin.cpp
+             omnibazaar/mail_api.cpp
              ${HEADERS}
              ${EGENESIS_HEADERS}
+             ${OMNIBAZAAR_HEADERS}
            )
 
 # need to link graphene_debug_witness because plugins aren't sufficiently isolated #246
 target_link_libraries( graphene_app graphene_market_history graphene_account_history graphene_chain fc graphene_db graphene_net graphene_utilities graphene_debug_witness )
 target_include_directories( graphene_app
-                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/omnibazaar"
                             "${CMAKE_CURRENT_SOURCE_DIR}/../egenesis/include" )
 
 if(MSVC)
@@ -29,3 +32,4 @@ INSTALL( TARGETS
    ARCHIVE DESTINATION lib
 )
 INSTALL( FILES ${HEADERS} DESTINATION "include/graphene/app" )
+INSTALL( FILES ${OMNIBAZAAR_HEADERS} DESTINATION "omnibazaar" )

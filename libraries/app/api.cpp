@@ -110,6 +110,10 @@ namespace graphene { namespace app {
           if( _app.get_plugin( "debug_witness" ) )
              _debug_api = std::make_shared< graphene::debug_witness::debug_api >( std::ref(_app) );
        }
+       else if( api_name == "mail_api" )
+       {
+           _mail_api = std::make_shared< omnibazaar::mail_api >( std::ref(_app) );
+       }
        return;
     }
 
@@ -281,6 +285,12 @@ namespace graphene { namespace app {
     {
        FC_ASSERT(_debug_api);
        return *_debug_api;
+    }
+
+    fc::api<omnibazaar::mail_api> login_api::mail()const
+    {
+        FC_ASSERT(_mail_api);
+        return *_mail_api;
     }
 
     vector<order_history_object> history_api::get_fill_order_history( asset_id_type a, asset_id_type b, uint32_t limit  )const

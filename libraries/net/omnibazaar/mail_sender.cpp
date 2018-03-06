@@ -66,7 +66,7 @@ void omnibazaar::mail_sender::handle_undelivered_mails_for_sender(const fc::path
 
 		// extract all the undelivered mails for the current peer
         std::copy_if(undelivered_mails.begin(), undelivered_mails.end(), std::back_inserter(mails_to_send_to_peer), [&](omnibazaar::mail_object undelivered_mail) {
-			return undelivered_mail.recepient == peer->wallet_name;
+            return undelivered_mail.recipient == peer->wallet_name;
 		});
 
 		if (mails_to_send_to_peer.size() > 0)

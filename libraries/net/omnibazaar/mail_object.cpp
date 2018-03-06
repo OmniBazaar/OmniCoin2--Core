@@ -8,7 +8,7 @@ void omnibazaar::mail_object::read_from_file(const fc::path & file_path)
 	std::ifstream in_file(file_path.string());
 	in_file >> uuid;
 	in_file >> sender;
-	in_file >> recepient;
+    in_file >> recipient;
 	in_file >> subject;
 	in_file >> body;
 	in_file >> read_status;
@@ -20,7 +20,7 @@ void omnibazaar::mail_object::write_to_file(const fc::path& file_path) const
 	std::ofstream out_file(file_path.string());
 	out_file << uuid;
 	out_file << sender;
-	out_file << recepient;
+    out_file << recipient;
 	out_file << subject;
 	out_file << body;
 	out_file <<  read_status;
@@ -34,7 +34,7 @@ std::string omnibazaar::mail_object::to_string() const
 	std::stringstream stream;
 	stream << uuid << "^";
 	stream << sender << "^";
-	stream << recepient << "^";
+    stream << recipient << "^";
 	stream << subject << "^";
 	stream << body << "^";
 	stream << (int)read_status << "^";

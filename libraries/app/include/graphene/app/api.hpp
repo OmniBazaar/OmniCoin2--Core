@@ -33,7 +33,6 @@
 #include <graphene/debug_witness/debug_api.hpp>
 
 #include <graphene/net/node.hpp>
-#include <../omnibazaar/mail_object.hpp>
 
 #include <fc/api.hpp>
 #include <fc/optional.hpp>
@@ -41,6 +40,8 @@
 #include <fc/network/ip.hpp>
 
 #include <boost/container/flat_set.hpp>
+
+#include <../omnibazaar/mail_api.h>
 
 #include <functional>
 #include <map>
@@ -372,6 +373,8 @@ namespace graphene { namespace app {
          fc::api<asset_api> asset()const;
          /// @brief Retrieve the debug API (if available)
          fc::api<graphene::debug_witness::debug_api> debug()const;
+         /// @brief Retrieve the mail system API
+         fc::api<omnibazaar::mail_api> mail()const;
 
          /// @brief Called to enable an API, not reflected.
          void enable_api( const string& api_name );
@@ -386,6 +389,7 @@ namespace graphene { namespace app {
          optional< fc::api<crypto_api> > _crypto_api;
          optional< fc::api<asset_api> > _asset_api;
          optional< fc::api<graphene::debug_witness::debug_api> > _debug_api;
+         optional< fc::api<omnibazaar::mail_api> > _mail_api;
    };
 
 }}  // graphene::app
@@ -455,4 +459,5 @@ FC_API(graphene::app::login_api,
        (crypto)
        (asset)
        (debug)
+       (mail)
      )

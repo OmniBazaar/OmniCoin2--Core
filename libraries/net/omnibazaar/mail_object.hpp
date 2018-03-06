@@ -1,16 +1,17 @@
 #pragma once
 
 #include <fc/filesystem.hpp>
+#include <fc/reflect/reflect.hpp>
 
 namespace omnibazaar {
 
-    //sender, recipient, subject, body, read status, creation time
+    // Class representing a single mail object.
     class mail_object {
 
     public:
         std::string uuid;
         std::string sender;
-        std::string recepient;
+        std::string recipient;
         std::string subject;
         std::string body;
         bool read_status;
@@ -24,3 +25,13 @@ namespace omnibazaar {
 
     };
 }
+
+FC_REFLECT( omnibazaar::mail_object,
+            (uuid)
+            (sender)
+            (recipient)
+            (subject)
+            (body)
+            (read_status)
+            (creation_time)
+            )
