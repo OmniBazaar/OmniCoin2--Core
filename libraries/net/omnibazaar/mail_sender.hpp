@@ -31,11 +31,10 @@ namespace omnibazaar {
 		void handle_undelivered_mails_for_sender(const fc::path& sender_mail_dir_path);
 		void handle_delivered_mails_for_sender(const fc::path& sender_mail_dir_path);
         std::vector<mail_object> get_mails_from_folder(const fc::path& path);
-		std::vector<fc::path> get_files_in_folder(const fc::path& path);
 
 	private:
 		const std::unordered_set<graphene::net::peer_connection_ptr>* _active_peer_connections_ptr;
-		const fc::path* _node_condiguration_directory_ptr;
+        const fc::path* _node_configuration_directory_ptr;
 		std::shared_ptr<boost::asio::deadline_timer> timer;
 	};
 }

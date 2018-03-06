@@ -1,4 +1,5 @@
 #include <mail_sender.hpp>
+#include <omnibazaar_util.hpp>
 
 static const std::string DELIVERED_STR = "delivered";
 static const std::string UNDELIVERED_STR = "undelivered";
@@ -10,7 +11,7 @@ static const int TIMER_TICK_INTERVAL_IN_SECONDS = 1;
 omnibazaar::mail_sender::mail_sender(const std::unordered_set<graphene::net::peer_connection_ptr>& active_peer_connections, const fc::path& node_configuration_directory)
 {
 	this->_active_peer_connections_ptr = &active_peer_connections;
-	this->_node_condiguration_directory_ptr = &node_configuration_directory;
+    this->_node_configuration_directory_ptr = &node_configuration_directory;
 }
 
 omnibazaar::mail_sender::~mail_sender()
@@ -20,7 +21,7 @@ omnibazaar::mail_sender::~mail_sender()
 
 void omnibazaar::mail_sender::store_undelivered_email(const omnibazaar::mail_object& mail)
 {
-	fc::path undelivered_path = (*_node_condiguration_directory_ptr) / MAILS_STR;
+    fc::path undelivered_path = (*_node_configuration_directory_ptr) / MAILS_STR;
 	fc::path sender_undelivered_path = undelivered_path / mail.sender / UNDELIVERED_STR;
 	fc::path new_mail_path = sender_undelivered_path / (mail.uuid + TXT_EXTENSION);
 	mail.write_to_file(new_mail_path);
@@ -38,9 +39,9 @@ void omnibazaar::mail_sender::start_mail_sending_loop()
 
 void omnibazaar::mail_sender::mail_sending_tick()
 {
-	fc::path mail_dir_path = (*_node_condiguration_directory_ptr) / MAILS_STR;
+    fc::path mail_dir_path = (*_node_configuration_directory_ptr) / MAILS_STR;
 
-	std::vector<fc::path> senders_dirs = get_files_in_folder(mail_dir_path);
+    std::vector<fc::path> senders_dirs = omnibazaar::util::get_files_in_folder(mail_dir_path);
 
 	std::for_each(senders_dirs.begin(), senders_dirs.end(), [&](const fc::path& sender_mail_dir_path) {
 
@@ -114,7 +115,7 @@ void omnibazaar::mail_sender::handle_delivered_mails_for_sender(const fc::path& 
 
 std::vector<omnibazaar::mail_object> omnibazaar::mail_sender::get_mails_from_folder(const fc::path& path)
 {
-	std::vector<fc::path> files = get_files_in_folder(path);
+    std::vector<fc::path> files = omnibazaar::util::get_files_in_folder(path);
     std::vector<omnibazaar::mail_object> result;
 	result.reserve(files.size());
 
@@ -124,22 +125,5 @@ std::vector<omnibazaar::mail_object> omnibazaar::mail_sender::get_mails_from_fol
 		result.push_back(new_mail_object);
 	});
 
-	return result;
-}
-
-std::vector<fc::path> omnibazaar::mail_sender::get_files_in_folder(const fc::path& path)
-{
-	std::vector<fc::path> result;
-
-	if (fc::is_directory(path))
-	{
-		for (fc::directory_iterator itr(path); itr != fc::directory_iterator(); ++itr)
-		{
-			if (!itr->filename().string().empty())
-			{
-				result.push_back(*itr);
-			}
-		}
-	}
 	return result;
 }

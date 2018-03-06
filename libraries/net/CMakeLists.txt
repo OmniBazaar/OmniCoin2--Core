@@ -9,12 +9,13 @@ set(SOURCES node.cpp
             message_oriented_connection.cpp
 
             omnibazaar/mail_object.cpp
-            omnibazaar/mail_sender.cpp)
+            omnibazaar/mail_sender.cpp
+            omnibazaar/mail_storage.cpp)
 
 add_library( graphene_net ${SOURCES} ${HEADERS} ${OMNIBAZAAR_HEADERS} )
 
 target_link_libraries( graphene_net 
-  PUBLIC fc graphene_db )
+  PUBLIC fc graphene_db graphene_utilities )
 target_include_directories( graphene_net 
   PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/omnibazaar"
   PRIVATE "${CMAKE_SOURCE_DIR}/libraries/chain/include"
