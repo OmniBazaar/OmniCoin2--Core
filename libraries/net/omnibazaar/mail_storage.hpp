@@ -17,8 +17,11 @@ namespace omnibazaar {
         // This method implicitly calls reload_cache().
         void set_dir(const fc::path& parent_dir);
 
-        // Store specified mail object.
+        // Store specified mail object to folder with undelivered mail.
         void store(const mail_object& mail);
+
+        // Move specified mail to delivered folder.
+        void set_received(const std::string& mail_uuid);
 
         // Remove mail with specified UUID from cache and disk.
         void remove(const std::string& mail_uuid);
@@ -26,14 +29,24 @@ namespace omnibazaar {
         // Get all pending mails for specified receiver.
         std::vector<mail_object> get_mails_by_receiver(const std::string& receiver)const;
 
+        // Get all mails that are not yet delivered to receivers.
+        std::vector<fc::path> get_pending_mails()const;
+
+        // Get all mails UUIDs which are confirmed by receivers.
+        std::vector<std::string> get_received_mails()const;
+
     private:
         // Helper struct for cache.
         struct mail_info
         {
+            // Message receiver.
             std::string receiver;
+            // Flag indicating that receiver notified node that message was delivered,
+            // message is now placed to "delivered" folder, and waiting for sender to get delivery notification.
+            bool is_delivered;
 
-            mail_info(const std::string& r = std::string())
-                : receiver(r)
+            mail_info(const std::string& r = std::string(), const bool d = false)
+                : receiver(r), is_delivered(d)
             {}
         };
 

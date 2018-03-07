@@ -412,6 +412,7 @@ namespace graphene { namespace net { namespace detail {
     class node_impl : public peer_connection_delegate
     {
     public:
+      node& _parent;
 #ifdef P2P_IN_DEDICATED_THREAD
       std::shared_ptr<fc::thread> _thread;
 #endif // P2P_IN_DEDICATED_THREAD
@@ -588,7 +589,7 @@ namespace graphene { namespace net { namespace detail {
       // Used for mail system.
       std::string _wallet_name;
 
-      node_impl(const std::string& user_agent);
+      node_impl(const std::string& user_agent, node& parent);
       virtual ~node_impl();
 
       void save_node_configuration();
@@ -688,6 +689,10 @@ namespace graphene { namespace net { namespace detail {
                                                     const get_current_connections_reply_message& get_current_connections_reply_message_received);
       void on_mail_message(peer_connection* originating_peer,
                                   const mail_message& mail_message_received);
+      void on_mail_received_message(peer_connection* originating_peer,
+                                    const mail_received_message& mail_message_received);
+      void on_mail_confirm_received_message(peer_connection* originating_peer,
+                                            const mail_confirm_received_message& mail_message_received);
 
       void on_connection_closed(peer_connection* originating_peer) override;
 
@@ -774,6 +779,8 @@ namespace graphene { namespace net { namespace detail {
 	  void initialize_mail_sender();
       void mail_send(const omnibazaar::mail_object& mail_object);
       void set_wallet_name(const std::string &wname);
+      void mail_send_received(const std::string mail_uuid);
+      void mail_send_confirm_received(const std::string mail_uuid);
       // </OmniBazaar methods>
 
     }; // end class node_impl
@@ -810,7 +817,8 @@ namespace graphene { namespace net { namespace detail {
 #define MAXIMUM_NUMBER_OF_BLOCKS_TO_HANDLE_AT_ONE_TIME 200
 #define MAXIMUM_NUMBER_OF_BLOCKS_TO_PREFETCH (10 * MAXIMUM_NUMBER_OF_BLOCKS_TO_HANDLE_AT_ONE_TIME)
 
-    node_impl::node_impl(const std::string& user_agent) :
+    node_impl::node_impl(const std::string& user_agent, node& parent) :
+      _parent(parent),
 #ifdef P2P_IN_DEDICATED_THREAD
       _thread(std::make_shared<fc::thread>("p2p")),
 #endif // P2P_IN_DEDICATED_THREAD
@@ -1842,6 +1850,12 @@ namespace graphene { namespace net { namespace detail {
       case core_message_type_enum::mail_message_type:
           on_mail_message(originating_peer, received_message.as<mail_message>());
           break;
+      case core_message_type_enum::mail_received_message_type:
+          on_mail_received_message(originating_peer, received_message.as<mail_received_message>());
+          break;
+      case core_message_type_enum::mail_confirm_received_message_type:
+          on_mail_confirm_received_message(originating_peer, received_message.as<mail_confirm_received_message>());
+          break;
 
       default:
         // ignore any message in between core_message_type_first and _last that we don't handle above
@@ -1917,44 +1931,19 @@ namespace graphene { namespace net { namespace detail {
     void node_impl::on_mail_message(peer_connection* originating_peer, const mail_message& mail_message_received)
     {
         VERIFY_CORRECT_THREAD();
+        _parent.mail_new(mail_message_received.mail);
+    }
 
-        std::vector<std::string> messages;
-        std::istringstream f1(mail_message_received.mail_content);
-        std::string s;
-        while (getline(f1, s, '~'))
-        {
-            messages.push_back(s);
-        }
+    void node_impl::on_mail_received_message(peer_connection* originating_peer, const mail_received_message& mail_message_received)
+    {
+        VERIFY_CORRECT_THREAD();
+        _parent.mail_received(mail_message_received.mail_uuid);
+    }
 
-        std::string inbox = _node_configuration_directory.string() + "/mail/inbox";
-        for (int i = 0; i < (int)messages.size() ; i++)
-        {
-            std::string recvdTime = std::to_string(time(0));
-            std::string fullpath = inbox + "/" + recvdTime + ".mail";
-
-            std::ofstream fs;
-            fs.open(fullpath);
-            fs << (messages[i] + "^" + recvdTime);
-            fs.close();
-        }
-
-        int readMailCount = 0, totalMailCount = 0;
-
-        std::string mail_set = _node_configuration_directory.string() + "/mail/mail.set";
-
-        FILE *fl = fopen(mail_set.c_str(), "r");
-        if (fl != 0)
-        {
-            fscanf(fl, "%d|%d", &readMailCount, &totalMailCount);
-            fclose(fl);
-        }
-
-        fl = fopen(mail_set.c_str(), "w");
-        if (fl != 0)
-        {
-            fprintf(fl, "%d|%d", readMailCount, totalMailCount + messages.size());
-        }
-        fclose(fl);
+    void node_impl::on_mail_confirm_received_message(peer_connection* originating_peer, const mail_confirm_received_message& mail_message_received)
+    {
+        VERIFY_CORRECT_THREAD();
+        _parent.mail_confirm_received(mail_message_received.mail_uuid);
     }
 
     void node_impl::on_hello_message( peer_connection* originating_peer, const hello_message& hello_message_received )
@@ -5225,15 +5214,30 @@ namespace graphene { namespace net { namespace detail {
 
 	void node_impl::initialize_mail_sender()
 	{
-		_mail_sender = std::make_shared<omnibazaar::mail_sender>(this->_active_connections, this->_node_configuration_directory);
-		_mail_sender->start_mail_sending_loop();
+        VERIFY_CORRECT_THREAD();
+        _mail_sender = std::make_shared<omnibazaar::mail_sender>(this->_active_connections);
 	}
 
     void node_impl::mail_send(const omnibazaar::mail_object& mail_object)
 	{
+        VERIFY_CORRECT_THREAD();
 		if (_mail_sender)
-            _mail_sender->store_undelivered_email(mail_object);
+            _mail_sender->send(mail_object);
 	}
+
+    void node_impl::mail_send_received(const std::string mail_uuid)
+    {
+        VERIFY_CORRECT_THREAD();
+        if (_mail_sender)
+            _mail_sender->send_received(mail_uuid);
+    }
+
+    void node_impl::mail_send_confirm_received(const std::string mail_uuid)
+    {
+        VERIFY_CORRECT_THREAD();
+        if (_mail_sender)
+            _mail_sender->send_confirm_received(mail_uuid);
+    }
 
   }  // end namespace detail
 
@@ -5251,7 +5255,7 @@ namespace graphene { namespace net { namespace detail {
 #endif // P2P_IN_DEDICATED_THREAD
 
   node::node(const std::string& user_agent) :
-    my(new detail::node_impl(user_agent))
+    my(new detail::node_impl(user_agent, *this))
   {
   }
 
@@ -5419,6 +5423,16 @@ namespace graphene { namespace net { namespace detail {
   void node::mail_send(const omnibazaar::mail_object& mail_object)
   {
       INVOKE_IN_IMPL(mail_send, mail_object);
+  }
+
+  void node::mail_send_received(const std::string mail_uuid)
+  {
+      INVOKE_IN_IMPL(mail_send_received, mail_uuid);
+  }
+
+  void node::mail_send_confirm_received(const std::string mail_uuid)
+  {
+      INVOKE_IN_IMPL(mail_send_confirm_received, mail_uuid);
   }
 
   struct simulated_network::node_info

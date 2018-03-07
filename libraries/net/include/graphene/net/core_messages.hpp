@@ -35,7 +35,7 @@
 #include <fc/variant_object.hpp>
 #include <fc/exception/exception.hpp>
 #include <fc/io/enum_type.hpp>
-
+#include <../omnibazaar/mail_object.hpp>
 
 #include <vector>
 
@@ -87,6 +87,8 @@ namespace graphene { namespace net {
     get_current_connections_request_message_type = 5016,
     get_current_connections_reply_message_type   = 5017,
     mail_message_type                            = 5018,
+    mail_received_message_type                   = 5019,
+    mail_confirm_received_message_type           = 5020,
     core_message_type_last                       = 5099
   };
 
@@ -407,10 +409,28 @@ namespace graphene { namespace net {
   struct mail_message
   {
       static const core_message_type_enum type;
-      std::string mail_content;
+      omnibazaar::mail_object mail;
 
       mail_message() {}
-      mail_message(const std::string& c) : mail_content(c) {}
+      mail_message(omnibazaar::mail_object m) : mail(m) {}
+  };
+
+  struct mail_received_message
+  {
+      static const core_message_type_enum type;
+      std::string mail_uuid;
+
+      mail_received_message() {}
+      mail_received_message(std::string u) : mail_uuid(u) {}
+  };
+
+  struct mail_confirm_received_message
+  {
+      static const core_message_type_enum type;
+      std::string mail_uuid;
+
+      mail_confirm_received_message() {}
+      mail_confirm_received_message(std::string u) : mail_uuid(u) {}
   };
 
 } } // graphene::net
@@ -522,7 +542,11 @@ FC_REFLECT(graphene::net::get_current_connections_reply_message, (upload_rate_on
                                                             (download_rate_one_hour)
                                                             (current_connections))
 
-FC_REFLECT(graphene::net::mail_message, (mail_content))
+FC_REFLECT(graphene::net::mail_message, (mail))
+
+FC_REFLECT(graphene::net::mail_received_message, (mail_uuid))
+
+FC_REFLECT(graphene::net::mail_confirm_received_message, (mail_uuid))
 
 #include <unordered_map>
 #include <fc/crypto/city.hpp>

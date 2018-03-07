@@ -7,34 +7,29 @@
 
 #include <fc/filesystem.hpp>
 
-#include <boost/thread.hpp>
-#include <boost/timer.hpp>
-#include <boost/asio.hpp>
-
 #include <vector>
 #include <unordered_set>
 
-
 namespace omnibazaar {
 
+    // Class for managing mail p2p communication.
+    // No thread sync is required provided it is called only by graphene::net::node.
 	class mail_sender {
 
 	public:
-		mail_sender(const std::unordered_set<graphene::net::peer_connection_ptr>& active_peer_connections, const fc::path& node_configuration_directory);
+        mail_sender(const std::unordered_set<graphene::net::peer_connection_ptr>& active_peer_connections);
 		~mail_sender();
 
-        void store_undelivered_email(const mail_object& mail);
-		void start_mail_sending_loop();
+        // Send specified mail object to other nodes.
+        void send(const mail_object& mail);
+
+        // Send notification that specified mail was received.
+        void send_received(const std::string mail_uuid);
+
+        // Send notification that mail reception was confirmed by sending user.
+        void send_confirm_received(const std::string mail_uuid);
 	
 	private:
-		void mail_sending_tick();
-		void handle_undelivered_mails_for_sender(const fc::path& sender_mail_dir_path);
-		void handle_delivered_mails_for_sender(const fc::path& sender_mail_dir_path);
-        std::vector<mail_object> get_mails_from_folder(const fc::path& path);
-
-	private:
-		const std::unordered_set<graphene::net::peer_connection_ptr>* _active_peer_connections_ptr;
-        const fc::path* _node_configuration_directory_ptr;
-		std::shared_ptr<boost::asio::deadline_timer> timer;
+        const std::unordered_set<graphene::net::peer_connection_ptr>& _active_peer_connections_ptr;
 	};
 }
