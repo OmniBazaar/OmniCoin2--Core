@@ -215,8 +215,6 @@ namespace graphene { namespace app {
           */
          void on_applied_block( const signed_block& b );
 
-         void store_undelivered_email(const omnibazaar::mail_object& mail);
-
       private:
          boost::signals2::scoped_connection             _applied_block_connection;
          map<transaction_id_type,confirmation_callback> _callbacks;
