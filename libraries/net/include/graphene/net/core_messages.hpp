@@ -454,6 +454,8 @@ FC_REFLECT_ENUM( graphene::net::core_message_type_enum,
                  (get_current_connections_request_message_type)
                  (get_current_connections_reply_message_type)
                  (mail_message_type)
+                 (mail_received_message_type)
+                 (mail_confirm_received_message_type)
                  (core_message_type_last) )
 
 FC_REFLECT( graphene::net::trx_message, (trx) )
