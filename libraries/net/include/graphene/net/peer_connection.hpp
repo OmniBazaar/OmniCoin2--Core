@@ -266,9 +266,6 @@ namespace graphene { namespace net
 
       firewall_check_state_data *firewall_check_state;
 
-      // Used in mail system.
-      std::string wallet_name;
-
 #ifndef NDEBUG
     private:
       fc::thread* _thread;

@@ -301,8 +301,6 @@ namespace graphene { namespace net {
         /// OmniBazaar methods
         /////////////////////////
 
-        void set_wallet_name(const std::string &wname);
-
 		void initialize_mail_sender();
 
         // Send specified mail object to other nodes.

@@ -3787,17 +3787,6 @@ void wallet_api::unlock(string password)
    my->_keys = std::move(pk.keys);
    my->_checksum = pk.checksum;
    my->self.lock_changed(false);
-
-   const auto accounts = list_my_accounts();
-   if (accounts.size() > 0)
-   {
-       // Set wallet name to broadcast with hello message.
-       if(my->_remote_net_node.valid())
-       {
-           (*my->_remote_net_node)->set_wallet_name(accounts[0].name);
-       }
-   }
-
 } FC_CAPTURE_AND_RETHROW() }
 
 void wallet_api::set_password( string password )

@@ -229,11 +229,6 @@ namespace graphene { namespace app {
        return _app.p2p_node()->set_advanced_node_parameters(params);
     }
 
-    void network_node_api::set_wallet_name(const std::string &wname)
-    {
-        _app.p2p_node()->set_wallet_name(wname);
-    }
-
     fc::api<network_broadcast_api> login_api::network_broadcast()const
     {
        FC_ASSERT(_network_broadcast_api);

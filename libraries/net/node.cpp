@@ -586,9 +586,6 @@ namespace graphene { namespace net { namespace detail {
 
       std::list<fc::future<void> > _handle_message_calls_in_progress;
 
-      // Used for mail system.
-      std::string _wallet_name;
-
       node_impl(const std::string& user_agent, node& parent);
       virtual ~node_impl();
 
@@ -778,7 +775,6 @@ namespace graphene { namespace net { namespace detail {
       // <OmniBazaar methods>
 	  void initialize_mail_sender();
       void mail_send(const omnibazaar::mail_object& mail_object);
-      void set_wallet_name(const std::string &wname);
       void mail_send_received(const std::string mail_uuid);
       void mail_send_confirm_received(const std::string mail_uuid);
       // </OmniBazaar methods>
@@ -1899,8 +1895,6 @@ namespace graphene { namespace net { namespace detail {
       if (!_hard_fork_block_numbers.empty())
         user_data["last_known_fork_block_number"] = _hard_fork_block_numbers.back();
 
-      user_data["wallet_name"] = _wallet_name;
-
       return user_data;
     }
     void node_impl::parse_hello_user_data_for_peer(peer_connection* originating_peer, const fc::variant_object& user_data)
@@ -1923,9 +1917,6 @@ namespace graphene { namespace net { namespace detail {
         originating_peer->node_id = user_data["node_id"].as<node_id_t>();
       if (user_data.contains("last_known_fork_block_number"))
         originating_peer->last_known_fork_block_number = user_data["last_known_fork_block_number"].as<uint32_t>();
-
-      if (user_data.contains("wallet_name") && originating_peer->wallet_name.empty())
-          originating_peer->wallet_name = user_data["wallet_name"].as_string();
     }
 
     void node_impl::on_mail_message(peer_connection* originating_peer, const mail_message& mail_message_received)
@@ -2071,8 +2062,6 @@ namespace graphene { namespace net { namespace detail {
                                                               rejection_reason_code::already_connected,
                                                               "I'm already connected to you");
 
-            if (_wallet_name != originating_peer->wallet_name && _wallet_name.empty())
-                _wallet_name = originating_peer->wallet_name;
           }
           originating_peer->their_state = peer_connection::their_connection_state::connection_rejected;
           originating_peer->send_message(message(connection_rejected));
@@ -2141,7 +2130,7 @@ namespace graphene { namespace net { namespace detail {
           else
           {
             originating_peer->their_state = peer_connection::their_connection_state::connection_accepted;
-            originating_peer->send_message(message(connection_accepted_message(_wallet_name)));
+            originating_peer->send_message(message(connection_accepted_message()));
             dlog("Received a hello_message from peer ${peer}, sending reply to accept connection",
                  ("peer", originating_peer->get_remote_endpoint()));
           }
@@ -2184,9 +2173,6 @@ namespace graphene { namespace net { namespace detail {
         originating_peer->send_message(check_firewall_message());
         _last_firewall_check_message_sent = now;
       }
-
-      if (originating_peer->wallet_name.empty())
-        originating_peer->wallet_name = connection_accepted_message_received.wallet_name;
     }
 
     void node_impl::on_connection_rejected_message(peer_connection* originating_peer, const connection_rejected_message& connection_rejected_message_received)
@@ -5206,12 +5192,6 @@ namespace graphene { namespace net { namespace detail {
       return iter != _hard_fork_block_numbers.end() ? *iter : 0;
     }
 
-    void node_impl::set_wallet_name(const std::string &wname)
-    {
-        VERIFY_CORRECT_THREAD();
-        _wallet_name = wname;
-    }
-
 	void node_impl::initialize_mail_sender()
 	{
         VERIFY_CORRECT_THREAD();
@@ -5408,11 +5388,6 @@ namespace graphene { namespace net { namespace detail {
   void node::close()
   {
     INVOKE_IN_IMPL(close);
-  }
-
-  void node::set_wallet_name(const std::string &wname)
-  {
-    INVOKE_IN_IMPL(set_wallet_name, wname);
   }
 
   void node::initialize_mail_sender()

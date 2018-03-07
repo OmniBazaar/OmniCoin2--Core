@@ -230,10 +230,7 @@ namespace graphene { namespace net {
   {
     static const core_message_type_enum type;
 
-    std::string wallet_name;
-
     connection_accepted_message() {}
-    connection_accepted_message(const std::string& wallet) : wallet_name(wallet) {}
   };
 
   enum class rejection_reason_code { unspecified,
@@ -484,7 +481,7 @@ FC_REFLECT( graphene::net::hello_message, (user_agent)
                                      (chain_id)
                                      (user_data) )
 
-FC_REFLECT( graphene::net::connection_accepted_message, (wallet_name) )
+FC_REFLECT_EMPTY ( graphene::net::connection_accepted_message )
 FC_REFLECT_ENUM(graphene::net::rejection_reason_code, (unspecified)
                                                  (different_chain)
                                                  (already_connected)
