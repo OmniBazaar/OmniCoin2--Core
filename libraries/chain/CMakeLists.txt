@@ -47,6 +47,8 @@ add_library( graphene_chain
              omnibazaar/founder_bonus_evaluator.cpp
              omnibazaar/witness_bonus.cpp
              omnibazaar/witness_bonus_evaluator.cpp
+             omnibazaar/multisig_transfer.cpp
+             omnibazaar/multisig_transfer_evaluator.cpp
 
              omnibazaar/referrer_component.cpp
              omnibazaar/publisher_component.cpp
