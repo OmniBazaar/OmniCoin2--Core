@@ -48,6 +48,7 @@ namespace graphene { namespace app {
       vector<proposal_object>          proposals;
       vector<asset_id_type>            assets;
       vector<withdraw_permission_object> withdraws;
+      vector<omnibazaar::escrow_object> escrows;
    };
 
 } }

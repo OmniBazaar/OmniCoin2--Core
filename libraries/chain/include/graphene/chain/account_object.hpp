@@ -30,6 +30,8 @@
 namespace graphene { namespace chain {
    class database;
 
+   share_type cut_fee(share_type a, uint16_t p);
+
    /**
     * @class account_statistics_object
     * @ingroup object
@@ -275,8 +277,14 @@ namespace graphene { namespace chain {
          // Flag to indicate if the account has chosen to be a escrow
          bool is_an_escrow = false;
 
+         // Fee % collected by this account as an escrow agent.
+         uint16_t escrow_fee = GRAPHENE_1_PERCENT;
+
          // Users that bought something from this account. Used in Sale Bonus processing.
          std::set<account_id_type> buyers;
+
+         // Users that this account added to acceptable Escrow agents.
+         std::set<account_id_type> escrows;
    };
 
    /**
@@ -396,7 +404,9 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (recieved_welcome_bonus)
                     (is_a_publisher)
                     (is_an_escrow)
+                    (escrow_fee)
                     (buyers)
+                    (escrows)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

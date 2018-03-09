@@ -9,6 +9,7 @@
 #include <graphene/chain/confidential_object.hpp>
 #include <graphene/chain/market_object.hpp>
 #include <graphene/chain/committee_member_object.hpp>
+#include <../omnibazaar/escrow_object.hpp>
 
 using namespace fc;
 using namespace graphene::chain;
@@ -221,6 +222,21 @@ struct get_impacted_account_visitor
       _impacted.insert( op.receiver );
    }
 
+   void operator()( const omnibazaar::escrow_create_operation& op )
+   {
+      _impacted.insert( op.buyer );
+   }
+
+   void operator()( const omnibazaar::escrow_release_operation& op )
+   {
+      _impacted.insert( op.fee_paying_account );
+   }
+
+   void operator()( const omnibazaar::escrow_return_operation& op )
+   {
+      _impacted.insert( op.fee_paying_account );
+   }
+
    void operator()( const omnibazaar::multisig_transfer_operation& op )
    {
       _impacted.insert( op.to );
@@ -313,6 +329,13 @@ static void get_relevant_accounts( const object* obj, flat_set<account_id_type>&
         } case balance_object_type:{
            /** these are free from any accounts */
            break;
+        } case escrow_object_type:{
+          const auto& aobj = dynamic_cast<const omnibazaar::escrow_object*>(obj);
+          assert( aobj != nullptr );
+          accounts.insert( aobj->buyer );
+          accounts.insert( aobj->seller );
+          accounts.insert( aobj->escrow );
+          break;
         }
       }
    }

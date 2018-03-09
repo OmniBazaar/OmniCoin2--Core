@@ -53,6 +53,10 @@ add_library( graphene_chain
              omnibazaar/referrer_component.cpp
              omnibazaar/publisher_component.cpp
 
+             omnibazaar/escrow_object.cpp
+             omnibazaar/escrow.cpp
+             omnibazaar/escrow_evaluator.cpp
+
              protocol/types.cpp
              protocol/address.cpp
              protocol/authority.cpp
