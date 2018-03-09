@@ -964,6 +964,8 @@ public:
                                        string  registrar_account,
                                        string  referrer_account,
                                        uint32_t referrer_percent,
+                                       string harddrive_id,
+                                       string mac_address,
                                        bool broadcast = false)
    { try {
       FC_ASSERT( !self.is_locked() );
@@ -997,8 +999,6 @@ public:
 
       tx.operations.push_back( account_create_op );
 
-      const string harddrive_id = omnibazaar::util::get_harddrive_id();
-      const string mac_address = omnibazaar::util::get_primary_mac();
       if(_remote_db->is_welcome_bonus_available(harddrive_id, mac_address))
       {
           omnibazaar::welcome_bonus_operation welcome_bonus_op;
@@ -3335,9 +3335,11 @@ signed_transaction wallet_api::register_account(string name,
                                                 string  registrar_account,
                                                 string  referrer_account,
                                                 uint32_t referrer_percent,
+                                                string harddrive_id,
+                                                string mac_address,
                                                 bool broadcast)
 {
-   return my->register_account( name, owner_pubkey, active_pubkey, registrar_account, referrer_account, referrer_percent, broadcast );
+   return my->register_account( name, owner_pubkey, active_pubkey, registrar_account, referrer_account, referrer_percent, harddrive_id, mac_address, broadcast );
 }
 signed_transaction wallet_api::create_account_with_brain_key(string brain_key, string account_name,
                                                              string registrar_account, string referrer_account,
@@ -3709,8 +3711,8 @@ string wallet_api::gethelp(const string& method)const
    }
    else if( method == "register_account" )
    {
-      ss << "usage: register_account ACCOUNT_NAME OWNER_PUBLIC_KEY ACTIVE_PUBLIC_KEY REGISTRAR REFERRER REFERRER_PERCENT BROADCAST\n\n";
-      ss << "example: register_account \"newaccount\" \"CORE6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV\" \"CORE6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV\" \"1.3.11\" \"1.3.11\" 50 true\n";
+      ss << "usage: register_account ACCOUNT_NAME OWNER_PUBLIC_KEY ACTIVE_PUBLIC_KEY REGISTRAR REFERRER REFERRER_PERCENT HARDDRIVE_ID MAC_ADDRESS BROADCAST\n\n";
+      ss << "example: register_account \"newaccount\" \"CORE6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV\" \"CORE6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV\" \"1.3.11\" \"1.3.11\" 50 \"7396b808-18ab-11e8-accf-0ed5f89f718b\" \"02-89-ED-EA-3A-9E\" true\n";
       ss << "\n";
       ss << "Use this method to register an account for which you do not know the private keys.";
    }

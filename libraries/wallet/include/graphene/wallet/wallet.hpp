@@ -710,6 +710,8 @@ class wallet_api
        *                         not claimed by the blockchain that will be distributed to the
        *                         referrer; the rest will be sent to the registrar.  Will be
        *                         multiplied by GRAPHENE_1_PERCENT when constructing the transaction.
+       * @param harddrive_id hard drive ID of user local machine. Used to prevent multiple Welcome Bonus per computer.
+       * @param mac_address MAC address of user local machine. Used to prevent multiple Welcome Bonus per computer.
        * @param broadcast true to broadcast the transaction on the network
        * @returns the signed transaction registering the account
        */
@@ -719,6 +721,8 @@ class wallet_api
                                           string  registrar_account,
                                           string  referrer_account,
                                           uint32_t referrer_percent,
+                                          string harddrive_id,
+                                          string mac_address,
                                           bool broadcast = false);
 
       /**
