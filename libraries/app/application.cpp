@@ -444,7 +444,12 @@ namespace detail {
          reset_p2p_node(_data_dir);
          reset_websocket_server();
          reset_websocket_tls_server();
-         _mail_storage = std::make_shared<omnibazaar::mail_storage>(_data_dir);
+
+         // Initialize mail storage.
+         const fc::path mail_path = _options->count("mail-dir")
+                 ? _options->at("mail-dir").as<boost::filesystem::path>()
+                 : "mails";
+         _mail_storage = std::make_shared<omnibazaar::mail_storage>(mail_path);
       } FC_LOG_AND_RETHROW() }
 
       optional< api_access_info > get_api_access_info(const string& username)const
@@ -941,6 +946,7 @@ void application::set_program_options(boost::program_options::options_descriptio
          ("dbg-init-key", bpo::value<string>(), "Block signing key to use for init witnesses, overrides genesis file")
          ("api-access", bpo::value<boost::filesystem::path>(), "JSON file specifying API permissions")
          ("plugins", bpo::value<string>(), "Space-separated list of plugins to activate")
+         ("mail-dir", bpo::value<boost::filesystem::path>()->implicit_value("mails"), "Folder name for storing mails")
          ;
    command_line_options.add(configuration_file_options);
    command_line_options.add_options()

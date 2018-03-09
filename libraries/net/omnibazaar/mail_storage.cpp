@@ -5,7 +5,6 @@
 #include <fc/reflect/variant.hpp>
 #include <fc/thread/scoped_lock.hpp>
 
-static const std::string MAIL_DIR_NAME("mails");
 static const std::string TXT_EXTENSION(".txt");
 static const std::string DELIVERED_STR("delivered");
 static const std::string UNDELIVERED_STR("undelivered");
@@ -28,7 +27,9 @@ namespace omnibazaar {
         // Thread safety.
         const fc::scoped_lock<fc::mutex> lock(_mutex);
 
-        _parent_dir = parent_dir / MAIL_DIR_NAME;
+        ilog("Using mail directory '${dir}'.", ("dir", parent_dir));
+
+        _parent_dir = parent_dir;
 
         // Since root directory is now changed, need to reload the cache.
         reload_cache();
