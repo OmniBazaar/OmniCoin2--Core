@@ -41,6 +41,8 @@
 
 #include <boost/container/flat_set.hpp>
 
+#include <../omnibazaar/mail_api.h>
+
 #include <functional>
 #include <map>
 #include <string>
@@ -212,6 +214,7 @@ namespace graphene { namespace app {
           * to be notified when a particular txid is included in a block.
           */
          void on_applied_block( const signed_block& b );
+
       private:
          boost::signals2::scoped_connection             _applied_block_connection;
          map<transaction_id_type,confirmation_callback> _callbacks;
@@ -259,18 +262,6 @@ namespace graphene { namespace app {
           * @brief Return list of potential peers
           */
          std::vector<net::potential_peer_record> get_potential_peers() const;
-
-         /**
-          * @brief Send user mails
-          * @param comma_separated_mails mails
-          */
-         void mail_send_to(const std::string &comma_separated_mails);
-
-         /**
-          * @brief Set wallet name that this node uses for mails
-          * @param wname wallet name
-          */
-         void set_wallet_name(const std::string &wname);
 
       private:
          application& _app;
@@ -368,6 +359,8 @@ namespace graphene { namespace app {
          fc::api<asset_api> asset()const;
          /// @brief Retrieve the debug API (if available)
          fc::api<graphene::debug_witness::debug_api> debug()const;
+         /// @brief Retrieve the mail system API
+         fc::api<omnibazaar::mail_api> mail()const;
 
          /// @brief Called to enable an API, not reflected.
          void enable_api( const string& api_name );
@@ -382,6 +375,7 @@ namespace graphene { namespace app {
          optional< fc::api<crypto_api> > _crypto_api;
          optional< fc::api<asset_api> > _asset_api;
          optional< fc::api<graphene::debug_witness::debug_api> > _debug_api;
+         optional< fc::api<omnibazaar::mail_api> > _mail_api;
    };
 
 }}  // graphene::app
@@ -422,8 +416,6 @@ FC_API(graphene::app::network_node_api,
        (get_potential_peers)
        (get_advanced_node_parameters)
        (set_advanced_node_parameters)
-       (mail_send_to)
-       (set_wallet_name)
      )
 FC_API(graphene::app::crypto_api,
        (blind_sign)
@@ -451,4 +443,5 @@ FC_API(graphene::app::login_api,
        (crypto)
        (asset)
        (debug)
+       (mail)
      )

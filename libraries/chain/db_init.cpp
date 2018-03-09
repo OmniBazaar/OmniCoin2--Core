@@ -68,7 +68,7 @@
 #include <witness_bonus_evaluator.hpp>
 #include <escrow_evaluator.hpp>
 #include <escrow_object.hpp>
-
+#include <multisig_transfer_evaluator.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
 #include <fc/smart_ref_impl.hpp>
@@ -187,6 +187,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::escrow_create_evaluator>();
    register_evaluator<omnibazaar::escrow_release_evaluator>();
    register_evaluator<omnibazaar::escrow_return_evaluator>();
+   register_evaluator<omnibazaar::multisig_transfer_evaluator>();
 }
 
 void database::initialize_indexes()

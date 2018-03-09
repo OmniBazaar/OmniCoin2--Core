@@ -279,4 +279,21 @@ namespace omnibazaar {
         return list;
     }
 
+    std::vector<fc::path> util::get_files_in_folder(const fc::path& path)
+    {
+        std::vector<fc::path> result;
+        if (fc::is_directory(path))
+        {
+            for (fc::directory_iterator itr(path); itr != fc::directory_iterator(); ++itr)
+            {
+                if (!itr->filename().string().empty() && fc::is_regular_file(*itr))
+                {
+                    result.push_back(*itr);
+                }
+            }
+        }
+        return result;
+    }
+
+
 }

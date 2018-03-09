@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fc/string.hpp>
+#include <fc/filesystem.hpp>
 #include <vector>
 
 namespace omnibazaar {
@@ -15,5 +16,7 @@ namespace omnibazaar {
         static fc::string get_primary_mac();
         // Get names of files in specified folder.
         static std::vector<std::string> get_files_in_folder(const std::string &folder);
+        // Get file paths in specified folder.
+        static std::vector<fc::path> get_files_in_folder(const fc::path& path);
     };
 }
