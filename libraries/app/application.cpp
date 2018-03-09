@@ -60,6 +60,8 @@
 
 #include <graphene/utilities/git_revision.hpp>
 
+#include <../omnibazaar/mail_storage.hpp>
+
 namespace graphene { namespace app {
 using net::item_hash_t;
 using net::item_id;
@@ -209,6 +211,7 @@ namespace detail {
          _p2p_network->sync_from(net::item_id(net::core_message_type_enum::block_message_type,
                                               _chain_db->head_block_id()),
                                  std::vector<uint32_t>());
+		 _p2p_network->initialize_mail_sender();
       } FC_CAPTURE_AND_RETHROW() }
 
       std::vector<fc::ip::endpoint> resolve_string_to_ip_endpoints(const std::string& endpoint_string)
@@ -434,12 +437,19 @@ namespace detail {
             wild_access.allowed_apis.push_back( "network_broadcast_api" );
             wild_access.allowed_apis.push_back( "history_api" );
             wild_access.allowed_apis.push_back( "crypto_api" );
+            wild_access.allowed_apis.push_back( "mail_api" );
             _apiaccess.permission_map["*"] = wild_access;
          }
 
          reset_p2p_node(_data_dir);
          reset_websocket_server();
          reset_websocket_tls_server();
+
+         // Initialize mail storage.
+         const fc::path mail_path = _options->count("mail-dir")
+                 ? _options->at("mail-dir").as<boost::filesystem::path>()
+                 : "mails";
+         _mail_storage = std::make_shared<omnibazaar::mail_storage>(mail_path);
       } FC_LOG_AND_RETHROW() }
 
       optional< api_access_info > get_api_access_info(const string& username)const
@@ -889,7 +899,7 @@ namespace detail {
       api_access _apiaccess;
 
       std::shared_ptr<graphene::chain::database>            _chain_db;
-      std::shared_ptr<graphene::net::node>                  _p2p_network;
+	  std::shared_ptr<graphene::net::node>                  _p2p_network;
       std::shared_ptr<fc::http::websocket_server>      _websocket_server;
       std::shared_ptr<fc::http::websocket_tls_server>  _websocket_tls_server;
 
@@ -897,6 +907,8 @@ namespace detail {
       std::map<string, std::shared_ptr<abstract_plugin>> _available_plugins;
 
       bool _is_finished_syncing = false;
+
+      std::shared_ptr<omnibazaar::mail_storage> _mail_storage;
    };
 
 }
@@ -934,6 +946,7 @@ void application::set_program_options(boost::program_options::options_descriptio
          ("dbg-init-key", bpo::value<string>(), "Block signing key to use for init witnesses, overrides genesis file")
          ("api-access", bpo::value<boost::filesystem::path>(), "JSON file specifying API permissions")
          ("plugins", bpo::value<string>(), "Space-separated list of plugins to activate")
+         ("mail-dir", bpo::value<boost::filesystem::path>()->implicit_value("mails"), "Folder name for storing mails")
          ;
    command_line_options.add(configuration_file_options);
    command_line_options.add_options()
@@ -1105,6 +1118,11 @@ void application::startup_plugins()
    for( auto& entry : my->_active_plugins )
       entry.second->plugin_startup();
    return;
+}
+
+std::shared_ptr<omnibazaar::mail_storage> application::mail_storage()const
+{
+    return my->_mail_storage;
 }
 
 // namespace detail

@@ -46,6 +46,9 @@ namespace graphene { namespace net {
   const core_message_type_enum get_current_connections_request_message::type = core_message_type_enum::get_current_connections_request_message_type;
   const core_message_type_enum get_current_connections_reply_message::type   = core_message_type_enum::get_current_connections_reply_message_type;
   const core_message_type_enum mail_message::type                            = core_message_type_enum::mail_message_type;
+  const core_message_type_enum mail_received_message::type                   = core_message_type_enum::mail_received_message_type;
+  const core_message_type_enum mail_confirm_received_message::type           = core_message_type_enum::mail_confirm_received_message_type;
+
 
 } } // graphene::net
 

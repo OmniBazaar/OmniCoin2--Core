@@ -25,7 +25,6 @@ endif()
 
 add_library( graphene_wallet
             wallet.cpp
-            omnibazaar/mail.cpp
             ${CMAKE_CURRENT_BINARY_DIR}/api_documentation.cpp
             ${HEADERS}
             ${OMNIBAZAAR_HEADERS} )

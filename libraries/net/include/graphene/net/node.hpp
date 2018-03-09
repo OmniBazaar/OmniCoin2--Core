@@ -26,10 +26,14 @@
 #include <graphene/net/core_messages.hpp>
 #include <graphene/net/message.hpp>
 #include <graphene/net/peer_database.hpp>
-
 #include <graphene/chain/protocol/types.hpp>
+#include <fc/signals.hpp>
+#include <../omnibazaar/mail_object.hpp>
 
 #include <list>
+#include <string>
+
+namespace omnibazaar { class mail_storage; }
 
 namespace graphene { namespace net {
 
@@ -293,9 +297,29 @@ namespace graphene { namespace net {
         void disable_peer_advertising();
         fc::variant_object get_call_statistics() const;
 
-        void mail_send_to(const std::string &comma_separated_mails);
+        /////////////////////////
+        /// OmniBazaar methods
+        /////////////////////////
 
-        void set_wallet_name(const std::string &wname);
+		void initialize_mail_sender();
+
+        // Send specified mail object to other nodes.
+        void mail_send(const omnibazaar::mail_object& mail_object);
+
+        // Send notification that specified mail was accepted by receiving user.
+        void mail_send_received(const std::string mail_uuid);
+
+        // Send notification that mail reception was confirmed by sending user.
+        void mail_send_confirm_received(const std::string mail_uuid);
+
+        // Signal that is emitted when new mail objects are received from other nodes.
+        fc::signal<void(const omnibazaar::mail_object&)> mail_new;
+
+        // Signal that is emitted when receiver sent notification that a particular mail was received.
+        fc::signal<void(const std::string&)> mail_received;
+
+        // Signal that is emitted when sender sent notification about mail reception by receiver.
+        fc::signal<void(const std::string&)> mail_confirm_received;
 
       private:
         std::unique_ptr<detail::node_impl, detail::node_impl_deleter> my;
