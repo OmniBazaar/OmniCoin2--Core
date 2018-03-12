@@ -9,6 +9,7 @@ add_library( graphene_app
              impacted.cpp
              plugin.cpp
              omnibazaar/mail_api.cpp
+             omnibazaar/mail_controller.cpp
              ${HEADERS}
              ${EGENESIS_HEADERS}
              ${OMNIBAZAAR_HEADERS}

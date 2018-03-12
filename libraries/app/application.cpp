@@ -61,6 +61,7 @@
 #include <graphene/utilities/git_revision.hpp>
 
 #include <../omnibazaar/mail_storage.hpp>
+#include <../omnibazaar/mail_controller.hpp>
 
 namespace graphene { namespace app {
 using net::item_hash_t;
@@ -450,6 +451,9 @@ namespace detail {
                  ? _options->at("mail-dir").as<boost::filesystem::path>()
                  : "mails";
          _mail_storage = std::make_shared<omnibazaar::mail_storage>(mail_path);
+
+         // Create mail controller. Must be created after mail storage and p2p node.
+         _mail_controller = std::make_shared<omnibazaar::mail_controller>(std::ref(*_self));
       } FC_LOG_AND_RETHROW() }
 
       optional< api_access_info > get_api_access_info(const string& username)const
@@ -909,6 +913,7 @@ namespace detail {
       bool _is_finished_syncing = false;
 
       std::shared_ptr<omnibazaar::mail_storage> _mail_storage;
+      std::shared_ptr<omnibazaar::mail_controller> _mail_controller;
    };
 
 }
@@ -1123,6 +1128,11 @@ void application::startup_plugins()
 std::shared_ptr<omnibazaar::mail_storage> application::mail_storage()const
 {
     return my->_mail_storage;
+}
+
+std::shared_ptr<omnibazaar::mail_controller> application::mail_controller()const
+{
+    return my->_mail_controller;
 }
 
 // namespace detail
