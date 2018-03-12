@@ -3,6 +3,7 @@
 #include <fc/signals.hpp>
 #include <fc/thread/thread.hpp>
 #include <fc/thread/future.hpp>
+#include <fc/thread/spin_lock.hpp>
 
 namespace graphene { namespace app {
     class application;
@@ -51,6 +52,8 @@ namespace omnibazaar {
         fc::thread _thread;
         std::unordered_map<std::string, callback_type> _send_callbacks;
         std::unordered_map<std::string, callback_type> _receive_callbacks;
+        fc::spin_lock _send_callbacks_lock;
+        fc::spin_lock _receive_callbacks_lock;
         boost::signals2::scoped_connection _new_mail_connection;
         boost::signals2::scoped_connection _received_mail_connection;
         boost::signals2::scoped_connection _confirm_received_mail_connection;

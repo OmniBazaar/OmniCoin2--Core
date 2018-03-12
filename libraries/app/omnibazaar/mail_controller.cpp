@@ -3,6 +3,7 @@
 #include <mail_object.hpp>
 #include <mail_api.h>
 #include <graphene/app/application.hpp>
+#include <fc/thread/scoped_lock.hpp>
 
 static const int TIMER_TICK_INTERVAL_IN_SECONDS = 1;
 
@@ -29,8 +30,11 @@ namespace omnibazaar {
 
     void mail_controller::send(callback_type cb, const mail_object& mail)
     {
-        // Register callback for notifying sender about delivery.
-        _send_callbacks[mail.uuid] = cb;
+        {
+            // Register callback for notifying sender about delivery.
+            const fc::scoped_lock<fc::spin_lock> lock(_send_callbacks_lock);
+            _send_callbacks[mail.uuid] = cb;
+        }
         // Save mail to disk.
         _app.mail_storage()->store(mail);
         // Send mail to other backend nodes.
@@ -45,8 +49,11 @@ namespace omnibazaar {
 
     void mail_controller::subscribe(callback_type cb, const std::string& receiver_name)
     {
-        // Register callback.
-        _receive_callbacks[receiver_name] = cb;
+        {
+            // Register callback.
+            const fc::scoped_lock<fc::spin_lock> lock(_receive_callbacks_lock);
+            _receive_callbacks[receiver_name] = cb;
+        }
         // Send any pending mails to this callback.
         const std::vector<mail_object> mails = _app.mail_storage()->get_mails_by_receiver(receiver_name);
         std::vector<fc::variant> data;
@@ -106,10 +113,18 @@ namespace omnibazaar {
             // Send mail to other backend nodes.
             _app.p2p_node()->mail_send(mail);
             // If receiving user is connected to this node, send mail directly.
-            const auto itr = _receive_callbacks.find(mail.recipient);
-            if(itr != _receive_callbacks.end())
+            callback_type cb = nullptr;
             {
-                exec_callback(itr->second, { fc::variant(mail) });
+                const fc::scoped_lock<fc::spin_lock> lock(_receive_callbacks_lock);
+                const auto itr = _receive_callbacks.find(mail.recipient);
+                if(itr != _receive_callbacks.end())
+                {
+                    cb = itr->second;
+                }
+            }
+            if(cb)
+            {
+                exec_callback(cb, { fc::variant(mail) });
             }
         }
 
@@ -121,10 +136,18 @@ namespace omnibazaar {
             // Send notification that mail was received.
             _app.p2p_node()->mail_send_received(mail_uuid);
             // If sender is connected to this node, notify about successful mail delivery.
-            const auto itr = _send_callbacks.find(mail_uuid);
-            if(itr != _send_callbacks.end())
+            callback_type cb = nullptr;
             {
-                exec_callback(itr->second, { fc::variant(mail_api::send_confirmation{mail_uuid}) });
+                const fc::scoped_lock<fc::spin_lock> lock(_send_callbacks_lock);
+                const auto itr = _send_callbacks.find(mail_uuid);
+                if(itr != _send_callbacks.end())
+                {
+                    cb = itr->second;
+                }
+            }
+            if(cb)
+            {
+                exec_callback(cb, { fc::variant(mail_api::send_confirmation{mail_uuid}) });
             }
         }
     }
@@ -203,6 +226,7 @@ namespace omnibazaar {
     {
         for(auto itr = callbacks.cbegin(); itr != callbacks.cend(); ++itr)
         {
+            const fc::scoped_lock<fc::spin_lock> lock(_send_callbacks_lock);
             _send_callbacks.erase(itr->first);
         }
     }
@@ -211,6 +235,7 @@ namespace omnibazaar {
     {
         for(auto itr = callbacks.cbegin(); itr != callbacks.cend(); ++itr)
         {
+            const fc::scoped_lock<fc::spin_lock> lock(_receive_callbacks_lock);
             _receive_callbacks.erase(itr->first);
         }
     }
