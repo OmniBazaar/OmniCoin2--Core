@@ -9,13 +9,21 @@ namespace omnibazaar {
 
     mail_api::mail_api(graphene::app::application &a)
         : _app(a)
+        , _thread("mail_api")
     {
-        // Connect to node signals.
+        ilog("Connecting Mail API signals.");
         _new_mail_connection = _app.p2p_node()->mail_new.connect([this](const mail_object& m){ on_new_mail(m); });
         _received_mail_connection = _app.p2p_node()->mail_received.connect([this](const std::string& u){ on_mail_received(u); });
         _confirm_received_mail_connection = _app.p2p_node()->mail_confirm_received.connect([this](const std::string& u){ on_mail_confirm_received(u); });
 
+        ilog("Starting mail processing loop.");
         start_mail_processing_loop();
+    }
+
+    mail_api::~mail_api()
+    {
+        ilog("Terminating Mail API background thread.");
+        _thread.quit();
     }
 
     void mail_api::send(callback_type cb, const mail_object& mail)
@@ -126,16 +134,21 @@ namespace omnibazaar {
 
     void mail_api::start_mail_processing_loop()
     {
-        boost::asio::io_service io_service;
-        boost::posix_time::seconds interval(TIMER_TICK_INTERVAL_IN_SECONDS);
-        timer = std::make_shared<boost::asio::deadline_timer>(io_service, interval);
+        if(!_thread.is_running())
+            return;
 
-        timer->async_wait(boost::bind(&mail_api::mail_sending_tick, this));
-        io_service.run();
+        // Schedule operation in background thread.
+        auto future = _thread.schedule([this](){ mail_sending_tick(); },
+            fc::time_point::now() + fc::seconds(TIMER_TICK_INTERVAL_IN_SECONDS),
+            "Executing mail processing tick");
+
+        // Restart operation upon its completion.
+        future.on_complete([this](const fc::exception_ptr& exptr) { start_mail_processing_loop(); });
     }
 
     void mail_api::mail_sending_tick()
     {
+        ilog("Processing pending mails.");
         // Re-send mails that were not successfully delivered to receivers.
         const std::vector<fc::path> pending_mails = _app.mail_storage()->get_pending_mails();
         for(const auto& path : pending_mails)
@@ -155,6 +168,7 @@ namespace omnibazaar {
             }
         }
 
+        ilog("Processing delivered mails.");
         // Re-send notifications to senders for mails that were delivered to receivers.
         const std::vector<std::string> pending_notifications = _app.mail_storage()->get_received_mails();
         for(const auto& mail_uuid : pending_notifications)
@@ -168,9 +182,6 @@ namespace omnibazaar {
                 exec_callback(itr->second, { fc::variant(send_confirmation{mail_uuid}) });
             }
         }
-
-        timer->expires_at(timer->expires_at() + boost::posix_time::seconds(TIMER_TICK_INTERVAL_IN_SECONDS));
-        timer->async_wait(boost::bind(&mail_api::mail_sending_tick, this));
     }
 
     void mail_api::confirm_received(const std::string& mail_uuid)

@@ -1,10 +1,9 @@
 #pragma once
 
 #include <fc/api.hpp>
-#include <boost/thread.hpp>
-#include <boost/timer.hpp>
-#include <boost/asio.hpp>
 #include <fc/signals.hpp>
+#include <fc/thread/thread.hpp>
+#include <fc/thread/future.hpp>
 
 namespace graphene { namespace app {
     class application;
@@ -27,6 +26,7 @@ namespace omnibazaar {
         typedef std::function<void(fc::variant)> callback_type;
 
         mail_api(graphene::app::application& a);
+        ~mail_api();
 
         // Used by Sender.
         // Send specified mail object and subscribe for a callback that triggers when mail object is delivered.
@@ -69,7 +69,7 @@ namespace omnibazaar {
         graphene::app::application& _app;
         std::unordered_map<std::string, callback_type> _send_callbacks;
         std::unordered_map<std::string, callback_type> _receive_callbacks;
-        std::shared_ptr<boost::asio::deadline_timer> timer;
+        fc::thread _thread;
         boost::signals2::scoped_connection _new_mail_connection;
         boost::signals2::scoped_connection _received_mail_connection;
         boost::signals2::scoped_connection _confirm_received_mail_connection;
