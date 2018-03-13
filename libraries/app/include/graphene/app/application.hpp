@@ -29,7 +29,10 @@
 
 #include <boost/program_options.hpp>
 
-namespace omnibazaar { class mail_storage; }
+namespace omnibazaar {
+    class mail_storage;
+    class mail_controller;
+}
 
 namespace graphene { namespace app {
    namespace detail { class application_impl; }
@@ -83,6 +86,7 @@ namespace graphene { namespace app {
          net::node_ptr                    p2p_node();
          std::shared_ptr<chain::database> chain_database()const;
          std::shared_ptr<omnibazaar::mail_storage> mail_storage()const;
+         std::shared_ptr<omnibazaar::mail_controller> mail_controller()const;
 
          void set_block_production(bool producing_blocks);
          fc::optional< api_access_info > get_api_access_info( const string& username )const;

@@ -41,12 +41,14 @@
 
 #include <boost/container/flat_set.hpp>
 
-#include <../omnibazaar/mail_api.h>
-
 #include <functional>
 #include <map>
 #include <string>
 #include <vector>
+
+namespace omnibazaar {
+    class mail_object;
+}
 
 namespace graphene { namespace app {
    using namespace graphene::chain;
@@ -171,6 +173,7 @@ namespace graphene { namespace app {
    {
       public:
          network_broadcast_api(application& a);
+         ~network_broadcast_api();
 
          struct transaction_confirmation
          {
@@ -215,10 +218,50 @@ namespace graphene { namespace app {
           */
          void on_applied_block( const signed_block& b );
 
+         ////////////////
+         /// Mail API ///
+         ////////////////
+
+         // Return value for send callback.
+         struct send_confirmation
+         {
+             std::string msg_uuid;
+         };
+
+         // Mail callback type. Exact argument type will depend on callback context.
+         typedef std::function<void(variant)> callback_type;
+
+         // Used by Sender.
+         // Send specified mail object and subscribe for a callback that triggers when mail object is delivered.
+         // Callback argument is of type "send_confirmation".
+         // At this stage Sender has this mail in his Outbox folder.
+         void mail_send(callback_type cb, const omnibazaar::mail_object& mail);
+
+         // Used by Receiver.
+         // Subscribe for receiving new mail for specified user.
+         // Callback argument is of type "mail_object".
+         // Upon call to this method it also triggers callback for any pending mails for specified receiver.
+         // After callback is executed Receiver should see new mail in his Inbox folder.
+         void mail_subscribe(callback_type cb, const std::string& receiver_name);
+
+         // Used by Receiver.
+         // Notify the network that mail with specified UUID was successfully received.
+         // This triggeres a callback for Sender and Sender can move the mail to his Sent folder and call confirm_received().
+         void mail_set_received(const std::string& mail_uuid);
+
+         // Used by Sender.
+         // Send notification that delivery info was accepted by Sender.
+         // After this mail object is deleted from backend.
+         void mail_confirm_received(const std::string& mail_uuid);
+
       private:
          boost::signals2::scoped_connection             _applied_block_connection;
          map<transaction_id_type,confirmation_callback> _callbacks;
          application&                                   _app;
+
+         // Mail members.
+         std::unordered_map<std::string, callback_type> _send_callbacks;
+         std::unordered_map<std::string, callback_type> _receive_callbacks;
    };
 
    /**
@@ -359,8 +402,6 @@ namespace graphene { namespace app {
          fc::api<asset_api> asset()const;
          /// @brief Retrieve the debug API (if available)
          fc::api<graphene::debug_witness::debug_api> debug()const;
-         /// @brief Retrieve the mail system API
-         fc::api<omnibazaar::mail_api> mail()const;
 
          /// @brief Called to enable an API, not reflected.
          void enable_api( const string& api_name );
@@ -375,13 +416,14 @@ namespace graphene { namespace app {
          optional< fc::api<crypto_api> > _crypto_api;
          optional< fc::api<asset_api> > _asset_api;
          optional< fc::api<graphene::debug_witness::debug_api> > _debug_api;
-         optional< fc::api<omnibazaar::mail_api> > _mail_api;
    };
 
 }}  // graphene::app
 
 FC_REFLECT( graphene::app::network_broadcast_api::transaction_confirmation,
         (id)(block_num)(trx_num)(trx) )
+FC_REFLECT( graphene::app::network_broadcast_api::send_confirmation,
+            (msg_uuid) )
 FC_REFLECT( graphene::app::verify_range_result,
         (success)(min_val)(max_val) )
 FC_REFLECT( graphene::app::verify_range_proof_rewind_result,
@@ -408,6 +450,10 @@ FC_API(graphene::app::network_broadcast_api,
        (broadcast_transaction_with_callback)
        (broadcast_transaction_synchronous)
        (broadcast_block)
+       (mail_send)
+       (mail_subscribe)
+       (mail_set_received)
+       (mail_confirm_received)
      )
 FC_API(graphene::app::network_node_api,
        (get_info)
@@ -443,5 +489,4 @@ FC_API(graphene::app::login_api,
        (crypto)
        (asset)
        (debug)
-       (mail)
      )

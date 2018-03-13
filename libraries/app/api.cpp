@@ -41,6 +41,9 @@
 #include <fc/smart_ref_impl.hpp>
 #include <fc/thread/future.hpp>
 
+#include <../omnibazaar/mail_controller.hpp>
+#include <../omnibazaar/mail_object.hpp>
+
 namespace graphene { namespace app {
 
     login_api::login_api(application& a)
@@ -110,10 +113,6 @@ namespace graphene { namespace app {
           if( _app.get_plugin( "debug_witness" ) )
              _debug_api = std::make_shared< graphene::debug_witness::debug_api >( std::ref(_app) );
        }
-       else if( api_name == "mail_api" )
-       {
-           _mail_api = std::make_shared< omnibazaar::mail_api >( std::ref(_app) );
-       }
        return;
     }
 
@@ -134,6 +133,12 @@ namespace graphene { namespace app {
     network_broadcast_api::network_broadcast_api(application& a):_app(a)
     {
        _applied_block_connection = _app.chain_database()->applied_block.connect([this](const signed_block& b){ on_applied_block(b); });
+    }
+
+    network_broadcast_api::~network_broadcast_api()
+    {
+        _app.mail_controller()->remove_send_callbacks(_send_callbacks);
+        _app.mail_controller()->remove_receive_callbacks(_receive_callbacks);
     }
 
     void network_broadcast_api::on_applied_block( const signed_block& b )
@@ -186,6 +191,36 @@ namespace graphene { namespace app {
        _callbacks[trx.id()] = cb;
        _app.chain_database()->push_transaction(trx);
        _app.p2p_node()->broadcast_transaction(trx);
+    }
+
+    void network_broadcast_api::mail_send(callback_type cb, const omnibazaar::mail_object& mail)
+    {
+        FC_ASSERT( !mail.uuid.empty(), "Mail UUID is empty" );
+
+        _send_callbacks[mail.uuid] = cb;
+        _app.mail_controller()->send(cb, mail);
+    }
+
+    void network_broadcast_api::mail_subscribe(callback_type cb, const std::string& receiver_name)
+    {
+        FC_ASSERT( !receiver_name.empty(), "Mail receiver name cannot be empty." );
+
+        _receive_callbacks[receiver_name] = cb;
+        _app.mail_controller()->subscribe(cb, receiver_name);
+    }
+
+    void network_broadcast_api::mail_set_received(const std::string& mail_uuid)
+    {
+        FC_ASSERT( !mail_uuid.empty(), "Mail UUID is empty." );
+
+        _app.mail_controller()->set_received(mail_uuid);
+    }
+
+    void network_broadcast_api::mail_confirm_received(const std::string& mail_uuid)
+    {
+        FC_ASSERT( !mail_uuid.empty(), "Mail UUID is empty." );
+
+        _app.mail_controller()->confirm_received(mail_uuid);
     }
 
     network_node_api::network_node_api( application& a ) : _app( a )
@@ -270,12 +305,6 @@ namespace graphene { namespace app {
     {
        FC_ASSERT(_debug_api);
        return *_debug_api;
-    }
-
-    fc::api<omnibazaar::mail_api> login_api::mail()const
-    {
-        FC_ASSERT(_mail_api);
-        return *_mail_api;
     }
 
     vector<order_history_object> history_api::get_fill_order_history( asset_id_type a, asset_id_type b, uint32_t limit  )const
