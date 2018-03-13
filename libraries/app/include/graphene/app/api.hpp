@@ -215,10 +215,18 @@ namespace graphene { namespace app {
           */
          void on_applied_block( const signed_block& b );
 
+         // Mail API wrapper. Added here to avoid modifying "bitsharesjs-ws" to support separate API class.
+         // See omnibazaar::mail_api for descriptions of these methods.
+         void mail_send(omnibazaar::mail_api::callback_type cb, const omnibazaar::mail_object& mail);
+         void mail_subscribe(omnibazaar::mail_api::callback_type cb, const std::string& receiver_name);
+         void mail_set_received(const std::string& mail_uuid);
+         void mail_confirm_received(const std::string& mail_uuid);
+
       private:
          boost::signals2::scoped_connection             _applied_block_connection;
          map<transaction_id_type,confirmation_callback> _callbacks;
          application&                                   _app;
+         omnibazaar::mail_api                           _mail_api;
    };
 
    /**

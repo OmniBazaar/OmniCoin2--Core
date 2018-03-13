@@ -131,7 +131,7 @@ namespace graphene { namespace app {
        return res;
     }
 
-    network_broadcast_api::network_broadcast_api(application& a):_app(a)
+    network_broadcast_api::network_broadcast_api(application& a):_app(a), _mail_api(a)
     {
        _applied_block_connection = _app.chain_database()->applied_block.connect([this](const signed_block& b){ on_applied_block(b); });
     }
@@ -186,6 +186,26 @@ namespace graphene { namespace app {
        _callbacks[trx.id()] = cb;
        _app.chain_database()->push_transaction(trx);
        _app.p2p_node()->broadcast_transaction(trx);
+    }
+
+    void network_broadcast_api::mail_send(omnibazaar::mail_api::callback_type cb, const omnibazaar::mail_object& mail)
+    {
+        _mail_api.send(cb, mail);
+    }
+
+    void network_broadcast_api::mail_subscribe(omnibazaar::mail_api::callback_type cb, const std::string& receiver_name)
+    {
+        _mail_api.subscribe(cb, receiver_name);
+    }
+
+    void network_broadcast_api::mail_set_received(const std::string& mail_uuid)
+    {
+        _mail_api.set_received(mail_uuid);
+    }
+
+    void network_broadcast_api::mail_confirm_received(const std::string& mail_uuid)
+    {
+        _mail_api.confirm_received(mail_uuid);
     }
 
     network_node_api::network_node_api( application& a ) : _app( a )
