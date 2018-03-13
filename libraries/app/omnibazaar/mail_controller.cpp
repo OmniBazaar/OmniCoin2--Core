@@ -1,8 +1,8 @@
 #include <mail_controller.hpp>
 #include <mail_storage.hpp>
 #include <mail_object.hpp>
-#include <mail_api.h>
 #include <graphene/app/application.hpp>
+#include <graphene/app/api.hpp>
 #include <fc/thread/scoped_lock.hpp>
 
 static const int TIMER_TICK_INTERVAL_IN_SECONDS = 1;
@@ -72,7 +72,7 @@ namespace omnibazaar {
         const auto itr = _send_callbacks.find(mail_uuid);
         if(itr != _send_callbacks.end())
         {
-            exec_callback(itr->second, { fc::variant(mail_api::send_confirmation{mail_uuid}) });
+            exec_callback(itr->second, { fc::variant(graphene::app::network_broadcast_api::send_confirmation{mail_uuid}) });
         }
     }
 
@@ -147,7 +147,7 @@ namespace omnibazaar {
             }
             if(cb)
             {
-                exec_callback(cb, { fc::variant(mail_api::send_confirmation{mail_uuid}) });
+                exec_callback(cb, { fc::variant(graphene::app::network_broadcast_api::send_confirmation{mail_uuid}) });
             }
         }
     }
@@ -193,7 +193,7 @@ namespace omnibazaar {
             return;
         }
 
-        exec_callback(iter->second, { fc::variant(mail_api::send_confirmation{mail_uuid}) });
+        exec_callback(iter->second, { fc::variant(graphene::app::network_broadcast_api::send_confirmation{mail_uuid}) });
     }
 
     void mail_controller::on_mail_confirm_received(const std::string& mail_uuid)

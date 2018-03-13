@@ -8,7 +8,6 @@ add_library( graphene_app
              database_api.cpp
              impacted.cpp
              plugin.cpp
-             omnibazaar/mail_api.cpp
              omnibazaar/mail_controller.cpp
              ${HEADERS}
              ${EGENESIS_HEADERS}
