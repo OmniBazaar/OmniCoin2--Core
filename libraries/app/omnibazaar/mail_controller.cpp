@@ -108,8 +108,11 @@ namespace omnibazaar {
             if(!fc::exists(path))
                 continue;
 
-            mail_object mail;
-            mail.read_from_file(path);
+            const fc::variant var = fc::json::from_file(path);
+            if(var.is_null())
+                continue;
+
+            const mail_object mail = var.as<mail_object>();
             // Send mail to other backend nodes.
             _app.p2p_node()->mail_send(mail);
             // If receiving user is connected to this node, send mail directly.

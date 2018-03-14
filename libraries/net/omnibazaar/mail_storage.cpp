@@ -4,6 +4,7 @@
 #include <fc/log/logger.hpp>
 #include <fc/reflect/variant.hpp>
 #include <fc/thread/scoped_lock.hpp>
+#include <fc/io/json.hpp>
 
 static const std::string TXT_EXTENSION(".txt");
 static const std::string DELIVERED_STR("delivered");
@@ -53,12 +54,15 @@ namespace omnibazaar {
             // Load mail info from disk to cache.
             for (fc::directory_iterator itr(path); itr != fc::directory_iterator(); ++itr)
             {
-                if (!itr->filename().string().empty() && fc::is_regular_file(*itr))
+                if (!itr->string().empty() && fc::is_regular_file(*itr))
                 {
-                    mail_object new_mail_object;
-                    new_mail_object.read_from_file(*itr);
-                    _cache_by_uuid[new_mail_object.uuid] = mail_info(new_mail_object.recipient, folder_info.second);
-                    _cache_by_receiver.insert( {new_mail_object.recipient, new_mail_object.uuid} );
+                    const fc::variant var = fc::json::from_file(*itr);
+                    if(!var.is_null())
+                    {
+                        const mail_object new_mail_object = var.as<mail_object>();
+                        _cache_by_uuid[new_mail_object.uuid] = mail_info(new_mail_object.recipient, folder_info.second);
+                        _cache_by_receiver.insert( {new_mail_object.recipient, new_mail_object.uuid} );
+                    }
                 }
             }
         }
@@ -83,7 +87,7 @@ namespace omnibazaar {
 
         // Save to disk.
         fc::create_directories(_parent_dir / UNDELIVERED_STR);
-        mail.write_to_file(_parent_dir / UNDELIVERED_STR / (mail.uuid + TXT_EXTENSION));
+        fc::json::save_to_file(mail, _parent_dir / UNDELIVERED_STR / (mail.uuid + TXT_EXTENSION));
 
         // Save to cache.
         _cache_by_uuid[mail.uuid] = mail_info(mail.recipient, false);
@@ -161,9 +165,11 @@ namespace omnibazaar {
             const fc::path mail_path = _parent_dir / UNDELIVERED_STR / ((*itrs.first).second + TXT_EXTENSION);
             if(fc::exists(mail_path))
             {
-                mail_object new_mail_object;
-                new_mail_object.read_from_file(mail_path);
-                mails.push_back(new_mail_object);
+                const fc::variant var = fc::json::from_file(mail_path);
+                if(!var.is_null())
+                {
+                    mails.push_back(var.as<mail_object>());
+                }
             }
 
             ++itrs.first;
