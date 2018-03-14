@@ -23,6 +23,7 @@
  */
 #include <graphene/chain/protocol/account.hpp>
 #include <graphene/chain/hardfork.hpp>
+#include <fc/network/ip.hpp>
 
 namespace graphene { namespace chain {
 
@@ -240,6 +241,9 @@ void account_update_operation::validate()const
       || extensions.value.active_special_authority.valid()
       || escrows.valid()
       || escrow_fee.valid()
+      || is_a_publisher.valid()
+      || publisher_ip.valid()
+      || is_an_escrow.valid()
       );
 
    FC_ASSERT( has_action );
@@ -267,6 +271,15 @@ void account_update_operation::validate()const
    if( escrow_fee )
    {
        FC_ASSERT( (*escrow_fee) < GRAPHENE_100_PERCENT, "Escrow fee cannot be 100% or more" );
+   }
+
+   if( publisher_ip && !(*publisher_ip).empty() )
+   {
+       // First, let address class parse it and report errors.
+       const fc::ip::address addr(*publisher_ip);
+
+       FC_ASSERT( addr != fc::ip::address(), "Publisher IP is empty");
+       FC_ASSERT( addr.is_public_address(), "Publisher IP is not a public address" );
    }
 }
 

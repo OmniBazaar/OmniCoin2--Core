@@ -144,6 +144,9 @@ namespace graphene { namespace chain {
       /// New is-publisher flag value
       optional<bool> is_a_publisher;
 
+      /// New IP address of pubisher node
+      optional<string> publisher_ip;
+
       /// New is-escrow flag value
       optional<bool> is_an_escrow;
 
@@ -288,7 +291,7 @@ FC_REFLECT( graphene::chain::account_create_operation,
 
 FC_REFLECT(graphene::chain::account_update_operation::ext, (null_ext)(owner_special_authority)(active_special_authority) )
 FC_REFLECT( graphene::chain::account_update_operation,
-            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(is_an_escrow)(escrow_fee)(escrows)
+            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(publisher_ip)(is_an_escrow)(escrow_fee)(escrows)
           )
 
 FC_REFLECT( graphene::chain::account_upgrade_operation,

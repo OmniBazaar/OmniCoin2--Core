@@ -23,6 +23,7 @@
  */
 
 #include <fc/smart_ref_impl.hpp>
+#include <fc/network/ip.hpp>
 
 #include <graphene/chain/account_evaluator.hpp>
 #include <graphene/chain/buyback.hpp>
@@ -294,6 +295,17 @@ void_result account_update_evaluator::do_evaluate( const account_update_operatio
    if( o.new_options.valid() )
       verify_account_votes( d, *o.new_options );
 
+   if(o.publisher_ip)
+   {
+       if(fc::ip::address((*o.publisher_ip)) != fc::ip::address())
+       {
+           const bool will_be_publisher = o.is_a_publisher
+                   ? *o.is_a_publisher
+                   : acnt->is_a_publisher;
+           FC_ASSERT( will_be_publisher, "Cannot set publisher IP while not being publisher." );
+       }
+   }
+
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (o) ) }
 
@@ -343,6 +355,19 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
       if(o.escrows)
       {
           a.escrows = *o.escrows;
+      }
+
+      if(a.is_a_publisher)
+      {
+          if(o.publisher_ip)
+          {
+              a.publisher_ip = *o.publisher_ip;
+          }
+      }
+      else
+      {
+          // Clear IP address when account is not a publisher anymore.
+          a.publisher_ip = string();
       }
             
       sa_after = a.has_special_authority();
