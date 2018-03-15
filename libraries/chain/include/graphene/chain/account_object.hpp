@@ -274,6 +274,9 @@ namespace graphene { namespace chain {
          // Flag to indicate if the account has chosen to be a publisher
          bool is_a_publisher = false;
 
+         // Currently registered IP address of publisher node
+         string publisher_ip;
+
          // Flag to indicate if the account has chosen to be a escrow
          bool is_an_escrow = false;
 
@@ -403,6 +406,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (allowed_assets)
                     (recieved_welcome_bonus)
                     (is_a_publisher)
+                    (publisher_ip)
                     (is_an_escrow)
                     (escrow_fee)
                     (buyers)
