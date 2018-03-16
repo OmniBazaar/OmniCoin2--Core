@@ -267,4 +267,36 @@ void account_referrer_index::object_modified( const object& after  )
 {
 }
 
+void account_escrow_index::object_inserted( const object& obj )
+{
+    const account_object& a = static_cast<const account_object&>(obj);
+    if(a.is_an_escrow)
+    {
+        current_escrows.insert(a.get_id());
+    }
+}
+
+void account_escrow_index::object_removed( const object& obj )
+{
+    const account_object& a = static_cast<const account_object&>(obj);
+    current_escrows.erase(a.get_id());
+}
+
+void account_escrow_index::about_to_modify( const object& before )
+{
+}
+
+void account_escrow_index::object_modified( const object& after  )
+{
+    const account_object& a = static_cast<const account_object&>(after);
+    if(a.is_an_escrow)
+    {
+        current_escrows.insert(a.get_id());
+    }
+    else
+    {
+        current_escrows.erase(a.get_id());
+    }
+}
+
 } } // graphene::chain

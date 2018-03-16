@@ -91,6 +91,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       map<string,account_id_type> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
       uint64_t get_account_count()const;
       std::vector<std::string> get_publisher_nodes_names();
+      vector<string> get_current_escrows()const;
 
       // Balances
       vector<asset> get_account_balances(account_id_type id, const flat_set<asset_id_type>& assets)const;
@@ -834,6 +835,26 @@ uint64_t database_api::get_account_count()const
 uint64_t database_api_impl::get_account_count()const
 {
    return _db.get_index_type<account_index>().indices().size();
+}
+
+vector<string> database_api::get_current_escrows()const
+{
+    return my->get_current_escrows();
+}
+
+vector<string> database_api_impl::get_current_escrows()const
+{
+    vector<string> result;
+
+    const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
+    const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
+    result.reserve(escrow_idx.current_escrows.size());
+    for(auto account_id : escrow_idx.current_escrows)
+    {
+        result.push_back(account_id(_db).name);
+    }
+
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////

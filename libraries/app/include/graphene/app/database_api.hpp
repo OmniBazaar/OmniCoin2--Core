@@ -290,6 +290,11 @@ class database_api
        */
       std::vector<std::string> get_publisher_nodes_names() const;
 
+      /**
+       *  @return all accounts that are currently registered as Escrow agents
+       */
+      vector<string> get_current_escrows()const;
+
       //////////////
       // Balances //
       //////////////
@@ -711,6 +716,7 @@ FC_API(graphene::app::database_api,
    (lookup_accounts)
    (get_account_count)
    (get_publisher_nodes_names)
+   (get_current_escrows)
 
    // Balances
    (get_account_balances)
