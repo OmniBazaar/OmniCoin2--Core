@@ -343,4 +343,36 @@ void account_escrow_index::object_modified( const object& after  )
     }
 }
 
+void account_publisher_index::object_inserted( const object& obj )
+{
+    const account_object& a = static_cast<const account_object&>(obj);
+    if(a.is_a_publisher)
+    {
+        publishers.insert(a.get_id());
+    }
+}
+
+void account_publisher_index::object_removed( const object& obj )
+{
+    const account_object& a = static_cast<const account_object&>(obj);
+    publishers.erase(a.get_id());
+}
+
+void account_publisher_index::about_to_modify( const object& before )
+{
+}
+
+void account_publisher_index::object_modified( const object& after )
+{
+    const account_object& a = static_cast<const account_object&>(after);
+    if(a.is_a_publisher)
+    {
+        publishers.insert(a.get_id());
+    }
+    else
+    {
+        publishers.erase(a.get_id());
+    }
+}
+
 } } // graphene::chain
