@@ -21,7 +21,7 @@ namespace omnibazaar {
             {
                 FC_THROW("Account '${name}' doesn't exist", ("name", op.receiver_name));
             }
-            if (receiver->recieved_welcome_bonus)
+            if (!d.is_welcome_bonus_available(op.drive_id, op.mac_address))
             {
                 FC_THROW("Account '${name}' has already received a welcome bonus", ("name", receiver->name));
             }
@@ -46,8 +46,9 @@ namespace omnibazaar {
             d.adjust_balance(receiver.id, bonus_sum);
 
             // Set bonus received flag.
-            d.modify(receiver, [](graphene::chain::account_object& a) {
-                a.recieved_welcome_bonus = true;
+            d.modify(receiver, [&](graphene::chain::account_object& a) {
+                a.drive_id = op.drive_id;
+                a.mac_address = op.mac_address;
             });
 
             // Adjust asset supply value.

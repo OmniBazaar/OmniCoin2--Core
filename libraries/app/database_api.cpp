@@ -91,6 +91,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       map<string,account_id_type> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
       uint64_t get_account_count()const;
       std::vector<std::string> get_publisher_nodes_names();
+      vector<string> get_current_escrows()const;
 
       // Balances
       vector<asset> get_account_balances(account_id_type id, const flat_set<asset_id_type>& assets)const;
@@ -160,7 +161,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
 
       // Escrows
-      vector<omnibazaar::escrow_object> get_escrow_objects( const account_id_type& id )const;
+      vector<omnibazaar::escrow_object> get_escrow_objects( const string& account_name )const;
 
    //private:
       template<typename T>
@@ -675,7 +676,7 @@ std::map<std::string, full_account> database_api_impl::get_full_accounts( const 
       }
 
       // Add account's escrow objects.
-      acnt.escrows = get_escrow_objects(account->id);
+      acnt.escrows = get_escrow_objects(account->name);
 
       // Add the account's balances
       auto balance_range = _db.get_index_type<account_balance_index>().indices().get<by_account_asset>().equal_range(boost::make_tuple(account->id));
@@ -833,6 +834,26 @@ uint64_t database_api::get_account_count()const
 uint64_t database_api_impl::get_account_count()const
 {
    return _db.get_index_type<account_index>().indices().size();
+}
+
+vector<string> database_api::get_current_escrows()const
+{
+    return my->get_current_escrows();
+}
+
+vector<string> database_api_impl::get_current_escrows()const
+{
+    vector<string> result;
+
+    const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
+    const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
+    result.reserve(escrow_idx.current_escrows.size());
+    for(auto account_id : escrow_idx.current_escrows)
+    {
+        result.push_back(account_id(_db).name);
+    }
+
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2323,18 +2344,23 @@ bool database_api_impl::is_sale_bonus_available(const account_id_type& seller_id
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 
-vector<omnibazaar::escrow_object> database_api::get_escrow_objects( const account_id_type& id )const
+vector<omnibazaar::escrow_object> database_api::get_escrow_objects(const string &account_name )const
 {
-    return my->get_escrow_objects(id);
+    return my->get_escrow_objects(account_name);
 }
 
-vector<omnibazaar::escrow_object> database_api_impl::get_escrow_objects( const account_id_type& id )const
+vector<omnibazaar::escrow_object> database_api_impl::get_escrow_objects( const string& account_name )const
 {
+    FC_ASSERT( !account_name.empty() );
+
+    const optional<account_object> account_obj = get_account_by_name(account_name);
+    FC_ASSERT( account_obj.valid(), "Account does not exist." );
+
     vector<omnibazaar::escrow_object> result;
 
     const auto& escrow_idx = dynamic_cast<const primary_index<omnibazaar::escrow_index>&>(_db.get_index_type<omnibazaar::escrow_index>());
     const auto& escrow_by_account_idx = escrow_idx.get_secondary_index<omnibazaar::escrow_account_index>();
-    const auto& account_iter = escrow_by_account_idx.account_to_escrows.find(id);
+    const auto& account_iter = escrow_by_account_idx.account_to_escrows.find((*account_obj).get_id());
     if(account_iter != escrow_by_account_idx.account_to_escrows.end())
     {
         result.reserve(account_iter->second.size());

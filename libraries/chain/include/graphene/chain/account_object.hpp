@@ -268,8 +268,10 @@ namespace graphene { namespace chain {
 
          account_id_type get_id()const { return id; }
 
-         // Flag to indicate that this account already received the registration welcome bonus.
-         bool recieved_welcome_bonus = false;
+         // Hardware information used to determine Welcome Bonus eligibility.
+         // These members are not added to FC_REFLECT to avoid easy access by random users.
+         string drive_id;
+         string mac_address;
 
          // Flag to indicate if the account has chosen to be a publisher
          bool is_a_publisher = false;
@@ -335,6 +337,36 @@ namespace graphene { namespace chain {
 
          /** maps the referrer to the set of accounts that they have referred */
          map< account_id_type, set<account_id_type> > referred_by;
+   };
+
+   /**
+    *  @brief This secondary index will allow a lookup of registered hardware info
+    *  to determine Welcome Bonus eligibility for a new user.
+    */
+   class account_welcome_bonus_index : public secondary_index
+   {
+      public:
+         virtual void object_inserted( const object& obj ) override;
+         virtual void object_removed( const object& obj ) override;
+         virtual void about_to_modify( const object& before ) override;
+         virtual void object_modified( const object& after  ) override;
+
+         unordered_map<string, account_id_type> drive_ids;
+         unordered_map<string, account_id_type> mac_addresses;
+   };
+
+   /**
+    *  @brief This secondary index will allow lookup of Escrow agents.
+    */
+   class account_escrow_index : public secondary_index
+   {
+      public:
+         virtual void object_inserted( const object& obj ) override;
+         virtual void object_removed( const object& obj ) override;
+         virtual void about_to_modify( const object& before ) override;
+         virtual void object_modified( const object& after  ) override;
+
+         set<account_id_type> current_escrows;
    };
 
    /**
@@ -418,7 +450,6 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (owner_special_authority)(active_special_authority)
                     (top_n_control_flags)
                     (allowed_assets)
-                    (recieved_welcome_bonus)
                     (is_a_publisher)
                     (publisher_ip)
                     (is_an_escrow)
