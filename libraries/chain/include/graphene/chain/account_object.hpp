@@ -355,6 +355,20 @@ namespace graphene { namespace chain {
          unordered_map<string, account_id_type> mac_addresses;
    };
 
+   /**
+    *  @brief This secondary index will allow lookup of Escrow agents.
+    */
+   class account_escrow_index : public secondary_index
+   {
+      public:
+         virtual void object_inserted( const object& obj ) override;
+         virtual void object_removed( const object& obj ) override;
+         virtual void about_to_modify( const object& before ) override;
+         virtual void object_modified( const object& after  ) override;
+
+         set<account_id_type> current_escrows;
+   };
+
    struct by_account_asset;
    struct by_asset_balance;
    /**
