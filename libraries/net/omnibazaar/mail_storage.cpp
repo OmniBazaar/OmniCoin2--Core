@@ -19,15 +19,19 @@ namespace omnibazaar {
 
     mail_storage::mail_storage(const fc::path& parent_dir)
     {
+        mail_ddump((parent_dir));
+
         set_dir(parent_dir);
     }
 
     void mail_storage::set_dir(const fc::path& parent_dir)
     {
+        mail_ddump((parent_dir));
+
         // Thread safety.
         const fc::scoped_lock<fc::mutex> lock(_mutex);
 
-        ilog("Using mail directory '${dir}'.", ("dir", parent_dir));
+        mail_ilog("Changing mail directory from '${olddir}' to '${newdir}'.", ("olddir", _parent_dir)("newdir", parent_dir));
 
         _parent_dir = parent_dir;
 
@@ -37,28 +41,39 @@ namespace omnibazaar {
 
     void mail_storage::reload_cache()
     {
+        mail_ddump(());
+
         // Clear cache.
         _cache_by_uuid.clear();
         _cache_by_receiver.clear();
 
         if(!fc::exists(_parent_dir) || !fc::is_directory(_parent_dir))
+        {
+            mail_wlog("Mail parent directory '${dir}' does not exist or is not a directory.", ("dir", _parent_dir));
             return;
+        }
 
         for(auto folder_info : MAIL_FOLDERS)
         {
             const fc::path path = _parent_dir / folder_info.first;
             if(!fc::exists(path))
+            {
+                mail_wlog("Mail folder '${path}' does not exist.", ("path", path));
                 continue;
+            }
 
             // Load mail info from disk to cache.
             for (fc::directory_iterator itr(path); itr != fc::directory_iterator(); ++itr)
             {
+                mail_dlog("Loading mail from '${path}'", ("path", *itr));
                 if (!itr->string().empty() && fc::is_regular_file(*itr))
                 {
                     const fc::variant var = fc::json::from_file(*itr);
+                    mail_dlog("Loaded mail variable: ${var}", ("var", var));
                     if(!var.is_null())
                     {
                         const mail_object new_mail_object = var.as<mail_object>();
+                        mail_dlog("Loaded mail object: ${obj}", ("obj", new_mail_object));
                         _cache_by_uuid[new_mail_object.uuid] = mail_info(new_mail_object.recipient, folder_info.second);
                         _cache_by_receiver.insert( {new_mail_object.recipient, new_mail_object.uuid} );
                     }
@@ -69,9 +84,11 @@ namespace omnibazaar {
 
     void mail_storage::store(const mail_object& mail)
     {
+        mail_ddump((mail));
+
         if(mail.uuid.empty())
         {
-            wlog("Mail UUID is empty: ${mail}.", ("mail", mail));
+            mail_wlog("Mail UUID is empty: ${mail}.", ("mail", mail));
             return;
         }
 
@@ -80,7 +97,7 @@ namespace omnibazaar {
 
         if(_parent_dir.string().empty())
         {
-            wlog("Mail parent directory is empty, unable to save mails.");
+            mail_wlog("Mail parent directory is empty, unable to save mails.");
             return;
         }
 
@@ -95,9 +112,11 @@ namespace omnibazaar {
 
     void mail_storage::remove(const std::string& mail_uuid)
     {
+        mail_ddump((mail_uuid));
+
         if(mail_uuid.empty())
         {
-            wlog("Unable to remove mail because specified UUID is empty.");
+            mail_wlog("Unable to remove mail because specified UUID is empty.");
             return;
         }
 
@@ -105,6 +124,7 @@ namespace omnibazaar {
         const fc::scoped_lock<fc::mutex> lock(_mutex);
 
         // Remove from disk.
+        mail_dlog("Removing '${mail}' from disk.", ("mail", mail_uuid));
         for(auto folder_info : MAIL_FOLDERS)
         {
             const fc::path mail_path = _parent_dir / folder_info.first / mail_uuid;
@@ -112,9 +132,14 @@ namespace omnibazaar {
             {
                 fc::remove(mail_path);
             }
+            else
+            {
+                mail_wlog("Path '${path}' does not exist.", ("path", mail_path));
+            }
         }
 
         // Remove from cache.
+        mail_dlog("Removing '${mail}' from cache.", ("mail", mail_uuid));
         const auto itr = _cache_by_uuid.find(mail_uuid);
         if(itr != _cache_by_uuid.end())
         {
@@ -140,9 +165,11 @@ namespace omnibazaar {
 
     std::vector<mail_object> mail_storage::get_mails_by_receiver(const std::string& receiver)const
     {
+        mail_ddump((receiver));
+
         if(receiver.empty())
         {
-            wlog("Receiver name is empty.");
+            mail_wlog("Receiver name is empty.");
             return std::vector<mail_object>();
         }
 
@@ -151,7 +178,7 @@ namespace omnibazaar {
 
         if(!fc::exists(_parent_dir))
         {
-            wlog("Mails directory does not exist.");
+            mail_wlog("Mails directory '${dir}' does not exist.", ("dir", _parent_dir));
             return std::vector<mail_object>();
         }
 
@@ -165,10 +192,19 @@ namespace omnibazaar {
             if(fc::exists(mail_path))
             {
                 const fc::variant var = fc::json::from_file(mail_path);
+                mail_ddump((var));
                 if(!var.is_null())
                 {
                     mails.push_back(var.as<mail_object>());
                 }
+                else
+                {
+                    mail_wlog("Unable to read mail from '${path}'", ("path", mail_path));
+                }
+            }
+            else
+            {
+                mail_wlog("File '${path}' does not exist.", ("path", mail_path));
             }
 
             ++itrs.first;
@@ -178,9 +214,11 @@ namespace omnibazaar {
 
     void mail_storage::set_received(const std::string& mail_uuid)
     {
+        mail_ddump((mail_uuid));
+
         if(mail_uuid.empty())
         {
-            wlog("Mail UUID is empty.");
+            mail_wlog("Mail UUID is empty.");
             return;
         }
 
@@ -189,11 +227,12 @@ namespace omnibazaar {
 
         if(!fc::exists(_parent_dir / UNDELIVERED_STR))
         {
-            wlog("Mails directory does not exist.");
+            mail_wlog("Mails directory '${path}' does not exist.", ("path", _parent_dir / UNDELIVERED_STR));
             return;
         }
 
         // Update value in cache.
+        mail_dlog("Updating cache.");
         auto itr = _cache_by_uuid.find(mail_uuid);
         if(itr != _cache_by_uuid.end())
         {
@@ -202,23 +241,34 @@ namespace omnibazaar {
 
         // Move mail file to delivered folder.
         const fc::path current_mail_path = _parent_dir / UNDELIVERED_STR / mail_uuid;
+        mail_dlog("Moving file '${file}' to delivered folder '${dir}'", ("file", current_mail_path)("dir", _parent_dir / DELIVERED_STR));
         if(fc::exists(current_mail_path))
         {
             const fc::path new_mail_path = _parent_dir / DELIVERED_STR / mail_uuid;
+            mail_dlog("Moving '${path1}' to '${path2}'", ("path1", current_mail_path)("path2", new_mail_path));
             fc::rename(current_mail_path, new_mail_path);
+        }
+        else
+        {
+            mail_wlog("File '${path}' does not exist.", ("path", current_mail_path));
         }
     }
 
     std::vector<fc::path> mail_storage::get_pending_mails()const
     {
+        mail_ddump(());
+
         // Thread safety.
         const fc::scoped_lock<fc::mutex> lock(_mutex);
 
+        mail_dlog("Getting mails from '${dir}'", ("dir", _parent_dir / UNDELIVERED_STR));
         return util::get_files_in_folder(_parent_dir / UNDELIVERED_STR);
     }
 
     std::vector<std::string> mail_storage::get_received_mails()const
     {
+        mail_ddump(());
+
         // Thread safety.
         const fc::scoped_lock<fc::mutex> lock(_mutex);
 
@@ -230,6 +280,7 @@ namespace omnibazaar {
                 ids.push_back(itr.first);
             }
         }
+        mail_ddump((ids));
         return ids;
     }
 
