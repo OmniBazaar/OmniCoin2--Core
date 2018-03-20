@@ -17,11 +17,12 @@ namespace omnibazaar {
         graphene::chain::void_result do_evaluate( const welcome_bonus_operation& op );
         graphene::chain::void_result do_apply( const welcome_bonus_operation& op );
 
-		const graphene::chain::account_object* receiver_account;
-
     private:
         // Calculate bonus value.
         double get_bonus_sum()const;
+
+        // Cache account id between do_evaluate and do_apply calls to avoid weird behavior and segmentation faults.
+        graphene::chain::account_id_type _receiver_account;
     };
 
 }
