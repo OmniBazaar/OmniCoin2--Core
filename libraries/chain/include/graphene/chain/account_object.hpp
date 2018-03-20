@@ -351,8 +351,39 @@ namespace graphene { namespace chain {
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;
 
+         // Store hardware info in this index for now, possible way for later improvement to reduce RAM usage:
+         // keep this index as interface for blockchain database, but offload storage to external DB (e.g. sqlite),
+         // if it can provide sufficiently low latency (API calls have timeouts so we need storage with fast read access).
          unordered_map<string, account_id_type> drive_ids;
          unordered_map<string, account_id_type> mac_addresses;
+   };
+
+   /**
+    *  @brief This secondary index will allow lookup of Escrow agents.
+    */
+   class account_escrow_index : public secondary_index
+   {
+      public:
+         virtual void object_inserted( const object& obj ) override;
+         virtual void object_removed( const object& obj ) override;
+         virtual void about_to_modify( const object& before ) override;
+         virtual void object_modified( const object& after  ) override;
+
+         set<account_id_type> current_escrows;
+   };
+
+   /**
+    *  @brief This secondary index will allow to lookup current Publisher accounts
+    */
+   class account_publisher_index : public secondary_index
+   {
+      public:
+         virtual void object_inserted( const object& obj ) override;
+         virtual void object_removed( const object& obj ) override;
+         virtual void about_to_modify( const object& before ) override;
+         virtual void object_modified( const object& after ) override;
+
+         set<account_id_type> publishers;
    };
 
    struct by_account_asset;
