@@ -3,6 +3,7 @@
 #include <welcome_bonus.hpp>
 #include <graphene/chain/evaluator.hpp>
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/account_object.hpp>
 
 namespace omnibazaar {
 
@@ -15,6 +16,8 @@ namespace omnibazaar {
         // Methods required by graphene::chain::evaluator to process an operation.
         graphene::chain::void_result do_evaluate( const welcome_bonus_operation& op );
         graphene::chain::void_result do_apply( const welcome_bonus_operation& op );
+
+		const graphene::chain::account_object* receiver_account;
 
     private:
         // Calculate bonus value.
