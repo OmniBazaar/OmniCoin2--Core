@@ -351,6 +351,9 @@ namespace graphene { namespace chain {
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;
 
+         // Store hardware info in this index for now, possible way for later improvement to reduce RAM usage:
+         // keep this index as interface for blockchain database, but offload storage to external DB (e.g. sqlite),
+         // if it can provide sufficiently low latency (API calls have timeouts so we need storage with fast read access).
          unordered_map<string, account_id_type> drive_ids;
          unordered_map<string, account_id_type> mac_addresses;
    };
