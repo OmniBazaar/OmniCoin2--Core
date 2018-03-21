@@ -31,3 +31,12 @@ namespace omnibazaar {
 #define mail_idump( SEQ ) mail_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define mail_wdump( SEQ ) mail_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define mail_edump( SEQ ) mail_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+
+#define bonus_dlog( FORMAT, ... ) fc_dlog( fc::logger::get("bonus"), FORMAT, __VA_ARGS__ )
+#define bonus_ilog( FORMAT, ... ) fc_ilog( fc::logger::get("bonus"), FORMAT, __VA_ARGS__ )
+#define bonus_wlog( FORMAT, ... ) fc_wlog( fc::logger::get("bonus"), FORMAT, __VA_ARGS__ )
+#define bonus_elog( FORMAT, ... ) fc_elog( fc::logger::get("bonus"), FORMAT, __VA_ARGS__ )
+#define bonus_ddump( SEQ ) bonus_dlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define bonus_idump( SEQ ) bonus_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define bonus_wdump( SEQ ) bonus_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define bonus_edump( SEQ ) bonus_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
