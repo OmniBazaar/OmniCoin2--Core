@@ -204,7 +204,14 @@ namespace omnibazaar {
         const fc::path current_mail_path = _parent_dir / UNDELIVERED_STR / mail_uuid;
         if(fc::exists(current_mail_path))
         {
-            const fc::path new_mail_path = _parent_dir / DELIVERED_STR / mail_uuid;
+            const fc::path new_mail_dir = _parent_dir / DELIVERED_STR;
+            const fc::path new_mail_path = new_mail_dir / mail_uuid;
+
+            // create the delivered folder if it doesn't exist
+            if (!fc::exists(new_mail_dir))
+                fc::create_directories(new_mail_dir);
+
+            // move the mail file from the undelivered folder to the delivered folder
             fc::rename(current_mail_path, new_mail_path);
         }
     }
