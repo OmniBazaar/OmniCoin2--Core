@@ -249,7 +249,10 @@ namespace omnibazaar {
 
             // create the delivered folder if it doesn't exist
             if (!fc::exists(new_mail_dir))
+            {
+                mail_wlog("Directory '${dir}' does not exist, creating.", ("dir", new_mail_dir));
                 fc::create_directories(new_mail_dir);
+            }
 
             // move the mail file from the undelivered folder to the delivered folder
             mail_dlog("Moving '${path1}' to '${path2}'", ("path1", current_mail_path)("path2", new_mail_path));
