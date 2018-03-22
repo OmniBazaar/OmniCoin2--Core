@@ -40,3 +40,12 @@ namespace omnibazaar {
 #define bonus_idump( SEQ ) bonus_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define bonus_wdump( SEQ ) bonus_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define bonus_edump( SEQ ) bonus_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+
+#define escrow_dlog( FORMAT, ... ) fc_dlog( fc::logger::get("escrow"), FORMAT, __VA_ARGS__ )
+#define escrow_ilog( FORMAT, ... ) fc_ilog( fc::logger::get("escrow"), FORMAT, __VA_ARGS__ )
+#define escrow_wlog( FORMAT, ... ) fc_wlog( fc::logger::get("escrow"), FORMAT, __VA_ARGS__ )
+#define escrow_elog( FORMAT, ... ) fc_elog( fc::logger::get("escrow"), FORMAT, __VA_ARGS__ )
+#define escrow_ddump( SEQ ) escrow_dlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define escrow_idump( SEQ ) escrow_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define escrow_wdump( SEQ ) escrow_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define escrow_edump( SEQ ) escrow_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
