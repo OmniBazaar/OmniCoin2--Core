@@ -3,6 +3,7 @@
 #include <welcome_bonus.hpp>
 #include <graphene/chain/evaluator.hpp>
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/account_object.hpp>
 
 namespace omnibazaar {
 
@@ -19,6 +20,9 @@ namespace omnibazaar {
     private:
         // Calculate bonus value.
         double get_bonus_sum()const;
+
+        // Cache account id between do_evaluate and do_apply calls to avoid weird behavior and segmentation faults.
+        graphene::chain::account_id_type _receiver_account;
     };
 
 }

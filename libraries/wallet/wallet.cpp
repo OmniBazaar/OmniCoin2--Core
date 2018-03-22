@@ -460,13 +460,15 @@ public:
    {
         account_object account = get_account(account_id_or_name);
         
-        transaction trx;
-        trx.operations.clear();
+        signed_transaction trx;
         account_update_operation op;
         op.account = account.id;
         op.is_a_publisher = true;
         trx.operations.push_back(op);
-        _remote_net_broadcast->broadcast_transaction( trx );
+
+        set_operation_fees(trx, _remote_db->get_global_properties().parameters.current_fees);
+        trx.validate();
+        sign_transaction(trx, true);
 
         omnibazaar::publisher_component publisher_info;
         publisher_info.couchbase_ip_address = couchbase_ip_address;

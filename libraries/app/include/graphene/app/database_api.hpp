@@ -290,6 +290,11 @@ class database_api
        */
       std::vector<std::string> get_publisher_nodes_names() const;
 
+      /**
+       *  @return all accounts that are currently registered as Escrow agents
+       */
+      vector<string> get_current_escrows()const;
+
       //////////////
       // Balances //
       //////////////
@@ -659,7 +664,7 @@ class database_api
       /**
        *  @return the set of escrow processes relevant to the specified account id.
        */
-      vector<omnibazaar::escrow_object> get_escrow_objects( const account_id_type& id )const;
+      vector<omnibazaar::escrow_object> get_escrow_objects( const string& account_name )const;
 
    private:
       std::shared_ptr< database_api_impl > my;
@@ -711,6 +716,7 @@ FC_API(graphene::app::database_api,
    (lookup_accounts)
    (get_account_count)
    (get_publisher_nodes_names)
+   (get_current_escrows)
 
    // Balances
    (get_account_balances)
@@ -778,4 +784,7 @@ FC_API(graphene::app::database_api,
     (is_welcome_bonus_available)
     (is_referral_bonus_available)
     (is_sale_bonus_available)
+
+    // Escrows
+    (get_escrow_objects)
 )

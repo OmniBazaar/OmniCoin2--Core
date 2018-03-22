@@ -292,6 +292,7 @@ class wallet_api
       wallet_api( const wallet_data& initial_data, fc::api<login_api> rapi );
       virtual ~wallet_api();
 
+      // This method has no real use here, it should be in web wallet. It's not finished and may not work as expected.
       void set_publisher_info(const std::string& account_id_or_name,
                               const std::string& couchbase_ip_address,
                               const std::string& couchbase_username,

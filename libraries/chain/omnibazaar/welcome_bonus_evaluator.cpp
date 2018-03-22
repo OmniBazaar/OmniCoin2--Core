@@ -25,7 +25,11 @@ namespace omnibazaar {
             {
                 FC_THROW("Account '${name}' doesn't exist", ("name", op.receiver_name));
             }
-            if (receiver->recieved_welcome_bonus)
+			else
+			{
+                _receiver_account = (*receiver).get_id();
+			}
+            if (!d.is_welcome_bonus_available(op.drive_id, op.mac_address))
             {
                 FC_THROW("Account '${name}' has already received a welcome bonus", ("name", receiver->name));
             }
@@ -47,17 +51,16 @@ namespace omnibazaar {
             const graphene::chain::share_type bonus_sum = get_bonus_sum() * GRAPHENE_BLOCKCHAIN_PRECISION;
             bonus_ddump((bonus_sum));
 
-            const graphene::chain::account_object& receiver = *graphene::app::database_api(d).get_account_by_name(op.receiver_name);
-            bonus_ddump((receiver));
-
+            bonus_ddump((_receiver_account));
             // Send bonus.
             bonus_dlog("Adjusting balance.");
-            d.adjust_balance(receiver.id, bonus_sum);
+            d.adjust_balance(_receiver_account, bonus_sum);
 
-            // Set bonus received flag.
-            bonus_dlog("Setting bonus flag.");
-            d.modify(receiver, [](graphene::chain::account_object& a) {
-                a.recieved_welcome_bonus = true;
+            // Set user hardware info to prevent multiple bonuses per machine.
+            bonus_dlog("Setting hardware info.");
+            d.modify(_receiver_account(d), [&](graphene::chain::account_object& a) {
+                a.drive_id = op.drive_id;
+                a.mac_address = op.mac_address;
             });
 
             // Adjust asset supply value.
