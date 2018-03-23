@@ -369,7 +369,10 @@ namespace graphene { namespace chain {
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;
 
-         set<account_id_type> current_escrows;
+         std::vector<account_id_type> current_escrows;
+
+		private:
+			void insert_keeping_sorted(const account_object& account_object);
    };
 
    /**

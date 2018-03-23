@@ -293,7 +293,7 @@ class database_api
       /**
        *  @return all accounts that are currently registered as Escrow agents
        */
-      vector<string> get_current_escrows()const;
+      vector<string> get_current_escrows(uint32_t start, uint32_t limit) const;
 
       //////////////
       // Balances //
