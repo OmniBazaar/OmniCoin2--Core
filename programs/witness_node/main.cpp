@@ -299,6 +299,27 @@ void write_default_logging_config(const fc::path& filepath)
                 cfg.rotation_limit = fc::days(1);
                 return cfg;
             }())
+            ("bonus", [](){
+                fc::file_appender::config cfg("logs/bonus.log");
+                cfg.rotate = true;
+                cfg.rotation_interval = fc::hours(1);
+                cfg.rotation_limit = fc::days(1);
+                return cfg;
+            }())
+            ("escrow", [](){
+                fc::file_appender::config cfg("logs/escrow.log");
+                cfg.rotate = true;
+                cfg.rotation_interval = fc::hours(1);
+                cfg.rotation_limit = fc::days(1);
+                return cfg;
+            }())
+            ("mail", [](){
+                fc::file_appender::config cfg("logs/mail.log");
+                cfg.rotate = true;
+                cfg.rotation_interval = fc::hours(1);
+                cfg.rotation_limit = fc::days(1);
+                return cfg;
+            }())
             ;
     const fc::mutable_variant_object loggers = fc::mutable_variant_object
             ("default", [](){
@@ -311,6 +332,24 @@ void write_default_logging_config(const fc::path& filepath)
             ("p2p", [](){
                 fc::logger_config cfg("p2p");
                 cfg.appenders.push_back("p2p");
+                cfg.level = fc::log_level::info;
+                return cfg;
+            }())
+            ("bonus", [](){
+                fc::logger_config cfg("bonus");
+                cfg.appenders.push_back("bonus");
+                cfg.level = fc::log_level::info;
+                return cfg;
+            }())
+            ("escrow", [](){
+                fc::logger_config cfg("escrow");
+                cfg.appenders.push_back("escrow");
+                cfg.level = fc::log_level::info;
+                return cfg;
+            }())
+            ("mail", [](){
+                fc::logger_config cfg("mail");
+                cfg.appenders.push_back("mail");
                 cfg.level = fc::log_level::info;
                 return cfg;
             }())
