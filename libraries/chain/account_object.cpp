@@ -316,7 +316,8 @@ void account_escrow_index::object_inserted( const object& obj )
     const account_object& a = static_cast<const account_object&>(obj);
     if(a.is_an_escrow)
     {
-		this->insert_keeping_sorted(a);
+		account_object_name newObj(a.get_id(), a.name);
+		this->insert_keeping_sorted(newObj);
     }
 }
 
@@ -324,8 +325,8 @@ void account_escrow_index::object_removed( const object& obj )
 {
     const account_object& a = static_cast<const account_object&>(obj);
    
-	auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), a.name);
-	if (*escrow_it == obj.id)
+	auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), a.name, account_object_name_comparer());
+	if (escrow_it->id == a.get_id())
 	{
 		current_escrows.erase(escrow_it);
 	}
@@ -338,6 +339,7 @@ void account_escrow_index::about_to_modify( const object& before )
 void account_escrow_index::object_modified( const object& after  )
 {
     const account_object& a = static_cast<const account_object&>(after);
+	
     if(a.is_an_escrow)
     {
 		this->object_inserted(a);
@@ -349,10 +351,10 @@ void account_escrow_index::object_modified( const object& after  )
 }
 
 
-void account_escrow_index::insert_keeping_sorted(const account_object& account_object)
+void account_escrow_index::insert_keeping_sorted(const account_object_name& account_object_name)
 {
-	auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), account_object.name);
-	current_escrows.insert(escrow_it, account_object.id);
+	auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), account_object_name.name, account_object_name_comparer());
+	current_escrows.insert(escrow_it, account_object_name);
 }
 
 void account_publisher_index::object_inserted( const object& obj )
