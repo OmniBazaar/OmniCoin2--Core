@@ -4,6 +4,7 @@
 #include <fc/thread/thread.hpp>
 #include <fc/thread/future.hpp>
 #include <fc/thread/spin_lock.hpp>
+#include <fc/reflect/reflect.hpp>
 
 namespace graphene { namespace app {
     class application;
@@ -60,3 +61,5 @@ namespace omnibazaar {
     };
 
 }
+
+FC_REFLECT_EMPTY( omnibazaar::mail_controller::callback_type );

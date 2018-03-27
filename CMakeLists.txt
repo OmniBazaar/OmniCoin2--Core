@@ -38,6 +38,9 @@ ENDIF( NOT WIN32 )
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/GitVersionGen" )
 include( GetGitRevisionDescription )
 get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
+# In order to propagate revision info to FC submodule, define following preprocessor value,
+# and if FC is compiled as part of OC2 then it will use this value to print node version in log output.
+add_definitions(-DOMNIBAZAAR_GIT_REVISION_SHA="${GIT_SHA2}")
 
 SET(BOOST_COMPONENTS)
 LIST(APPEND BOOST_COMPONENTS thread

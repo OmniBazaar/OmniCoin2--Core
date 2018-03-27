@@ -1,5 +1,6 @@
 #include <escrow_evaluator.hpp>
 #include <escrow_object.hpp>
+#include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
 
 namespace omnibazaar {
@@ -8,10 +9,13 @@ namespace omnibazaar {
     {
         try
         {
+            escrow_ddump((op));
+
             const graphene::chain::database& d = db();
             const auto& global_parameters = d.get_global_properties().parameters;
 
             // Check mutually acceptable escrow agents.
+            escrow_ddump((op.buyer(d).escrows)(op.seller(d).escrows));
             FC_ASSERT( op.buyer(d).escrows.find(op.escrow) != op.buyer(d).escrows.end(), "Escrow agent is not buyer's acceptable list of agents." );
             FC_ASSERT( op.seller(d).escrows.find(op.escrow) != op.seller(d).escrows.end(), "Escrow agent is not seller's acceptable list of agents." );
 
@@ -23,6 +27,7 @@ namespace omnibazaar {
                        ("balance", d.to_pretty_string(d.get_balance(op.buyer, op.amount.asset_id))) );
 
             // Check expiration time.
+            escrow_ddump((d.head_block_time())(global_parameters.maximum_escrow_lifetime));
             FC_ASSERT( op.expiration_time > d.head_block_time(), "Escrow has already expired on creation." );
             FC_ASSERT( op.expiration_time <= (d.head_block_time() + global_parameters.maximum_escrow_lifetime),
                        "Escrow expiration time is too far in the future.");
@@ -31,6 +36,7 @@ namespace omnibazaar {
             fc::flat_set<graphene::chain::account_id_type> auths;
             std::vector<graphene::chain::authority> other;
             graphene::chain::operation_get_required_authorities(op, auths, auths, other);
+            escrow_ddump((auths)(other));
 
             const auto auths_predicate = [op](const graphene::chain::authority& a) { return a.account_auths.find(op.buyer) != a.account_auths.end(); };
             FC_ASSERT( (auths.find(op.buyer) != auths.end())
@@ -46,9 +52,12 @@ namespace omnibazaar {
     {
         try
         {
+            escrow_ddump((op));
+
             graphene::chain::database& d = db();
 
             // Create escrow object.
+            escrow_dlog("Creating escrow object.");
             const escrow_object& escrow = d.create<escrow_object>([&](escrow_object& e) {
                 e.expiration_time = op.expiration_time;
                 e.buyer = op.buyer;
@@ -63,11 +72,13 @@ namespace omnibazaar {
             });
 
             // Lock buyer funds. Deduct entire amount (including escrow fee).
+            escrow_dlog("Adjusting buyer balance.");
             d.adjust_balance(op.buyer, -op.amount);
 
             // Store funds in escrow account.
             if(op.transfer_to_escrow)
             {
+                escrow_dlog("Adjusting escrow balance.");
                 d.adjust_balance(op.escrow, op.amount);
             }
 
@@ -80,8 +91,11 @@ namespace omnibazaar {
     {
         try
         {
+            escrow_ddump((op));
+
             const graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
+            escrow_ddump((escrow_obj));
 
             // Check that this operation specifies correct accounts.
             FC_ASSERT( op.buyer_account == escrow_obj.buyer, "Buyer specified in this operation doesn't match initial buyer." );
@@ -107,24 +121,31 @@ namespace omnibazaar {
     {
         try
         {
+            escrow_ddump((op));
+
             graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
+            escrow_ddump((escrow_obj));
 
             if(escrow_obj.transfer_to_escrow)
             {
                 // Funds were initially stored in escrow account, so remove base amount, but keep escrow fee.
+                escrow_dlog("Removing funds from escrow account.");
                 d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
             }
             else
             {
                 // Funds were locked in blockchain, so just pay escrow fee.
+                escrow_dlog("Sending escrow fee.");
                 d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
             }
 
             // Send remaining funds to seller.
+            escrow_dlog("Adjusting seller balance.");
             d.adjust_balance(escrow_obj.seller, escrow_obj.amount);
 
             // Remove escrow thus closing the process.
+            escrow_dlog("Removing escrow object.");
             d.remove(escrow_obj);
 
             return graphene::chain::void_result();
@@ -136,8 +157,11 @@ namespace omnibazaar {
     {
         try
         {
+            escrow_ddump((op));
+
             const graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
+            escrow_ddump((escrow_obj));
 
             // Check that this operation specifies correct accounts.
             FC_ASSERT( op.seller_account == escrow_obj.seller, "Seller specified in this operation doesn't match initial seller." );
@@ -163,24 +187,31 @@ namespace omnibazaar {
     {
         try
         {
+            escrow_ddump((op));
+
             graphene::chain::database& d = db();
             const escrow_object& escrow_obj = op.escrow(d);
+            escrow_ddump((escrow_obj));
 
             if(escrow_obj.transfer_to_escrow)
             {
                 // Funds were initially stored in escrow account, so remove base amount, but keep escrow fee.
+                escrow_dlog("Removing funds from escrow account.");
                 d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
             }
             else
             {
                 // Funds were locked in blockchain, so just pay escrow fee.
+                escrow_dlog("Sending escrow fee.");
                 d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
             }
 
             // Return remaining funds to buyer.
+            escrow_dlog("Adjusting buyer balance.");
             d.adjust_balance(escrow_obj.buyer, escrow_obj.amount);
 
             // Remove escrow thus closing the process.
+            escrow_dlog("Removing escrow object.");
             d.remove(escrow_obj);
 
             return graphene::chain::void_result();
