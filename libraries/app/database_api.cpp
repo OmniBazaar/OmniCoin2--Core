@@ -849,11 +849,11 @@ vector<string> database_api_impl::get_current_escrows(uint32_t start, uint32_t l
     const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
 
 	result.reserve(limit);
-
+	
 	for (uint32_t index = start; index < start + limit; ++index)
 	{
-		const account_id_type account_id = escrow_idx.current_escrows[index];
-		result.push_back(account_id(_db).name);
+		const account_object_name account_object_name = escrow_idx.current_escrows[index];
+		result.push_back(account_object_name.name);
 	}
 
 	return result;
