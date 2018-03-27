@@ -379,12 +379,12 @@ namespace graphene { namespace chain {
    public:
 	   bool operator()(const account_object_name& a, const std::string& bName) const
 	   {
-		   return a.name.compare(bName);
+		   return a.name.compare(bName) < 0;
 	   }
 
 	   bool operator()(const std::string& aName, const account_object& b) const
 	   {
-		   return aName.compare(b.name);
+		   return aName.compare(b.name) < 0;
 	   }
    };
 
