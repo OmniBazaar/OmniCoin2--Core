@@ -51,7 +51,7 @@ namespace omnibazaar {
 
     double witness_bonus_evaluator::get_bonus_sum()const
     {
-        bonus_ddump(());
+        bonus_ddump((""));
 
         const auto blocks_count = db().get_dynamic_global_properties().head_block_number;
         bonus_ddump((blocks_count));

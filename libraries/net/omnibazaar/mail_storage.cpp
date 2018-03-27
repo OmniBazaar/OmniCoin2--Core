@@ -41,7 +41,7 @@ namespace omnibazaar {
 
     void mail_storage::reload_cache()
     {
-        mail_ddump(());
+        mail_ddump((""));
 
         // Clear cache.
         _cache_by_uuid.clear();
@@ -266,7 +266,7 @@ namespace omnibazaar {
 
     std::vector<fc::path> mail_storage::get_pending_mails()const
     {
-        mail_ddump(());
+        mail_ddump((""));
 
         // Thread safety.
         const fc::scoped_lock<fc::mutex> lock(_mutex);
@@ -277,7 +277,7 @@ namespace omnibazaar {
 
     std::vector<std::string> mail_storage::get_received_mails()const
     {
-        mail_ddump(());
+        mail_ddump((""));
 
         // Thread safety.
         const fc::scoped_lock<fc::mutex> lock(_mutex);

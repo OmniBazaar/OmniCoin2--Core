@@ -59,7 +59,7 @@ namespace omnibazaar {
 
     double referral_bonus_evaluator::get_bonus_sum()const
     {
-        bonus_ddump(());
+        bonus_ddump((""));
 
         const auto users_count = graphene::app::database_api(db()).get_account_count();
         bonus_ddump((users_count));
