@@ -26,6 +26,7 @@
 #include <graphene/db/generic_index.hpp>
 #include <boost/multi_index/composite_key.hpp>
 #include <../omnibazaar/account_object_components.hpp>
+#include <string>
 
 namespace graphene { namespace chain {
    class database;
@@ -292,6 +293,7 @@ namespace graphene { namespace chain {
          std::set<account_id_type> escrows;
    };
 
+
    /**
     *  @brief This secondary index will allow a reverse lookup of all accounts that a particular key or account
     *  is an potential signing authority.
@@ -358,6 +360,35 @@ namespace graphene { namespace chain {
          unordered_map<string, account_id_type> mac_addresses;
    };
 
+   /* structure that contains just account name and id */
+   struct account_object_name {
+
+	   account_id_type id;
+	   std::string name;
+	   
+	   account_object_name(account_id_type id, const std::string& name)
+	   {
+		   this->id = id;
+		   this->name = name;
+	   }
+   };
+
+   /* class comparer for account_object_name */
+   class account_object_name_comparer
+   {
+   public:
+	   bool operator()(const account_object_name& a, const std::string& bName) const
+	   {
+		   return a.name.compare(bName) < 0;
+	   }
+
+	   bool operator()(const std::string& aName, const account_object& b) const
+	   {
+		   return aName.compare(b.name) < 0;
+	   }
+   };
+
+
    /**
     *  @brief This secondary index will allow lookup of Escrow agents.
     */
@@ -369,7 +400,11 @@ namespace graphene { namespace chain {
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;
 
-         set<account_id_type> current_escrows;
+		 // list of objects that contain username and id of the account
+         std::vector<account_object_name> current_escrows;
+
+		private:
+			void insert_keeping_sorted(const account_object_name& account_object);
    };
 
    /**
