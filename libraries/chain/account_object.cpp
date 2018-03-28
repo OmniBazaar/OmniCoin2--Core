@@ -327,9 +327,7 @@ void account_escrow_index::object_removed( const object& obj )
    
 	auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), a.name, account_object_name_comparer());
 
-	FC_ASSERT(escrow_it != current_escrows.end());
-
-	if (escrow_it->id == a.get_id())
+	if (escrow_it != current_escrows.end() && escrow_it->id == a.get_id())
 	{
 		current_escrows.erase(escrow_it);
 	}
