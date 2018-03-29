@@ -35,12 +35,23 @@ endif(USE_PCH)
 IF( NOT WIN32 )
   list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/CMakeModules" )
 ENDIF( NOT WIN32 )
+
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/GitVersionGen" )
 include( GetGitRevisionDescription )
 get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
-# In order to propagate revision info to FC submodule, define following preprocessor value,
-# and if FC is compiled as part of OC2 then it will use this value to print node version in log output.
+git_get_rev_count( GIT_REVNUM )
+
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH 0)
+
+# In order to propagate revision info to FC submodule, define following preprocessor values,
+# and if FC is compiled as part of OC2 then it will use these values to print node version in log output.
 add_definitions(-DOMNIBAZAAR_GIT_REVISION_SHA="${GIT_SHA2}")
+add_definitions(-DOMNIBAZAAR_GIT_REVISION_NUMBER=${GIT_REVNUM})
+add_definitions(-DOMNIBAZAAR_VERSION_MAJOR=${VERSION_MAJOR})
+add_definitions(-DOMNIBAZAAR_VERSION_MINOR=${VERSION_MINOR})
+add_definitions(-DOMNIBAZAAR_VERSION_PATCH=${VERSION_PATCH})
 
 SET(BOOST_COMPONENTS)
 LIST(APPEND BOOST_COMPONENTS thread
@@ -178,11 +189,6 @@ add_subdirectory( tests )
 
 
 if (ENABLE_INSTALLER)
-
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 1)
-set(VERSION_PATCH 0)
-
 
 include(InstallRequiredSystemLibraries)
 
