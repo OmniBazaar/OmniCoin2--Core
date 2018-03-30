@@ -375,7 +375,7 @@ std::vector<std::string> account_escrow_index::filter_by_name(uint32_t start, ui
 	// advance the iterator 'start' times
 	escrow_it += start;
 	
-	while (escrow_it != current_escrows.end() && result.size() <= limit)
+	while (escrow_it != current_escrows.end() && result.size() < limit)
 	{
 		// get the current escrow name
 		const std::string current_escrow_name = escrow_it->name;
