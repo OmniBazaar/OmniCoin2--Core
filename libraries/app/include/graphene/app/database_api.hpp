@@ -722,6 +722,7 @@ FC_API(graphene::app::database_api,
    (get_account_count)
    (get_publisher_nodes_names)
    (get_current_escrows)
+   (filter_current_escrows)
 
    // Balances
    (get_account_balances)
