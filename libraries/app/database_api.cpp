@@ -92,6 +92,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       uint64_t get_account_count()const;
       std::vector<std::string> get_publisher_nodes_names();
       vector<string> get_current_escrows(uint32_t start, uint32_t limit)const;
+	  vector<string> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
 
       // Balances
       vector<asset> get_account_balances(account_id_type id, const flat_set<asset_id_type>& assets)const;
@@ -848,7 +849,10 @@ vector<string> database_api_impl::get_current_escrows(uint32_t start, uint32_t l
     const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
     const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
 
-	FC_ASSERT(start + limit <= escrow_idx.current_escrows.size());
+	if (start + limit > escrow_idx.current_escrows.size())
+	{
+		limit = escrow_idx.current_escrows.size() - start;
+	}
 
 	result.reserve(limit);
 	
@@ -859,6 +863,18 @@ vector<string> database_api_impl::get_current_escrows(uint32_t start, uint32_t l
 	}
 
 	return result;
+}
+
+vector<string> database_api::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const
+{
+	return my->filter_current_escrows(start, limit, search_term);
+}
+
+vector<string> database_api_impl::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const
+{
+	const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
+	const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
+	return escrow_idx.filter_by_name(start, limit, search_term);
 }
 
 //////////////////////////////////////////////////////////////////////
