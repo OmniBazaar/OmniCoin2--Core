@@ -400,6 +400,9 @@ namespace graphene { namespace chain {
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;
 
+		 // get escrow names that start with search_term, paginated by start and limit
+		 std::vector<std::string> filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term) const;
+
 		 // list of objects that contain username and id of the account
          std::vector<account_object_name> current_escrows;
 
