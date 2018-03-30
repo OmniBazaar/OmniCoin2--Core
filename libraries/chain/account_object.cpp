@@ -256,15 +256,25 @@ void account_member_index::object_modified(const object& after)
 
 void account_referrer_index::object_inserted( const object& obj )
 {
+    const account_object& a = static_cast<const account_object&>(obj);
+    referred_by[a.referrer].insert(a.get_id());
 }
 void account_referrer_index::object_removed( const object& obj )
 {
+    const account_object& a = static_cast<const account_object&>(obj);
+    referred_by[a.referrer].erase(a.get_id());
+    if(referred_by[a.referrer].size() <= 0)
+    {
+        referred_by.erase(a.referrer);
+    }
 }
 void account_referrer_index::about_to_modify( const object& before )
 {
+    object_removed(before);
 }
 void account_referrer_index::object_modified( const object& after  )
 {
+    object_inserted(after);
 }
 
 void account_welcome_bonus_index::object_inserted( const object& obj )
