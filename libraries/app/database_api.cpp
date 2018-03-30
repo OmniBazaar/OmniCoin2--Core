@@ -849,6 +849,11 @@ vector<string> database_api_impl::get_current_escrows(uint32_t start, uint32_t l
     const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
     const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
 
+	if (start >= escrow_idx.current_escrows.size())
+	{
+		return result;
+	}
+
 	if (start + limit > escrow_idx.current_escrows.size())
 	{
 		limit = escrow_idx.current_escrows.size() - start;
