@@ -444,8 +444,8 @@ namespace graphene { namespace chain {
          optional<undo_database::session>       _pending_tx_session;
          vector< unique_ptr<op_evaluator> >     _operation_evaluators;
 
-         template<class Index>
-         vector<std::reference_wrapper<const typename Index::object_type>> sort_votable_objects(size_t count)const;
+         template<class Index, typename Functor>
+         vector<std::reference_wrapper<const typename Index::object_type>> sort_votable_objects(size_t count, const Functor sort_functor)const;
 
          //////////////////// db_block.cpp ////////////////////
 
@@ -529,6 +529,14 @@ namespace graphene { namespace chain {
          vector<uint64_t>                  _witness_count_histogram_buffer;
          vector<uint64_t>                  _committee_count_histogram_buffer;
          uint64_t                          _total_voting_stake;
+
+         // Proof of Participation members, expressed in GRAPHENE_1_PERCENT.
+         vector<uint16_t> _referral_score_buffer;
+         vector<uint16_t> _listings_score_buffer;
+         vector<uint16_t> _trust_score_buffer;
+         vector<uint16_t> _reliability_score_buffer;
+         vector<uint16_t> _reputation_score_buffer;
+         vector<uint16_t> _pop_score_buffer;
 
          flat_map<uint32_t,block_id_type>  _checkpoints;
 
