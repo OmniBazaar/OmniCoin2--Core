@@ -293,12 +293,12 @@ class database_api
       /**
        *  @return all accounts that are currently registered as Escrow agents with pagination
        */
-      vector<string> get_current_escrows(uint32_t start, uint32_t limit) const;
+      vector<account_object_name> get_current_escrows(uint32_t start, uint32_t limit) const;
 
 	  /**
 	  *  @return all accounts that are currently registered as Escrow agents with pagination and name search term
 	  */
-	  vector<string> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
+	  vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
 
       //////////////
       // Balances //

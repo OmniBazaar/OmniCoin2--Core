@@ -358,9 +358,9 @@ void account_escrow_index::insert_keeping_sorted(const account_object_name& acco
 	current_escrows.insert(escrow_it, account_object_name);
 }
 
-std::vector<std::string> account_escrow_index::filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term) const
+std::vector<account_object_name> account_escrow_index::filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term) const
 {
-	std::vector<std::string> result;
+	std::vector<account_object_name> result;
 	result.reserve(limit);
 
 	// find the first match for the search_term
@@ -384,7 +384,7 @@ std::vector<std::string> account_escrow_index::filter_by_name(uint32_t start, ui
 		if (current_escrow_name.find(search_term) != 0)
 			break;
 
-		result.push_back(current_escrow_name);
+		result.push_back(*escrow_it);
 		escrow_it++;
 	}
 
