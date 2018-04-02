@@ -46,6 +46,8 @@ namespace graphene { namespace chain {
          string           url;
          int64_t          total_missed = 0;
          uint32_t         last_confirmed_block_num = 0;
+         // Total number of correct blocks that this witness produced.
+         int64_t          total_produced = 0;
 
          witness_object() : vote_id(vote_id_type::witness) {}
    };
@@ -80,4 +82,5 @@ FC_REFLECT_DERIVED( graphene::chain::witness_object, (graphene::db::object),
                     (url) 
                     (total_missed)
                     (last_confirmed_block_num)
+                    (total_produced)
                   )
