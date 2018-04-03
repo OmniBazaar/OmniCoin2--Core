@@ -168,18 +168,26 @@ void database::update_witness_scores()
     {
         // Referral Score
         // 2) calculate score using number of users referred by this witness and largest number of referred users.
-        const auto referrer_iter = referrer_idx.referred_by.find(wit.witness_account);
-        if(referrer_iter != referrer_idx.referred_by.end())
+        if(max_referred > 0)
         {
-            _referral_score_buffer[wit.vote_id] = (uint64_t)referrer_iter->second.size() * GRAPHENE_100_PERCENT / max_referred;
+            const auto referrer_iter = referrer_idx.referred_by.find(wit.witness_account);
+            if(referrer_iter != referrer_idx.referred_by.end())
+            {
+                _referral_score_buffer[wit.vote_id] = (uint64_t)referrer_iter->second.size()
+                        * GRAPHENE_100_PERCENT
+                        / max_referred;
+            }
         }
 
         // Trust Score
         // Calculated as witness votes divided by total shares supply.
-        _trust_score_buffer[wit.vote_id] = (fc::uint128_t(_vote_tally_buffer[wit.vote_id])
-                * GRAPHENE_100_PERCENT
-                / dyn_core_asset.current_supply.value)
-                .to_integer();
+        if(dyn_core_asset.current_supply.value > 0)
+        {
+            _trust_score_buffer[wit.vote_id] = (fc::uint128_t(_vote_tally_buffer[wit.vote_id])
+                    * GRAPHENE_100_PERCENT
+                    / dyn_core_asset.current_supply.value)
+                    .to_integer();
+        }
 
         // Reliability Score
         // Calculated as ratio of produced blocks to total scheduled blocks.
