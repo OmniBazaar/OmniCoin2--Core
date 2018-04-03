@@ -78,6 +78,10 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
 { try {
    db().adjust_balance( o.from, -o.amount );
    db().adjust_balance( o.to, o.amount );
+   // Update reputation vote for receiving account.
+   db().modify(o.to(db()), [o](account_object &acc){
+       acc.reputation_votes[o.from] = std::make_pair(o.reputation_vote, o.amount);
+   });
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (o) ) }
 

@@ -291,6 +291,10 @@ namespace graphene { namespace chain {
 
          // Users that this account added to acceptable Escrow agents.
          std::set<account_id_type> escrows;
+
+         // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
+         // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
+         map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
    };
 
 

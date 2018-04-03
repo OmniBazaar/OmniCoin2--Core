@@ -39,6 +39,7 @@ void transfer_operation::validate()const
    FC_ASSERT( fee.amount >= 0 );
    FC_ASSERT( from != to );
    FC_ASSERT( amount.amount > 0 );
+   FC_ASSERT( (reputation_vote >= 0) && (reputation_vote <= 10) );
 }
 
 
