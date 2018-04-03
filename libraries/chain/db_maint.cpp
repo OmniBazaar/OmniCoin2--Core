@@ -149,6 +149,31 @@ void database::pay_workers( share_type& budget )
    }
 }
 
+void database::update_witness_scores()
+{
+    // Referral Score
+    // 1) find largest number of users referred by any user.
+    const auto& account_idx = dynamic_cast<const primary_index<account_index>&>(get_index_type<account_index>());
+    const account_referrer_index& referrer_idx = account_idx.get_secondary_index<account_referrer_index>();
+    decltype(referrer_idx.referred_by)::mapped_type::size_type max_referred = 0;
+    for(auto iter : referrer_idx.referred_by)
+    {
+        max_referred = std::max(max_referred, iter.second.size());
+    }
+
+    const auto& all_witnesses = get_index_type<witness_index>().indices();
+    for(const witness_object& wit : all_witnesses)
+    {
+        // Referral Score
+        // 2) calculate score using number of users referred by this witness and largest number of referred users.
+        const auto referrer_iter = referrer_idx.referred_by.find(wit.witness_account);
+        if(referrer_iter != referrer_idx.referred_by.end())
+        {
+            _referral_score_buffer[wit.vote_id] = (uint64_t)referrer_iter.second.size() * GRAPHENE_100_PERCENT / max_referred;
+        }
+    }
+}
+
 void database::update_active_witnesses()
 { try {
    assert( _witness_count_histogram_buffer.size() > 0 );
@@ -168,6 +193,8 @@ void database::update_active_witnesses()
          stake_tally += _witness_count_histogram_buffer[++witness_count];
       }
    }
+
+   update_witness_scores();
 
    const auto& all_witnesses = get_index_type<witness_index>().indices();
    for( const witness_object& wit : all_witnesses )
