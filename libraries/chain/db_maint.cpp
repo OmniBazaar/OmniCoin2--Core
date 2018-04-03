@@ -198,6 +198,26 @@ void database::update_witness_scores()
                      / (fc::uint128_t(wit.total_produced) + wit.total_missed))
                      .to_integer();
         }
+
+        // Reputation Score
+        // Calculated based on reputation votes from transfer operations. Only non-default votes counts.
+        const account_object& account = wit.witness_account(*this);
+        if(!account.reputation_votes.empty())
+        {
+            fc::uint128_t weighted_votes_sum = 0;
+            fc::uint128_t weight_sum = 0;
+            for(const auto& iter : account.reputation_votes)
+            {
+                const std::pair<uint16_t, asset> vote_info = iter.second;
+                weighted_votes_sum += fc::uint128_t(vote_info.first) * vote_info.second.amount.value;
+                weight_sum += vote_info.second.amount.value;
+            }
+            const uint32_t weighted_reputation = (weighted_votes_sum / weight_sum).to_integer();
+            _reputation_score_buffer[wit.vote_id] = weighted_reputation * GRAPHENE_100_PERCENT / OMNIBAZAAR_REPUTATION_MAX;
+        }
+
+        // Listings Score
+        // TODO: implement when Marketplace is ready.
     }
 }
 

@@ -61,9 +61,7 @@ namespace graphene { namespace chain {
       extensions_type   extensions;
 
       /// Rating provided by "from" (buyer) for "to" (seller). Used in Proof of Participation.
-      /// Values are in [0, 10] interval on backend, and in [-5, +5] interval on frontend.
-      /// Default frontend value is 0 hence default backend value is 5.
-      uint16_t reputation_vote = 5;
+      uint16_t reputation_vote = OMNIBAZAAR_REPUTATION_DEFAULT;
 
       account_id_type fee_payer()const { return from; }
       void            validate()const;

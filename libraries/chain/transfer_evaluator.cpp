@@ -80,7 +80,16 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
    db().adjust_balance( o.to, o.amount );
    // Update reputation vote for receiving account.
    db().modify(o.to(db()), [o](account_object &acc){
-       acc.reputation_votes[o.from] = std::make_pair(o.reputation_vote, o.amount);
+       if(o.reputation_vote == OMNIBAZAAR_REPUTATION_DEFAULT)
+       {
+           // Default reputation votes do not count towards Reputation Score
+           // so there's no point in storing them and wasting space.
+           acc.reputation_votes.erase(o.from);
+       }
+       else
+       {
+           acc.reputation_votes[o.from] = std::make_pair(o.reputation_vote, o.amount);
+       }
    });
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (o) ) }
