@@ -180,6 +180,16 @@ void database::update_witness_scores()
                 * GRAPHENE_100_PERCENT
                 / dyn_core_asset.current_supply.value)
                 .to_integer();
+
+        // Reliability Score
+        // Calculated as ratio of produced blocks to total scheduled blocks.
+        if((wit.total_produced > 0) || (wit.total_missed > 0))
+        {
+            _reliability_score_buffer[wit.vote_id] = (fc::uint128_t(wit.total_produced)
+                     * GRAPHENE_100_PERCENT
+                     / (fc::uint128_t(wit.total_produced) + wit.total_missed))
+                     .to_integer();
+        }
     }
 }
 
