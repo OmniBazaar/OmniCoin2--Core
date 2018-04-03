@@ -163,6 +163,9 @@ void database::update_witness_scores()
 
     const asset_dynamic_data_object dyn_core_asset = get_core_asset().dynamic_asset_data_id(*this);
 
+    const auto& accounts_reputations = get_index_type<account_index>().indices().get<by_reputation_votes>();
+    const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count();
+
     const auto& all_witnesses = get_index_type<witness_index>().indices();
     for(const witness_object& wit : all_witnesses)
     {
@@ -212,8 +215,26 @@ void database::update_witness_scores()
                 weighted_votes_sum += fc::uint128_t(vote_info.first) * vote_info.second.amount.value;
                 weight_sum += vote_info.second.amount.value;
             }
-            const uint32_t weighted_reputation = (weighted_votes_sum / weight_sum).to_integer();
-            _reputation_score_buffer[wit.vote_id] = weighted_reputation * GRAPHENE_100_PERCENT / OMNIBAZAAR_REPUTATION_MAX;
+            // Just for display, store score without transfers number weight applied.
+            // Raw formula is:
+            //    weighted_votes_sum
+            //    ------------------
+            //        weight_sum         * GRAPHENE_100_PERCENT
+            // -------------------------
+            // OMNIBAZAAR_REPUTATION_MAX
+            _reputation_unweighted_buffer[wit.vote_id] = (weighted_votes_sum * GRAPHENE_100_PERCENT / weight_sum / OMNIBAZAAR_REPUTATION_MAX).to_integer();
+
+            // For actual score store value with transfers number weight applied.
+            // Raw formula is:
+            //  weighted_votes_sum   account.reputation_votes_count
+            //  ------------------ * ------------------------------
+            //      weight_sum            max_reputation_votes       * GRAPHENE_100_PERCENT
+            // -----------------------------------------------------
+            //               OMNIBAZAAR_REPUTATION_MAX
+            _reputation_score_buffer[wit.vote_id] = ((weighted_votes_sum * account.reputation_votes_count() * GRAPHENE_100_PERCENT)
+                    / (weight_sum * max_reputation_votes)
+                    / OMNIBAZAAR_REPUTATION_MAX
+                    ).to_integer();
         }
 
         // Listings Score
@@ -255,14 +276,18 @@ void database::update_active_witnesses()
        const uint16_t pop_score = ((uint32_t)referral_score + listings_score + trust_score + reliability_score + reputation_score) / 5;
        _pop_score_buffer[wit.vote_id] = pop_score;
 
+       const uint64_t votes = wit.witness_account(*this).reputation_votes_count();
+
        modify( wit, [&]( witness_object& obj ){
-               obj.total_votes       = _vote_tally_buffer[wit.vote_id];
-               obj.referral_score    = referral_score;
-               obj.listings_score    = listings_score;
-               obj.trust_score       = trust_score;
-               obj.reliability_score = reliability_score;
-               obj.reputation_score  = reputation_score;
-               obj.pop_score         = pop_score;
+               obj.total_votes                  = _vote_tally_buffer[wit.vote_id];
+               obj.referral_score               = referral_score;
+               obj.listings_score               = listings_score;
+               obj.trust_score                  = trust_score;
+               obj.reliability_score            = reliability_score;
+               obj.reputation_score             = reputation_score;
+               obj.reputation_unweighted_score  = _reputation_unweighted_buffer[wit.vote_id];
+               obj.reputation_votes             = votes;
+               obj.pop_score                    = pop_score;
                });
    }
 
@@ -903,6 +928,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          d._trust_score_buffer.resize(props.next_available_vote_id, 0);
          d._reliability_score_buffer.resize(props.next_available_vote_id, 0);
          d._reputation_score_buffer.resize(props.next_available_vote_id, 0);
+         d._reputation_unweighted_buffer.resize(props.next_available_vote_id, 0);
          d._pop_score_buffer.resize(props.next_available_vote_id, 0);
          d._witness_count_histogram_buffer.resize(props.parameters.maximum_witness_count / 2 + 1);
          d._committee_count_histogram_buffer.resize(props.parameters.maximum_committee_count / 2 + 1);
@@ -997,7 +1023,8 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
                 f(_trust_score_buffer),
                 g(_reliability_score_buffer),
                 h(_reputation_score_buffer),
-                i(_pop_score_buffer);
+                i(_pop_score_buffer),
+                j(_reputation_unweighted_buffer);
 
    update_top_n_authorities(*this);
    update_active_witnesses();

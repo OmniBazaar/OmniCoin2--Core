@@ -295,6 +295,7 @@ namespace graphene { namespace chain {
          // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
          // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
          map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
+         uint64_t reputation_votes_count()const { return reputation_votes.size(); }
    };
 
 
@@ -463,6 +464,7 @@ namespace graphene { namespace chain {
    typedef generic_index<account_balance_object, account_balance_object_multi_index_type> account_balance_index;
 
    struct by_name{};
+   struct by_reputation_votes;
 
    /**
     * @ingroup object_index
@@ -471,7 +473,9 @@ namespace graphene { namespace chain {
       account_object,
       indexed_by<
          ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
-         ordered_unique< tag<by_name>, member<account_object, string, &account_object::name> >
+         ordered_unique< tag<by_name>, member<account_object, string, &account_object::name> >,
+         // Add index that will sort accounts by the number of reputation votes that they have.
+         ordered_non_unique< tag<by_reputation_votes>, const_mem_fun<account_object, uint64_t, &account_object::reputation_votes_count > >
       >
    > account_multi_index_type;
 

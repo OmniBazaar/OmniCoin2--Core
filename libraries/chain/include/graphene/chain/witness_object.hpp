@@ -54,6 +54,8 @@ namespace graphene { namespace chain {
          uint16_t trust_score;
          uint16_t reliability_score;
          uint16_t reputation_score;
+         uint64_t reputation_unweighted_score;
+         uint64_t reputation_votes;
          uint16_t pop_score;
 
          witness_object() : vote_id(vote_id_type::witness) {}
@@ -95,5 +97,7 @@ FC_REFLECT_DERIVED( graphene::chain::witness_object, (graphene::db::object),
                     (trust_score)
                     (reliability_score)
                     (reputation_score)
+                    (reputation_unweighted_score)
+                    (reputation_votes)
                     (pop_score)
                   )
