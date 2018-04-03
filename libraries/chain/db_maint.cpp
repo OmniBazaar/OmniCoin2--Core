@@ -161,6 +161,8 @@ void database::update_witness_scores()
         max_referred = std::max(max_referred, iter.second.size());
     }
 
+    const asset_dynamic_data_object dyn_core_asset = get_core_asset().dynamic_asset_data_id(*this);
+
     const auto& all_witnesses = get_index_type<witness_index>().indices();
     for(const witness_object& wit : all_witnesses)
     {
@@ -169,8 +171,15 @@ void database::update_witness_scores()
         const auto referrer_iter = referrer_idx.referred_by.find(wit.witness_account);
         if(referrer_iter != referrer_idx.referred_by.end())
         {
-            _referral_score_buffer[wit.vote_id] = (uint64_t)referrer_iter.second.size() * GRAPHENE_100_PERCENT / max_referred;
+            _referral_score_buffer[wit.vote_id] = (uint64_t)referrer_iter->second.size() * GRAPHENE_100_PERCENT / max_referred;
         }
+
+        // Trust Score
+        // Calculated as witness votes divided by total shares supply.
+        _trust_score_buffer[wit.vote_id] = (fc::uint128_t(_vote_tally_buffer[wit.vote_id])
+                * GRAPHENE_100_PERCENT
+                / dyn_core_asset.current_supply.value)
+                .to_integer();
     }
 }
 
