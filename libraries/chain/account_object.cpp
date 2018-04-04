@@ -368,6 +368,39 @@ void account_escrow_index::insert_keeping_sorted(const account_object_name& acco
 	current_escrows.insert(escrow_it, account_object_name);
 }
 
+std::vector<account_object_name> account_escrow_index::filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term) const
+{
+	std::vector<account_object_name> result;
+	result.reserve(limit);
+
+	// find the first match for the search_term
+	auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), search_term, account_object_name_comparer()); 
+
+	// check if we can advance the iterator 'start' times
+	if (escrow_it - current_escrows.begin() + start >= current_escrows.size())
+	{
+		return result;
+	}
+
+	// advance the iterator 'start' times
+	escrow_it += start;
+	
+	while (escrow_it != current_escrows.end() && result.size() < limit)
+	{
+		// get the current escrow name
+		const std::string current_escrow_name = escrow_it->name;
+		
+		// if the escrow name doesn't start with search term, we're done
+		if (current_escrow_name.find(search_term) != 0)
+			break;
+
+		result.push_back(*escrow_it);
+		escrow_it++;
+	}
+
+	return result;
+}
+
 void account_publisher_index::object_inserted( const object& obj )
 {
     const account_object& a = static_cast<const account_object&>(obj);
