@@ -538,7 +538,7 @@ namespace graphene { namespace chain {
          vector<uint16_t> _trust_score_buffer;
          vector<uint16_t> _reliability_score_buffer;
          vector<uint16_t> _reputation_score_buffer;
-         vector<uint64_t> _reputation_unweighted_buffer;
+         vector<uint16_t> _reputation_unweighted_buffer;
          vector<uint16_t> _pop_score_buffer;
 
          flat_map<uint32_t,block_id_type>  _checkpoints;

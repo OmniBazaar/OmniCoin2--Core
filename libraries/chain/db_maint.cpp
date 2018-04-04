@@ -163,6 +163,8 @@ void database::update_witness_scores()
 
     const asset_dynamic_data_object dyn_core_asset = get_core_asset().dynamic_asset_data_id(*this);
 
+    // Get the largest number of reputation votes for any user.
+    // Index is sorted in ascending order, so use last element value.
     const auto& accounts_reputations = get_index_type<account_index>().indices().get<by_reputation_votes>();
     const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count();
 
@@ -273,11 +275,13 @@ void database::update_active_witnesses()
        const uint16_t reliability_score = _reliability_score_buffer[wit.vote_id];
        const uint16_t reputation_score  = _reputation_score_buffer[wit.vote_id];
 
+       // Calculate final Proof of Participation score.
        const uint16_t pop_score = ((uint32_t)referral_score + listings_score + trust_score + reliability_score + reputation_score) / 5;
        _pop_score_buffer[wit.vote_id] = pop_score;
 
        const uint64_t votes = wit.witness_account(*this).reputation_votes_count();
 
+       // Update values in witness_object for UI display.
        modify( wit, [&]( witness_object& obj ){
                obj.total_votes                  = _vote_tally_buffer[wit.vote_id];
                obj.referral_score               = referral_score;

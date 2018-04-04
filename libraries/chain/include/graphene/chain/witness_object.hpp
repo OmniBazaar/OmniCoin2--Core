@@ -54,9 +54,10 @@ namespace graphene { namespace chain {
          uint16_t trust_score;
          uint16_t reliability_score;
          uint16_t reputation_score;
-         uint64_t reputation_unweighted_score;
-         uint64_t reputation_votes;
+         uint16_t reputation_unweighted_score;
          uint16_t pop_score;
+         // Number of reputation votes for this account.
+         uint64_t reputation_votes;
 
          witness_object() : vote_id(vote_id_type::witness) {}
    };
