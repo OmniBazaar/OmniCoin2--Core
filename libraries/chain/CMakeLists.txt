@@ -57,6 +57,8 @@ add_library( graphene_chain
              omnibazaar/escrow.cpp
              omnibazaar/escrow_evaluator.cpp
 
+             omnibazaar/listing_object.cpp
+
              protocol/types.cpp
              protocol/address.cpp
              protocol/authority.cpp

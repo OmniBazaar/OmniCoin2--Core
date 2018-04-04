@@ -68,6 +68,7 @@
 #include <witness_bonus_evaluator.hpp>
 #include <escrow_evaluator.hpp>
 #include <escrow_object.hpp>
+#include <listing_object.hpp>
 #include <multisig_transfer_evaluator.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -216,6 +217,8 @@ void database::initialize_indexes()
 
    auto escr_index = add_index< primary_index<omnibazaar::escrow_index> >();
    escr_index->add_secondary_index<omnibazaar::escrow_account_index>();
+
+   add_index< primary_index<omnibazaar::listing_index> >();
 
    add_index< primary_index<withdraw_permission_index > >();
    add_index< primary_index<vesting_balance_index> >();

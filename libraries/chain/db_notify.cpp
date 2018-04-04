@@ -10,6 +10,7 @@
 #include <graphene/chain/market_object.hpp>
 #include <graphene/chain/committee_member_object.hpp>
 #include <../omnibazaar/escrow_object.hpp>
+#include <../omnibazaar/listing_object.hpp>
 
 using namespace fc;
 using namespace graphene::chain;
@@ -335,6 +336,12 @@ static void get_relevant_accounts( const object* obj, flat_set<account_id_type>&
           accounts.insert( aobj->buyer );
           accounts.insert( aobj->seller );
           accounts.insert( aobj->escrow );
+          break;
+        } case listing_object_type:{
+          const auto& aobj = dynamic_cast<const omnibazaar::listing_object*>(obj);
+          assert( aobj != nullptr );
+          accounts.insert( aobj->seller );
+          accounts.insert( aobj->publisher );
           break;
         }
       }
