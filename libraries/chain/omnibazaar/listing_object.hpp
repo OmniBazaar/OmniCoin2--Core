@@ -24,12 +24,19 @@ namespace omnibazaar {
         fc::sha256 listing_hash;
     };
 
+
+    struct by_hash;
     typedef boost::multi_index_container<
         listing_object,
         graphene::chain::indexed_by<
             graphene::chain::ordered_unique<
                 graphene::chain::tag< graphene::chain::by_id >,
-                graphene::chain::member< graphene::chain::object, graphene::chain::object_id_type, &graphene::chain::object::id > >
+                graphene::chain::member< graphene::chain::object, graphene::chain::object_id_type, &graphene::chain::object::id >
+            >,
+            graphene::chain::ordered_unique<
+                graphene::chain::tag< by_hash >,
+                graphene::chain::member< listing_object, fc::sha256, &listing_object::listing_hash >
+            >
         >
     > listing_multi_index_container;
     typedef graphene::chain::generic_index<listing_object, listing_multi_index_container> listing_index;
