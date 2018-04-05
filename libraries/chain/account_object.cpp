@@ -343,7 +343,20 @@ void account_escrow_index::object_modified( const object& after  )
 	
     if(a.is_an_escrow)
     {
-		this->object_inserted(a);
+		// check whether to add a new account_object_name or just to update the existing one
+		auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), a.name, account_object_name_comparer());
+
+		if (escrow_it == current_escrows.end() || escrow_it->id != a.get_id())
+		{
+			// this means add
+			account_object_name newObj(a.get_id(), a.name);
+			current_escrows.insert(escrow_it, newObj);
+		}
+		else
+		{
+			// this means update
+			escrow_it->name = a.name;
+		}		
     }
     else
     {
