@@ -40,6 +40,8 @@
 #include <cfenv>
 #include <iostream>
 
+#include <graphene/chain/witness_object.hpp>
+
 #define GET_REQUIRED_FEES_MAX_RECURSION 4
 
 typedef std::map< std::pair<graphene::chain::asset_id_type, graphene::chain::asset_id_type>, std::vector<fc::variant> > market_queue_type;
@@ -92,7 +94,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       uint64_t get_account_count()const;
       std::vector<std::string> get_publisher_nodes_names();
       vector<account_object_name> get_current_escrows(uint32_t start, uint32_t limit)const;
-	  vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
+	  vector<account_object_name> filter_current_escrows(account_id_type account_id, uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const;
 
       // Balances
       vector<asset> get_account_balances(account_id_type id, const flat_set<asset_id_type>& assets)const;
@@ -870,16 +872,43 @@ vector<account_object_name> database_api_impl::get_current_escrows(uint32_t star
 	return result;
 }
 
-vector<account_object_name> database_api::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const
+vector<account_object_name> database_api::filter_current_escrows(account_id_type account_id, uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const
 {
-	return my->filter_current_escrows(start, limit, search_term);
+	return my->filter_current_escrows(account_id, start, limit, search_term, options);
 }
 
-vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const
+vector<account_object_name> database_api_impl::filter_current_escrows(account_id_type account_id, uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const
 {
 	const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
 	const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
-	return escrow_idx.filter_by_name(start, limit, search_term);
+
+	return escrow_idx.filter_by_name(start, limit, search_term, options, [&](account_id_type escrow_id) {
+
+		// check if escrow meets the condition: "Any top participant who is a Active Transaction Processor"
+		if (options.any_user_who_is_trans_proc)
+		{
+			const auto& active_witnesses = get_global_properties().active_witnesses;
+
+			auto active_witness_it = std::find_if(active_witnesses.begin(), active_witnesses.end(), [&](witness_id_type witness_id) {
+				auto witness_object = _db.find(witness_id);
+				return witness_object->witness_account == escrow_id;
+			});
+
+			if (active_witness_it == active_witnesses.end())
+				return false;
+		}
+
+	/*	if (options.any_user_i_votes_as_trans_proc)
+		{
+			auto account = _db.find(account_id);
+			const auto& votes = account->options.votes;
+			auto witness_it = std::find_if(votes.begin(), votes.end(), [&](vote_id_type vote_id) {
+				auto vote_object = _db.find(vote_id);
+				
+			});
+		}*/
+
+	});
 }
 
 //////////////////////////////////////////////////////////////////////

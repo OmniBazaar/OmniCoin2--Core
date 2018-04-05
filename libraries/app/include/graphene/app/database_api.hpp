@@ -298,7 +298,8 @@ class database_api
 	  /**
 	  *  @return all accounts that are currently registered as Escrow agents with pagination and name search term
 	  */
-	  vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
+	  vector<account_object_name> filter_current_escrows(account_id_type account_id, uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const;
+
 
       //////////////
       // Balances //
@@ -676,6 +677,7 @@ class database_api
 };
 
 } }
+
 
 FC_REFLECT( graphene::app::order, (price)(quote)(base) );
 FC_REFLECT( graphene::app::order_book, (base)(quote)(bids)(asks) );

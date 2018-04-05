@@ -27,6 +27,7 @@
 #include <boost/multi_index/composite_key.hpp>
 #include <../omnibazaar/account_object_components.hpp>
 #include <string>
+#include <functional>
 
 namespace graphene { namespace chain {
    class database;
@@ -390,6 +391,12 @@ namespace graphene { namespace chain {
 	   }
    };
 
+   struct escrow_filter_options {
+	   bool any_user_i_give_pos_rating;
+	   bool any_user_i_votes_as_trans_proc;
+	   bool any_user_who_is_trans_proc;
+   };
+
 
    /**
     *  @brief This secondary index will allow lookup of Escrow agents.
@@ -403,7 +410,7 @@ namespace graphene { namespace chain {
          virtual void object_modified( const object& after  ) override;
 
 		 // get escrow names that start with search_term, paginated by start and limit
-		 std::vector<account_object_name> filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term) const;
+		 std::vector<account_object_name> filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options, std::function<bool(account_id_type)> options_matcher) const;
 
 		 // list of objects that contain username and id of the account
          std::vector<account_object_name> current_escrows;
@@ -482,6 +489,8 @@ namespace graphene { namespace chain {
    typedef generic_index<account_object, account_multi_index_type> account_index;
 
 }}
+
+FC_REFLECT(graphene::chain::escrow_filter_options(any_user_i_give_pos_rating)(any_user_i_votes_as_trans_proc)(any_user_who_is_trans_proc));
 
 FC_REFLECT( graphene::chain::account_object_name,
 	(id)
