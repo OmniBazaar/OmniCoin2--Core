@@ -262,10 +262,14 @@ void account_referrer_index::object_inserted( const object& obj )
 void account_referrer_index::object_removed( const object& obj )
 {
     const account_object& a = static_cast<const account_object&>(obj);
-    referred_by[a.referrer].erase(a.get_id());
-    if(referred_by[a.referrer].size() <= 0)
+    const auto& iter = referred_by.find(a.referrer);
+    if(iter == referred_by.cend())
+        return;
+
+    iter->second.erase(a.get_id());
+    if(iter->second.size() <= 0)
     {
-        referred_by.erase(a.referrer);
+        referred_by.erase(iter);
     }
 }
 void account_referrer_index::about_to_modify( const object& before )
