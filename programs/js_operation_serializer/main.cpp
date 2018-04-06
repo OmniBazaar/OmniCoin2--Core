@@ -37,6 +37,7 @@
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/worker_object.hpp>
 #include <../omnibazaar/escrow_object.hpp>
+#include <../omnibazaar/listing_object.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <iostream>

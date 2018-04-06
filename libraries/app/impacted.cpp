@@ -258,10 +258,17 @@ struct get_impacted_account_visitor
       _impacted.insert( op.to );
    }
 
-   void operator()( const omnibazaar::listing_create_operation & op )
+   void operator()( const omnibazaar::listing_create_operation& op )
    {
       _impacted.insert( op.seller );
       _impacted.insert( op.publisher );
+   }
+
+   void operator()( const omnibazaar::listing_update_operation& op )
+   {
+      _impacted.insert( op.seller );
+      if(op.publisher.valid())
+          _impacted.insert( *op.publisher );
    }
 };
 

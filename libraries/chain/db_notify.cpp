@@ -248,6 +248,13 @@ struct get_impacted_account_visitor
       _impacted.insert( op.seller );
       _impacted.insert( op.publisher );
    }
+
+   void operator()( const omnibazaar::listing_update_operation& op )
+   {
+      _impacted.insert( op.seller );
+      if(op.publisher.valid())
+          _impacted.insert( *op.publisher );
+   }
 };
 
 static void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )

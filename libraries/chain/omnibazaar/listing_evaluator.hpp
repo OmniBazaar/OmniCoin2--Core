@@ -16,4 +16,15 @@ namespace omnibazaar {
         graphene::db::object_id_type do_apply( const listing_create_operation& op );
     };
 
+    // Evaluator for Listing update operation.
+    class listing_update_evaluator : public graphene::chain::evaluator<listing_update_evaluator>
+    {
+    public:
+        typedef listing_update_operation operation_type;
+
+        // Methods required by graphene::chain::evaluator to process an operation.
+        graphene::chain::void_result do_evaluate( const listing_update_operation& op );
+        graphene::chain::void_result do_apply( const listing_update_operation& op );
+    };
+
 }
