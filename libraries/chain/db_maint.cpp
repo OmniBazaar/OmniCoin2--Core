@@ -46,6 +46,8 @@
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/worker_object.hpp>
 
+#include <omnibazaar_util.hpp>
+
 namespace graphene { namespace chain {
 
 template<class Index, typename Functor>
@@ -151,6 +153,8 @@ void database::pay_workers( share_type& budget )
 
 void database::update_witness_scores()
 {
+    pop_ddump((""));
+
     // Referral Score
     // 1) find largest number of users referred by any user.
     const auto& account_idx = dynamic_cast<const primary_index<account_index>&>(get_index_type<account_index>());
@@ -160,13 +164,16 @@ void database::update_witness_scores()
     {
         max_referred = std::max(max_referred, iter.second.size());
     }
+    pop_ddump((max_referred));
 
     const asset_dynamic_data_object dyn_core_asset = get_core_asset().dynamic_asset_data_id(*this);
+    pop_ddump((dyn_core_asset));
 
     // Get the largest number of reputation votes for any user.
     // Index is sorted in ascending order, so use last element value.
     const auto& accounts_reputations = get_index_type<account_index>().indices().get<by_reputation_votes>();
     const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count();
+    pop_ddump((max_reputation_votes));
 
     const auto& all_witnesses = get_index_type<witness_index>().indices();
     for(const witness_object& wit : all_witnesses)
@@ -181,7 +188,16 @@ void database::update_witness_scores()
                 _referral_score_buffer[wit.vote_id] = (uint64_t)referrer_iter->second.size()
                         * GRAPHENE_100_PERCENT
                         / max_referred;
+                pop_ddump((_referral_score_buffer[wit.vote_id]));
             }
+            else
+            {
+                pop_wlog("Witness ${w} did not refer any users.", ("w", wit.witness_account));
+            }
+        }
+        else
+        {
+            pop_elog("Invalid number of max referred users: ${r}.", ("r", max_referred));
         }
 
         // Trust Score
@@ -192,6 +208,11 @@ void database::update_witness_scores()
                     * GRAPHENE_100_PERCENT
                     / dyn_core_asset.current_supply.value)
                     .to_integer();
+            pop_ddump((_trust_score_buffer[wit.vote_id]));
+        }
+        else
+        {
+            pop_elog("Invalid asset supply value: ${v}.", ("v", dyn_core_asset.current_supply));
         }
 
         // Reliability Score
@@ -202,6 +223,12 @@ void database::update_witness_scores()
                      * GRAPHENE_100_PERCENT
                      / (fc::uint128_t(wit.total_produced) + wit.total_missed))
                      .to_integer();
+            pop_ddump((_reliability_score_buffer[wit.vote_id]));
+        }
+        else
+        {
+            pop_wlog("Witness ${w} was not involved in any block production - produced:${tp}, missed:${tm}.",
+                     ("w", wit.witness_account)("tp", wit.total_produced)("tm", wit.total_missed));
         }
 
         // Reputation Score
@@ -217,6 +244,7 @@ void database::update_witness_scores()
                 weighted_votes_sum += fc::uint128_t(vote_info.first) * vote_info.second.amount.value;
                 weight_sum += vote_info.second.amount.value;
             }
+            pop_ddump((weighted_votes_sum)(weight_sum));
             // Just for display, store score without transfers number weight applied.
             // Raw formula is:
             //    weighted_votes_sum
@@ -225,6 +253,7 @@ void database::update_witness_scores()
             // -------------------------
             // OMNIBAZAAR_REPUTATION_MAX
             _reputation_unweighted_buffer[wit.vote_id] = (weighted_votes_sum * GRAPHENE_100_PERCENT / weight_sum / OMNIBAZAAR_REPUTATION_MAX).to_integer();
+            pop_ddump((_reputation_unweighted_buffer[wit.vote_id]));
 
             // For actual score store value with transfers number weight applied.
             // Raw formula is:
@@ -237,6 +266,11 @@ void database::update_witness_scores()
                     / (weight_sum * max_reputation_votes)
                     / OMNIBAZAAR_REPUTATION_MAX
                     ).to_integer();
+            pop_ddump((_reputation_score_buffer[wit.vote_id]));
+        }
+        else
+        {
+            pop_wlog("Account ${w} did not perform any transfers.", ("w", wit.witness_account));
         }
 
         // Listings Score
@@ -278,6 +312,7 @@ void database::update_active_witnesses()
        // Calculate final Proof of Participation score.
        const uint16_t pop_score = ((uint32_t)referral_score + listings_score + trust_score + reliability_score + reputation_score) / 5;
        _pop_score_buffer[wit.vote_id] = pop_score;
+       pop_ddump((wit.witness_account)(pop_score));
 
        const uint64_t votes = wit.witness_account(*this).reputation_votes_count();
 
