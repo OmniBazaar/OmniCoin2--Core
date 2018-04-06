@@ -320,6 +320,13 @@ void write_default_logging_config(const fc::path& filepath)
                 cfg.rotation_limit = fc::days(1);
                 return cfg;
             }())
+            ("market", [](){
+                fc::file_appender::config cfg("logs/market.log");
+                cfg.rotate = true;
+                cfg.rotation_interval = fc::hours(1);
+                cfg.rotation_limit = fc::days(1);
+                return cfg;
+            }())
             ;
     const fc::mutable_variant_object loggers = fc::mutable_variant_object
             ("default", [](){
@@ -350,6 +357,12 @@ void write_default_logging_config(const fc::path& filepath)
             ("mail", [](){
                 fc::logger_config cfg("mail");
                 cfg.appenders.push_back("mail");
+                cfg.level = fc::log_level::info;
+                return cfg;
+            }())
+            ("market", [](){
+                fc::logger_config cfg("market");
+                cfg.appenders.push_back("market");
                 cfg.level = fc::log_level::info;
                 return cfg;
             }())

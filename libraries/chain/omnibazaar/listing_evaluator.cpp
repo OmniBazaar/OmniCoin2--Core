@@ -1,5 +1,6 @@
 #include <listing_evaluator.hpp>
 #include <listing_object.hpp>
+#include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
 
 namespace omnibazaar {
@@ -10,19 +11,26 @@ namespace omnibazaar {
     {
         try
         {
+            market_ddump((op));
+
             const graphene::chain::database& d = db();
 
             // Check that publisher is correct.
+            market_dlog("Checking publisher.");
             const graphene::chain::account_object& publisher = op.publisher(d);
+            market_ddump((publisher));
             FC_ASSERT(publisher.is_a_publisher, "Specified account is not a publisher.");
 
             // Check for listing duplicate.
+            market_dlog("Checking listing duplicate.");
             const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
             FC_ASSERT(listings_idx.find(op.listing_hash) == listings_idx.cend(), "Listing already exists.");
 
             // Check that Seller has enough funds to pay fee to Publisher.
+            market_dlog("Checking fees.");
             const graphene::chain::share_type fee = graphene::chain::cut_fee(op.price.amount, DEFAULT_PUBLISHER_FEE);
             const graphene::chain::share_type seller_balance = d.get_balance(op.seller, op.price.asset_id).amount;
+            market_ddump((fee)(seller_balance));
             FC_ASSERT(seller_balance >= fee, "Insufficient funds to pay fee to publisher.");
 
             return graphene::chain::void_result();
@@ -34,9 +42,12 @@ namespace omnibazaar {
     {
         try
         {
+            market_ddump((op));
+
             graphene::chain::database& d = db();
 
             // Create listing object.
+            market_dlog("Creating listing object.");
             const listing_object& listing = d.create<listing_object>([&](listing_object& obj) {
                 obj.seller = op.seller;
                 obj.publisher = op.publisher;
@@ -46,6 +57,7 @@ namespace omnibazaar {
 
             // Pay fee to publisher.
             const graphene::chain::share_type fee = graphene::chain::cut_fee(op.price.amount, DEFAULT_PUBLISHER_FEE);
+            market_dlog("Paying publisher fee ${fee}", ("fee", fee));
             d.adjust_balance(op.publisher, graphene::chain::asset(fee, op.price.asset_id));
 
             return listing.id;
@@ -57,8 +69,11 @@ namespace omnibazaar {
     {
         try
         {
+            market_ddump((op));
+
             const graphene::chain::database& d = db();
             const listing_object listing = op.listing_id(d);
+            market_ddump((listing));
 
             // Check that seller is correct.
             FC_ASSERT(op.seller == listing.seller, "Invalid seller account.");
@@ -67,12 +82,14 @@ namespace omnibazaar {
             if(op.publisher.valid())
             {
                 const graphene::chain::account_object& publisher = (*op.publisher)(d);
+                market_ddump((publisher));
                 FC_ASSERT(publisher.is_a_publisher, "Specified account is not a publisher.");
             }
 
             // Check for listing duplicate.
             if(op.listing_hash.valid())
             {
+                market_dlog("Checking listing duplicate.");
                 const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
                 FC_ASSERT(listings_idx.find(*op.listing_hash) == listings_idx.cend(), "Listing already exists.");
             }
@@ -80,8 +97,10 @@ namespace omnibazaar {
             // Check that Seller has enough funds to pay fee to Publisher.
             if(op.price.valid())
             {
+                market_dlog("Checking fees.");
                 const graphene::chain::share_type fee = graphene::chain::cut_fee((*op.price).amount, DEFAULT_PUBLISHER_FEE);
                 const graphene::chain::share_type seller_balance = d.get_balance(op.seller, (*op.price).asset_id).amount;
+                market_ddump((fee)(seller_balance));
                 FC_ASSERT(seller_balance >= fee, "Insufficient funds to pay fee to publisher.");
             }
 
@@ -94,9 +113,12 @@ namespace omnibazaar {
     {
         try
         {
+            market_ddump((op));
+
             graphene::chain::database& d = db();
 
             // Modify listing object in blockchain.
+            market_dlog("Modifying listing object.");
             d.modify(op.listing_id(d), [&](listing_object& listing){
                 if(op.listing_hash.valid())
                 {
@@ -114,7 +136,9 @@ namespace omnibazaar {
 
             // Pay fee to publisher.
             const listing_object& listing = op.listing_id(d);
+            market_ddump((listing));
             const graphene::chain::share_type fee = graphene::chain::cut_fee(listing.price.amount, DEFAULT_PUBLISHER_FEE);
+            market_dlog("Paying publisher fee ${fee}", ("fee", fee));
             d.adjust_balance(listing.publisher, graphene::chain::asset(fee, listing.price.asset_id));
 
             return graphene::chain::void_result();
@@ -126,8 +150,11 @@ namespace omnibazaar {
     {
         try
         {
+            market_ddump((op));
+
             const graphene::chain::database& d = db();
             const listing_object listing = op.listing_id(d);
+            market_ddump((listing));
 
             // Check that seller is correct.
             FC_ASSERT(op.seller == listing.seller, "Invalid seller account.");
@@ -141,9 +168,12 @@ namespace omnibazaar {
     {
         try
         {
+            market_ddump((op));
+
             graphene::chain::database& d = db();
 
             // Delete object from blockchain.
+            market_dlog("Deleting listing object.");
             d.remove(op.listing_id(d));
 
             return graphene::chain::void_result();
