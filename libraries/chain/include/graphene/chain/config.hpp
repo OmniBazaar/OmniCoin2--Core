@@ -180,3 +180,10 @@
 
 #define OMNIBAZAAR_DEFAULT_MAX_ESCROW_LIFETIME_SEC (60*60*24*90) // 3 months
 
+/// Reputation Score for Proof of Participation.
+/// Values are in [0, 10] interval on backend, and in [-5, +5] interval on frontend.
+/// Default frontend value is 0 hence default backend value is 5.
+#define OMNIBAZAAR_REPUTATION_MIN 0
+#define OMNIBAZAAR_REPUTATION_MAX 10
+#define OMNIBAZAAR_REPUTATION_DEFAULT 5
+

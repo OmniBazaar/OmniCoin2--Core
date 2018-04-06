@@ -256,15 +256,29 @@ void account_member_index::object_modified(const object& after)
 
 void account_referrer_index::object_inserted( const object& obj )
 {
+    const account_object& a = static_cast<const account_object&>(obj);
+    referred_by[a.referrer].insert(a.get_id());
 }
 void account_referrer_index::object_removed( const object& obj )
 {
+    const account_object& a = static_cast<const account_object&>(obj);
+    const auto& iter = referred_by.find(a.referrer);
+    if(iter == referred_by.cend())
+        return;
+
+    iter->second.erase(a.get_id());
+    if(iter->second.size() <= 0)
+    {
+        referred_by.erase(iter);
+    }
 }
 void account_referrer_index::about_to_modify( const object& before )
 {
+    object_removed(before);
 }
 void account_referrer_index::object_modified( const object& after  )
 {
+    object_inserted(after);
 }
 
 void account_welcome_bonus_index::object_inserted( const object& obj )
@@ -343,7 +357,20 @@ void account_escrow_index::object_modified( const object& after  )
 	
     if(a.is_an_escrow)
     {
-		this->object_inserted(a);
+		// check whether to add a new account_object_name or just to update the existing one
+		auto escrow_it = std::lower_bound(current_escrows.begin(), current_escrows.end(), a.name, account_object_name_comparer());
+
+		if (escrow_it == current_escrows.end() || escrow_it->id != a.get_id())
+		{
+			// this means add
+			account_object_name newObj(a.get_id(), a.name);
+			current_escrows.insert(escrow_it, newObj);
+		}
+		else
+		{
+			// this means update
+			escrow_it->name = a.name;
+		}		
     }
     else
     {
