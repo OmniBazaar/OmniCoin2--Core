@@ -121,5 +121,35 @@ namespace omnibazaar {
         }
         FC_CAPTURE_AND_RETHROW( (op) )
     }
+
+    graphene::chain::void_result listing_delete_evaluator::do_evaluate( const listing_delete_operation& op )
+    {
+        try
+        {
+            const graphene::chain::database& d = db();
+            const listing_object listing = op.listing_id(d);
+
+            // Check that seller is correct.
+            FC_ASSERT(op.seller == listing.seller, "Invalid seller account.");
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
+    graphene::chain::void_result listing_delete_evaluator::do_apply( const listing_delete_operation& op )
+    {
+        try
+        {
+            graphene::chain::database& d = db();
+
+            // Delete object from blockchain.
+            d.remove(op.listing_id(d));
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
 }
 

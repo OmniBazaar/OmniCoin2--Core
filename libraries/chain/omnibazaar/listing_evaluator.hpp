@@ -27,4 +27,15 @@ namespace omnibazaar {
         graphene::chain::void_result do_apply( const listing_update_operation& op );
     };
 
+    // Evaluator for Listing delete operation.
+    class listing_delete_evaluator : public graphene::chain::evaluator<listing_delete_evaluator>
+    {
+    public:
+        typedef listing_delete_operation operation_type;
+
+        // Methods required by graphene::chain::evaluator to process an operation.
+        graphene::chain::void_result do_evaluate( const listing_delete_operation& op );
+        graphene::chain::void_result do_apply( const listing_delete_operation& op );
+    };
+
 }
