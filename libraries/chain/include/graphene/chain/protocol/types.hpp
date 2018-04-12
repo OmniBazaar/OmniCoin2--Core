@@ -48,6 +48,7 @@
 
 namespace omnibazaar {
     class escrow_object;
+    class listing_object;
 }
 
 namespace graphene { namespace chain {
@@ -139,6 +140,7 @@ namespace graphene { namespace chain {
       worker_object_type,
       balance_object_type,
       escrow_object_type,
+      listing_object_type,
       OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
    };
 
@@ -197,6 +199,7 @@ namespace graphene { namespace chain {
    typedef object_id< protocol_ids, worker_object_type,             worker_object>                worker_id_type;
    typedef object_id< protocol_ids, balance_object_type,            balance_object>               balance_id_type;
    typedef object_id< protocol_ids, escrow_object_type,             omnibazaar::escrow_object>    escrow_id_type;
+   typedef object_id< protocol_ids, listing_object_type,            omnibazaar::listing_object>   listing_id_type;
 
    // implementation types
    class global_property_object;
@@ -349,6 +352,7 @@ FC_REFLECT_ENUM( graphene::chain::object_type,
                  (worker_object_type)
                  (balance_object_type)
                  (escrow_object_type)
+                 (listing_object_type)
                  (OBJECT_TYPE_COUNT)
                )
 FC_REFLECT_ENUM( graphene::chain::impl_object_type,

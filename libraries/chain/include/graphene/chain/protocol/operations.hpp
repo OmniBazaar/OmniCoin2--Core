@@ -46,6 +46,7 @@
 #include <../omnibazaar/witness_bonus.hpp>
 #include <../omnibazaar/escrow.hpp>
 #include <../omnibazaar/multisig_transfer.hpp>
+#include <../omnibazaar/listing.hpp>
 
 namespace graphene { namespace chain {
 
@@ -110,7 +111,10 @@ namespace graphene { namespace chain {
             omnibazaar::escrow_create_operation,
             omnibazaar::escrow_release_operation,
             omnibazaar::escrow_return_operation,
-            omnibazaar::multisig_transfer_operation
+            omnibazaar::multisig_transfer_operation,
+            omnibazaar::listing_create_operation,
+            omnibazaar::listing_update_operation,
+            omnibazaar::listing_delete_operation
          > operation;
 
    /// @} // operations group

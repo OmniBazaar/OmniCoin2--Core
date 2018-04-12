@@ -58,3 +58,12 @@ namespace omnibazaar {
 #define pop_idump( SEQ ) pop_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define pop_wdump( SEQ ) pop_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define pop_edump( SEQ ) pop_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+
+#define market_dlog( FORMAT, ... ) fc_dlog( fc::logger::get("market"), FORMAT, __VA_ARGS__ )
+#define market_ilog( FORMAT, ... ) fc_ilog( fc::logger::get("market"), FORMAT, __VA_ARGS__ )
+#define market_wlog( FORMAT, ... ) fc_wlog( fc::logger::get("market"), FORMAT, __VA_ARGS__ )
+#define market_elog( FORMAT, ... ) fc_elog( fc::logger::get("market"), FORMAT, __VA_ARGS__ )
+#define market_ddump( SEQ ) market_dlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define market_idump( SEQ ) market_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define market_wdump( SEQ ) market_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define market_edump( SEQ ) market_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )

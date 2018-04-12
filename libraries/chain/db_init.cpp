@@ -68,7 +68,9 @@
 #include <witness_bonus_evaluator.hpp>
 #include <escrow_evaluator.hpp>
 #include <escrow_object.hpp>
+#include <listing_object.hpp>
 #include <multisig_transfer_evaluator.hpp>
+#include <listing_evaluator.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
 #include <fc/smart_ref_impl.hpp>
@@ -188,6 +190,9 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::escrow_release_evaluator>();
    register_evaluator<omnibazaar::escrow_return_evaluator>();
    register_evaluator<omnibazaar::multisig_transfer_evaluator>();
+   register_evaluator<omnibazaar::listing_create_evaluator>();
+   register_evaluator<omnibazaar::listing_update_evaluator>();
+   register_evaluator<omnibazaar::listing_delete_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -216,6 +221,8 @@ void database::initialize_indexes()
 
    auto escr_index = add_index< primary_index<omnibazaar::escrow_index> >();
    escr_index->add_secondary_index<omnibazaar::escrow_account_index>();
+
+   add_index< primary_index<omnibazaar::listing_index> >();
 
    add_index< primary_index<withdraw_permission_index > >();
    add_index< primary_index<vesting_balance_index> >();
