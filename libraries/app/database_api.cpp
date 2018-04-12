@@ -866,6 +866,7 @@ vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t s
 				return false;
 		}
 
+        // Next 2 options depend on "my_account" value, so check it here first.
         if(options.my_account.valid())
         {
             const account_object& my_account = (*options.my_account)(_db);
@@ -874,12 +875,15 @@ vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t s
             if(options.any_user_i_votes_as_trans_proc)
             {
                 bool found = false;
+                // Go though my votes,
                 for(const vote_id_type& vote_id : my_account.options.votes)
                 {
+                    // get corresponding witness accounts,
                     const auto vote_iter = vote_idx.find(vote_id);
                     if(vote_iter == vote_idx.end())
                         continue;
 
+                    // and check if any of them belongs to current escrow.
                     if(vote_iter->witness_account == escrow_id)
                     {
                         found = true;
@@ -888,6 +892,15 @@ vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t s
                 }
 
                 if(!found)
+                    return false;
+            }
+
+            // Check if escrow meets the "Any user I give a positive rating" condition.
+            if(options.any_user_i_give_pos_rating)
+            {
+                const account_object& escrow_account = escrow_id(_db);
+                // Check reputation votes to see if this escrow has any votes from me.
+                if(escrow_account.reputation_votes.find(*options.my_account) == escrow_account.reputation_votes.end())
                     return false;
             }
         }
