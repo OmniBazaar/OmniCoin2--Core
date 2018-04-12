@@ -490,7 +490,11 @@ namespace graphene { namespace chain {
 
 }}
 
-FC_REFLECT(graphene::chain::escrow_filter_options(any_user_i_give_pos_rating)(any_user_i_votes_as_trans_proc)(any_user_who_is_trans_proc));
+FC_REFLECT(graphene::chain::escrow_filter_options, 
+	(any_user_i_give_pos_rating)
+	(any_user_i_votes_as_trans_proc)
+	(any_user_who_is_trans_proc)
+)
 
 FC_REFLECT( graphene::chain::account_object_name,
 	(id)

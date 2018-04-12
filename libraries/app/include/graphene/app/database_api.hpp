@@ -290,15 +290,10 @@ class database_api
        */
       std::vector<std::string> get_publisher_nodes_names() const;
 
-      /**
-       *  @return all accounts that are currently registered as Escrow agents with pagination
-       */
-      vector<account_object_name> get_current_escrows(uint32_t start, uint32_t limit) const;
-
 	  /**
-	  *  @return all accounts that are currently registered as Escrow agents with pagination and name search term
+	  *  @return all accounts that are currently registered as Escrow agents with pagination, name search term and options for discarding some agents
 	  */
-	  vector<account_object_name> filter_current_escrows(account_id_type account_id, uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const;
+	  vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const;
 
 
       //////////////
@@ -723,8 +718,6 @@ FC_API(graphene::app::database_api,
    (lookup_accounts)
    (get_account_count)
    (get_publisher_nodes_names)
-   (get_current_escrows)
-   (filter_current_escrows)
 
    // Balances
    (get_account_balances)
@@ -795,4 +788,5 @@ FC_API(graphene::app::database_api,
 
     // Escrows
     (get_escrow_objects)
+	(filter_current_escrows)
 )
