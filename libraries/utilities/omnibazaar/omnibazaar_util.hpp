@@ -50,6 +50,15 @@ namespace omnibazaar {
 #define escrow_wdump( SEQ ) escrow_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define escrow_edump( SEQ ) escrow_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 
+#define pop_dlog( FORMAT, ... ) fc_dlog( fc::logger::get("pop"), FORMAT, __VA_ARGS__ )
+#define pop_ilog( FORMAT, ... ) fc_ilog( fc::logger::get("pop"), FORMAT, __VA_ARGS__ )
+#define pop_wlog( FORMAT, ... ) fc_wlog( fc::logger::get("pop"), FORMAT, __VA_ARGS__ )
+#define pop_elog( FORMAT, ... ) fc_elog( fc::logger::get("pop"), FORMAT, __VA_ARGS__ )
+#define pop_ddump( SEQ ) pop_dlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define pop_idump( SEQ ) pop_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define pop_wdump( SEQ ) pop_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define pop_edump( SEQ ) pop_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+
 #define market_dlog( FORMAT, ... ) fc_dlog( fc::logger::get("market"), FORMAT, __VA_ARGS__ )
 #define market_ilog( FORMAT, ... ) fc_ilog( fc::logger::get("market"), FORMAT, __VA_ARGS__ )
 #define market_wlog( FORMAT, ... ) fc_wlog( fc::logger::get("market"), FORMAT, __VA_ARGS__ )

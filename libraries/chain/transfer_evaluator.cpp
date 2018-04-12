@@ -27,6 +27,8 @@
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/is_authorized_asset.hpp>
 
+#include <omnibazaar_util.hpp>
+
 namespace graphene { namespace chain {
 void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
 { try {
@@ -79,6 +81,8 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
    db().adjust_balance( o.from, -o.amount );
    db().adjust_balance( o.to, o.amount );
    // Update reputation vote for receiving account.
+   pop_dlog("Updating reputation vote ${vote} for ${seller} from ${buyer}.",
+            ("vote", o.reputation_vote)("seller", o.to)("buyer", o.from));
    db().modify(o.to(db()), [o](account_object &acc){
        if(o.reputation_vote == OMNIBAZAAR_REPUTATION_DEFAULT)
        {
