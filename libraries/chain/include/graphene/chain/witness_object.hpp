@@ -46,6 +46,18 @@ namespace graphene { namespace chain {
          string           url;
          int64_t          total_missed = 0;
          uint32_t         last_confirmed_block_num = 0;
+         // Total number of correct blocks that this witness produced.
+         int64_t          total_produced = 0;
+         // Proof of Participation scores in GRAPHENE_1_PERCENT.
+         uint16_t referral_score;
+         uint16_t listings_score;
+         uint16_t trust_score;
+         uint16_t reliability_score;
+         uint16_t reputation_score;
+         uint16_t reputation_unweighted_score;
+         uint16_t pop_score;
+         // Number of reputation votes for this account.
+         uint64_t reputation_votes;
 
          witness_object() : vote_id(vote_id_type::witness) {}
    };
@@ -80,4 +92,13 @@ FC_REFLECT_DERIVED( graphene::chain::witness_object, (graphene::db::object),
                     (url) 
                     (total_missed)
                     (last_confirmed_block_num)
+                    (total_produced)
+                    (referral_score)
+                    (listings_score)
+                    (trust_score)
+                    (reliability_score)
+                    (reputation_score)
+                    (reputation_unweighted_score)
+                    (reputation_votes)
+                    (pop_score)
                   )

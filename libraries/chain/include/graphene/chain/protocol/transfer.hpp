@@ -60,6 +60,9 @@ namespace graphene { namespace chain {
       optional<memo_data> memo;
       extensions_type   extensions;
 
+      /// Rating provided by "from" (buyer) for "to" (seller). Used in Proof of Participation.
+      uint16_t reputation_vote = OMNIBAZAAR_REPUTATION_DEFAULT;
+
       account_id_type fee_payer()const { return from; }
       void            validate()const;
       share_type      calculate_fee(const fee_parameters_type& k)const;
@@ -104,4 +107,4 @@ FC_REFLECT( graphene::chain::transfer_operation::fee_parameters_type, (fee)(pric
 FC_REFLECT( graphene::chain::override_transfer_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 
 FC_REFLECT( graphene::chain::override_transfer_operation, (fee)(issuer)(from)(to)(amount)(memo)(extensions) )
-FC_REFLECT( graphene::chain::transfer_operation, (fee)(from)(to)(amount)(memo)(extensions) )
+FC_REFLECT( graphene::chain::transfer_operation, (fee)(from)(to)(amount)(memo)(extensions)(reputation_vote) )

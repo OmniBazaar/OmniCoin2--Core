@@ -46,10 +46,12 @@
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/worker_object.hpp>
 
+#include <omnibazaar_util.hpp>
+
 namespace graphene { namespace chain {
 
-template<class Index>
-vector<std::reference_wrapper<const typename Index::object_type>> database::sort_votable_objects(size_t count) const
+template<class Index, typename Functor>
+vector<std::reference_wrapper<const typename Index::object_type>> database::sort_votable_objects(size_t count, const Functor sort_functor) const
 {
    using ObjectType = typename Index::object_type;
    const auto& all_objects = get_index_type<Index>().indices();
@@ -59,14 +61,7 @@ vector<std::reference_wrapper<const typename Index::object_type>> database::sort
    std::transform(all_objects.begin(), all_objects.end(),
                   std::back_inserter(refs),
                   [](const ObjectType& o) { return std::cref(o); });
-   std::partial_sort(refs.begin(), refs.begin() + count, refs.end(),
-                   [this](const ObjectType& a, const ObjectType& b)->bool {
-      share_type oa_vote = _vote_tally_buffer[a.vote_id];
-      share_type ob_vote = _vote_tally_buffer[b.vote_id];
-      if( oa_vote != ob_vote )
-         return oa_vote > ob_vote;
-      return a.vote_id < b.vote_id;
-   });
+   std::partial_sort(refs.begin(), refs.begin() + count, refs.end(), sort_functor);
 
    refs.resize(count, refs.front());
    return refs;
@@ -156,6 +151,133 @@ void database::pay_workers( share_type& budget )
    }
 }
 
+void database::update_witness_scores()
+{
+    pop_ddump((""));
+
+    // Referral Score
+    // 1) find largest number of users referred by any user.
+    const auto& account_idx = dynamic_cast<const primary_index<account_index>&>(get_index_type<account_index>());
+    const account_referrer_index& referrer_idx = account_idx.get_secondary_index<account_referrer_index>();
+    decltype(referrer_idx.referred_by)::mapped_type::size_type max_referred = 0;
+    for(auto iter : referrer_idx.referred_by)
+    {
+        max_referred = std::max(max_referred, iter.second.size());
+    }
+    pop_ddump((max_referred));
+
+    const asset_dynamic_data_object dyn_core_asset = get_core_asset().dynamic_asset_data_id(*this);
+    pop_ddump((dyn_core_asset));
+
+    // Get the largest number of reputation votes for any user.
+    // Index is sorted in ascending order, so use last element value.
+    const auto& accounts_reputations = get_index_type<account_index>().indices().get<by_reputation_votes>();
+    const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count();
+    pop_ddump((max_reputation_votes));
+
+    const auto& all_witnesses = get_index_type<witness_index>().indices();
+    for(const witness_object& wit : all_witnesses)
+    {
+        // Referral Score
+        // 2) calculate score using number of users referred by this witness and largest number of referred users.
+        if(max_referred > 0)
+        {
+            const auto referrer_iter = referrer_idx.referred_by.find(wit.witness_account);
+            if(referrer_iter != referrer_idx.referred_by.end())
+            {
+                _referral_score_buffer[wit.vote_id] = (uint64_t)referrer_iter->second.size()
+                        * GRAPHENE_100_PERCENT
+                        / max_referred;
+                pop_ddump((_referral_score_buffer[wit.vote_id]));
+            }
+            else
+            {
+                pop_wlog("Witness ${w} did not refer any users.", ("w", wit.witness_account));
+            }
+        }
+        else
+        {
+            pop_elog("Invalid number of max referred users: ${r}.", ("r", max_referred));
+        }
+
+        // Trust Score
+        // Calculated as witness votes divided by total shares supply.
+        if(dyn_core_asset.current_supply.value > 0)
+        {
+            _trust_score_buffer[wit.vote_id] = (fc::uint128_t(_vote_tally_buffer[wit.vote_id])
+                    * GRAPHENE_100_PERCENT
+                    / dyn_core_asset.current_supply.value)
+                    .to_integer();
+            pop_ddump((_trust_score_buffer[wit.vote_id]));
+        }
+        else
+        {
+            pop_elog("Invalid asset supply value: ${v}.", ("v", dyn_core_asset.current_supply));
+        }
+
+        // Reliability Score
+        // Calculated as ratio of produced blocks to total scheduled blocks.
+        if((wit.total_produced > 0) || (wit.total_missed > 0))
+        {
+            _reliability_score_buffer[wit.vote_id] = (fc::uint128_t(wit.total_produced)
+                     * GRAPHENE_100_PERCENT
+                     / (fc::uint128_t(wit.total_produced) + wit.total_missed))
+                     .to_integer();
+            pop_ddump((_reliability_score_buffer[wit.vote_id]));
+        }
+        else
+        {
+            pop_wlog("Witness ${w} was not involved in any block production - produced:${tp}, missed:${tm}.",
+                     ("w", wit.witness_account)("tp", wit.total_produced)("tm", wit.total_missed));
+        }
+
+        // Reputation Score
+        // Calculated based on reputation votes from transfer operations. Only non-default votes counts.
+        const account_object& account = wit.witness_account(*this);
+        if(!account.reputation_votes.empty())
+        {
+            fc::uint128_t weighted_votes_sum = 0;
+            fc::uint128_t weight_sum = 0;
+            for(const auto& iter : account.reputation_votes)
+            {
+                const std::pair<uint16_t, asset> vote_info = iter.second;
+                weighted_votes_sum += fc::uint128_t(vote_info.first) * vote_info.second.amount.value;
+                weight_sum += vote_info.second.amount.value;
+            }
+            pop_ddump((weighted_votes_sum)(weight_sum));
+            // Just for display, store score without transfers number weight applied.
+            // Raw formula is:
+            //    weighted_votes_sum
+            //    ------------------
+            //        weight_sum         * GRAPHENE_100_PERCENT
+            // -------------------------
+            // OMNIBAZAAR_REPUTATION_MAX
+            _reputation_unweighted_buffer[wit.vote_id] = (weighted_votes_sum * GRAPHENE_100_PERCENT / weight_sum / OMNIBAZAAR_REPUTATION_MAX).to_integer();
+            pop_ddump((_reputation_unweighted_buffer[wit.vote_id]));
+
+            // For actual score store value with transfers number weight applied.
+            // Raw formula is:
+            //  weighted_votes_sum   account.reputation_votes_count
+            //  ------------------ * ------------------------------
+            //      weight_sum            max_reputation_votes       * GRAPHENE_100_PERCENT
+            // -----------------------------------------------------
+            //               OMNIBAZAAR_REPUTATION_MAX
+            _reputation_score_buffer[wit.vote_id] = ((weighted_votes_sum * account.reputation_votes_count() * GRAPHENE_100_PERCENT)
+                    / (weight_sum * max_reputation_votes)
+                    / OMNIBAZAAR_REPUTATION_MAX
+                    ).to_integer();
+            pop_ddump((_reputation_score_buffer[wit.vote_id]));
+        }
+        else
+        {
+            pop_wlog("Account ${w} did not perform any transfers.", ("w", wit.witness_account));
+        }
+
+        // Listings Score
+        // TODO: implement when Marketplace is ready.
+    }
+}
+
 void database::update_active_witnesses()
 { try {
    assert( _witness_count_histogram_buffer.size() > 0 );
@@ -176,19 +298,49 @@ void database::update_active_witnesses()
       }
    }
 
-   const chain_property_object& cpo = get_chain_properties();
-   auto wits = sort_votable_objects<witness_index>(std::max(witness_count*2+1, (size_t)cpo.immutable_parameters.min_witness_count));
-
-   const global_property_object& gpo = get_global_properties();
+   update_witness_scores();
 
    const auto& all_witnesses = get_index_type<witness_index>().indices();
-
    for( const witness_object& wit : all_witnesses )
    {
-      modify( wit, [&]( witness_object& obj ){
-              obj.total_votes = _vote_tally_buffer[wit.vote_id];
-              });
+       const uint16_t referral_score    = _referral_score_buffer[wit.vote_id];
+       const uint16_t listings_score    = _listings_score_buffer[wit.vote_id];
+       const uint16_t trust_score       = _trust_score_buffer[wit.vote_id];
+       const uint16_t reliability_score = _reliability_score_buffer[wit.vote_id];
+       const uint16_t reputation_score  = _reputation_score_buffer[wit.vote_id];
+
+       // Calculate final Proof of Participation score.
+       const uint16_t pop_score = ((uint32_t)referral_score + listings_score + trust_score + reliability_score + reputation_score) / 5;
+       _pop_score_buffer[wit.vote_id] = pop_score;
+       pop_ddump((wit.witness_account)(pop_score));
+
+       const uint64_t votes = wit.witness_account(*this).reputation_votes_count();
+
+       // Update values in witness_object for UI display.
+       modify( wit, [&]( witness_object& obj ){
+               obj.total_votes                  = _vote_tally_buffer[wit.vote_id];
+               obj.referral_score               = referral_score;
+               obj.listings_score               = listings_score;
+               obj.trust_score                  = trust_score;
+               obj.reliability_score            = reliability_score;
+               obj.reputation_score             = reputation_score;
+               obj.reputation_unweighted_score  = _reputation_unweighted_buffer[wit.vote_id];
+               obj.reputation_votes             = votes;
+               obj.pop_score                    = pop_score;
+               });
    }
+
+   const chain_property_object& cpo = get_chain_properties();
+   auto wits = sort_votable_objects<witness_index>(std::max(witness_count*2+1, (size_t)cpo.immutable_parameters.min_witness_count),
+                                                   [this](const witness_object& a, const witness_object& b)->bool {
+                                                       const uint16_t a_score = _pop_score_buffer[a.vote_id];
+                                                       const uint16_t b_score = _pop_score_buffer[b.vote_id];
+                                                       if( a_score != b_score )
+                                                          return a_score > b_score;
+                                                       return a.vote_id < b.vote_id;
+                                                    });
+
+   const global_property_object& gpo = get_global_properties();
 
    // Update witness authority
    modify( get(GRAPHENE_WITNESS_ACCOUNT), [&]( account_object& a )
@@ -202,8 +354,8 @@ void database::update_active_witnesses()
 
          for( const witness_object& wit : wits )
          {
-            weights.emplace(wit.witness_account, _vote_tally_buffer[wit.vote_id]);
-            total_votes += _vote_tally_buffer[wit.vote_id];
+            weights.emplace(wit.witness_account, _pop_score_buffer[wit.vote_id]);
+            total_votes += _pop_score_buffer[wit.vote_id];
          }
 
          // total_votes is 64 bits. Subtract the number of leading low bits from 64 to get the number of useful bits,
@@ -224,7 +376,7 @@ void database::update_active_witnesses()
       {
          vote_counter vc;
          for( const witness_object& wit : wits )
-            vc.add( wit.witness_account, _vote_tally_buffer[wit.vote_id] );
+            vc.add( wit.witness_account, _pop_score_buffer[wit.vote_id] );
          vc.finish( a.active );
       }
    } );
@@ -277,7 +429,14 @@ void database::update_active_committee_members()
    }
 
    const chain_property_object& cpo = get_chain_properties();
-   auto committee_members = sort_votable_objects<committee_member_index>(std::max(committee_member_count*2+1, (size_t)cpo.immutable_parameters.min_committee_member_count));
+   auto committee_members = sort_votable_objects<committee_member_index>(std::max(committee_member_count*2+1, (size_t)cpo.immutable_parameters.min_committee_member_count),
+                                                                         [this](const committee_member_object& a, const committee_member_object& b)->bool {
+                                                                             share_type oa_vote = _vote_tally_buffer[a.vote_id];
+                                                                             share_type ob_vote = _vote_tally_buffer[b.vote_id];
+                                                                             if( oa_vote != ob_vote )
+                                                                                return oa_vote > ob_vote;
+                                                                             return a.vote_id < b.vote_id;
+                                                                          });
 
    for( const committee_member_object& del : committee_members )
    {
@@ -803,6 +962,13 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          : d(d), props(gpo)
       {
          d._vote_tally_buffer.resize(props.next_available_vote_id);
+         d._referral_score_buffer.resize(props.next_available_vote_id, 0);
+         d._listings_score_buffer.resize(props.next_available_vote_id, 0);
+         d._trust_score_buffer.resize(props.next_available_vote_id, 0);
+         d._reliability_score_buffer.resize(props.next_available_vote_id, 0);
+         d._reputation_score_buffer.resize(props.next_available_vote_id, 0);
+         d._reputation_unweighted_buffer.resize(props.next_available_vote_id, 0);
+         d._pop_score_buffer.resize(props.next_available_vote_id, 0);
          d._witness_count_histogram_buffer.resize(props.parameters.maximum_witness_count / 2 + 1);
          d._committee_count_histogram_buffer.resize(props.parameters.maximum_committee_count / 2 + 1);
          d._total_voting_stake = 0;
@@ -877,14 +1043,27 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       ));
 
    struct clear_canary {
-      clear_canary(vector<uint64_t>& target): target(target){}
-      ~clear_canary() { target.clear(); }
+      clear_canary(vector<uint64_t>& target): target64(&target){}
+      clear_canary(vector<uint16_t>& target): target16(&target){}
+      ~clear_canary()
+      {
+          if(target64) target64->clear();
+          if(target16) target16->clear();
+      }
    private:
-      vector<uint64_t>& target;
+      vector<uint64_t>* target64 = nullptr;
+      vector<uint16_t>* target16 = nullptr;
    };
    clear_canary a(_witness_count_histogram_buffer),
                 b(_committee_count_histogram_buffer),
-                c(_vote_tally_buffer);
+                c(_vote_tally_buffer),
+                d(_referral_score_buffer),
+                e(_listings_score_buffer),
+                f(_trust_score_buffer),
+                g(_reliability_score_buffer),
+                h(_reputation_score_buffer),
+                i(_pop_score_buffer),
+                j(_reputation_unweighted_buffer);
 
    update_top_n_authorities(*this);
    update_active_witnesses();
