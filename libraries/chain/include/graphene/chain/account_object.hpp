@@ -470,6 +470,7 @@ namespace graphene { namespace chain {
 
    struct by_name{};
    struct by_reputation_votes;
+   struct by_publishers;
 
    /**
     * @ingroup object_index
@@ -480,7 +481,9 @@ namespace graphene { namespace chain {
          ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
          ordered_unique< tag<by_name>, member<account_object, string, &account_object::name> >,
          // Add index that will sort accounts by the number of reputation votes that they have.
-         ordered_non_unique< tag<by_reputation_votes>, const_mem_fun<account_object, uint64_t, &account_object::reputation_votes_count > >
+         ordered_non_unique< tag<by_reputation_votes>, const_mem_fun<account_object, uint64_t, &account_object::reputation_votes_count > >,
+         // Add index that will separate publishers from users.
+         ordered_non_unique< tag<by_publishers>, member<account_object, bool, &account_object::is_a_publisher> >
       >
    > account_multi_index_type;
 
