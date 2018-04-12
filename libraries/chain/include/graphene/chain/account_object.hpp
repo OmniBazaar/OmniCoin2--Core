@@ -395,6 +395,8 @@ namespace graphene { namespace chain {
 	   bool any_user_i_give_pos_rating;
 	   bool any_user_i_votes_as_trans_proc;
 	   bool any_user_who_is_trans_proc;
+       // Account used in checking "any_user_i_give_pos_rating" and "any_user_i_votes_as_trans_proc" options.
+       fc::optional<account_id_type> my_account;
    };
 
 
@@ -494,6 +496,7 @@ FC_REFLECT(graphene::chain::escrow_filter_options,
 	(any_user_i_give_pos_rating)
 	(any_user_i_votes_as_trans_proc)
 	(any_user_who_is_trans_proc)
+    (my_account)
 )
 
 FC_REFLECT( graphene::chain::account_object_name,

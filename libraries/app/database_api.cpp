@@ -847,6 +847,8 @@ vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t s
 {
 	const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
 	const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
+    const witness_index& witness_idx = _db.get_index_type<witness_index>();
+    const auto& vote_idx = witness_idx.indices().get<by_vote_id>();
 
 	return escrow_idx.filter_by_name(start, limit, search_term, options, [&](account_id_type escrow_id) {
 
@@ -864,6 +866,33 @@ vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t s
 				return false;
 		}
 
+        if(options.my_account.valid())
+        {
+            const account_object& my_account = (*options.my_account)(_db);
+
+            // Check if escrow meets the "Any user I vote for as a Transaction Processor" condition.
+            if(options.any_user_i_votes_as_trans_proc)
+            {
+                bool found = false;
+                for(const vote_id_type& vote_id : my_account.options.votes)
+                {
+                    const auto vote_iter = vote_idx.find(vote_id);
+                    if(vote_iter == vote_idx.end())
+                        continue;
+
+                    if(vote_iter->witness_account == escrow_id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                    return false;
+            }
+        }
+
+        return true;
 	});
 }
 
