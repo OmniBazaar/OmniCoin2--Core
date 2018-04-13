@@ -47,6 +47,7 @@
 #include <graphene/chain/worker_object.hpp>
 
 #include <omnibazaar_util.hpp>
+#include <../omnibazaar/listing_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -166,6 +167,32 @@ void database::update_witness_scores()
     }
     pop_ddump((max_referred));
 
+    // Listings Score
+    // 1) find largest number of listings registered for any publisher.
+    const auto& listing_idx = get_index_type<omnibazaar::listing_index>().indices().get<omnibazaar::by_publisher>();
+    const auto& publishers_idx = get_index_type<account_index>().indices().get<by_publishers>();
+    // Iterators to range of accounts that have "is_a_publisher" set to "true".
+    auto publishers = publishers_idx.equal_range(true);
+    uint64_t max_listings = 0;
+    std::map<account_id_type, uint64_t> listings_count_cache;
+    while(publishers.first != publishers.second)
+    {
+        auto listings = listing_idx.equal_range(publishers.first->get_id());
+        // It seems these boost iterators do not implement "operator -",
+        // so using "listings.second - listings.first" is not possible, need to count manually.
+        uint64_t listings_count = 0;
+        while(listings.first != listings.second)
+        {
+            ++listings_count;
+            ++listings.first;
+        }
+        max_listings = std::max(max_listings, listings_count);
+        listings_count_cache[publishers.first->get_id()] = listings_count;
+
+        ++publishers.first;
+    }
+    pop_ddump((max_listings));
+
     const asset_dynamic_data_object dyn_core_asset = get_core_asset().dynamic_asset_data_id(*this);
     pop_ddump((dyn_core_asset));
 
@@ -274,7 +301,39 @@ void database::update_witness_scores()
         }
 
         // Listings Score
-        // TODO: implement when Marketplace is ready.
+        // 2) calculate score as ratio of listings hosted by this user to max number of listings hosted by any publisher.
+        if(max_listings > 0)
+        {
+            uint64_t listings_count = 0;
+
+            const auto cache_iter = listings_count_cache.find(wit.witness_account);
+            if(cache_iter != listings_count_cache.cend())
+            {
+                listings_count = cache_iter->second;
+            }
+            else
+            {
+                pop_elog("Unable to find cached listings count for ${w}. Counting manually.", ("w", wit.witness_account));
+
+                auto listings = listing_idx.equal_range(wit.witness_account);
+                while(listings.first != listings.second)
+                {
+                    ++listings_count;
+                    ++listings.first;
+                }
+            }
+
+            _listings_score_buffer[wit.vote_id] = (fc::uint128_t(listings_count)
+                                                   * GRAPHENE_100_PERCENT
+                                                   / max_listings
+                                                   ).to_integer();
+
+            pop_ddump((_listings_score_buffer[wit.vote_id]));
+        }
+        else
+        {
+            pop_wlog("There are no listings registered in blockchain: ${c}.", ("c", max_listings));
+        }
     }
 }
 
