@@ -40,6 +40,8 @@
 #include <cfenv>
 #include <iostream>
 
+#include <graphene/chain/witness_object.hpp>
+
 #define GET_REQUIRED_FEES_MAX_RECURSION 4
 
 typedef std::map< std::pair<graphene::chain::asset_id_type, graphene::chain::asset_id_type>, std::vector<fc::variant> > market_queue_type;
@@ -91,8 +93,8 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       map<string,account_id_type> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
       uint64_t get_account_count()const;
       std::vector<std::string> get_publisher_nodes_names();
-      vector<account_object_name> get_current_escrows(uint32_t start, uint32_t limit)const;
-	  vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
+	  vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const;
+	  uint32_t get_number_of_escrows() const;
 
       // Balances
       vector<asset> get_account_balances(account_id_type id, const flat_set<asset_id_type>& assets)const;
@@ -837,49 +839,87 @@ uint64_t database_api_impl::get_account_count()const
    return _db.get_index_type<account_index>().indices().size();
 }
 
-vector<account_object_name> database_api::get_current_escrows(uint32_t start, uint32_t limit) const
+vector<account_object_name> database_api::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const
 {
-    return my->get_current_escrows(start, limit);
+	return my->filter_current_escrows(start, limit, search_term, options);
 }
 
-vector<account_object_name> database_api_impl::get_current_escrows(uint32_t start, uint32_t limit)const
-{
-	vector<account_object_name> result;
-
-    const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
-    const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
-
-	if (start >= escrow_idx.current_escrows.size())
-	{
-		return result;
-	}
-
-	if (start + limit > escrow_idx.current_escrows.size())
-	{
-		limit = escrow_idx.current_escrows.size() - start;
-	}
-
-	result.reserve(limit);
-	
-	for (uint32_t index = start; index < start + limit; ++index)
-	{
-		const account_object_name account_object_name = escrow_idx.current_escrows[index];
-		result.push_back(account_object_name);
-	}
-
-	return result;
-}
-
-vector<account_object_name> database_api::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const
-{
-	return my->filter_current_escrows(start, limit, search_term);
-}
-
-vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const
+vector<account_object_name> database_api_impl::filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const
 {
 	const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
 	const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
-	return escrow_idx.filter_by_name(start, limit, search_term);
+    const witness_index& witness_idx = _db.get_index_type<witness_index>();
+    const auto& vote_idx = witness_idx.indices().get<by_vote_id>();
+
+	return escrow_idx.filter_by_name(start, limit, search_term, options, [&](account_id_type escrow_id) {
+
+		// check if escrow meets the condition: "Any top participant who is a Active Transaction Processor"
+		if (options.any_user_who_is_trans_proc)
+		{
+			const auto& active_witnesses = get_global_properties().active_witnesses;
+
+			auto active_witness_it = std::find_if(active_witnesses.begin(), active_witnesses.end(), [&](witness_id_type witness_id) {
+				auto witness_object = _db.find(witness_id);
+				return witness_object->witness_account == escrow_id;
+			});
+
+			if (active_witness_it == active_witnesses.end())
+				return false;
+		}
+
+        // Next 2 options depend on "my_account" value, so check it here first.
+        if(options.my_account.valid())
+        {
+            const account_object& my_account = (*options.my_account)(_db);
+
+            // Check if escrow meets the "Any user I vote for as a Transaction Processor" condition.
+            if(options.any_user_i_votes_as_trans_proc)
+            {
+                bool found = false;
+                // Go though my votes,
+                for(const vote_id_type& vote_id : my_account.options.votes)
+                {
+                    // get corresponding witness accounts,
+                    const auto vote_iter = vote_idx.find(vote_id);
+                    if(vote_iter == vote_idx.end())
+                        continue;
+
+                    // and check if any of them belongs to current escrow.
+                    if(vote_iter->witness_account == escrow_id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                    return false;
+            }
+
+            // Check if escrow meets the "Any user I give a positive rating" condition.
+            if(options.any_user_i_give_pos_rating)
+            {
+                const account_object& escrow_account = escrow_id(_db);
+                // Check reputation votes to see if this escrow has any votes from me.
+                if(escrow_account.reputation_votes.find(*options.my_account) == escrow_account.reputation_votes.end())
+                    return false;
+            }
+        }
+
+        return true;
+	});
+}
+
+uint32_t database_api::get_number_of_escrows() const
+{
+	return my->get_number_of_escrows();
+}
+
+uint32_t database_api_impl::get_number_of_escrows() const
+{
+	const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
+	const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
+	return escrow_idx.current_escrows.size();
 }
 
 //////////////////////////////////////////////////////////////////////
