@@ -34,11 +34,19 @@ namespace omnibazaar {
     {
         FC_ASSERT( fee.amount >= 0 );
         FC_ASSERT( buyer_account != escrow_account );
+        FC_ASSERT( (reputation_vote_for_buyer >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_buyer <= OMNIBAZAAR_REPUTATION_MAX) );
+        FC_ASSERT( (reputation_vote_for_escrow >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_escrow <= OMNIBAZAAR_REPUTATION_MAX) );
+        FC_ASSERT( (reputation_vote_for_seller >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_seller <= OMNIBAZAAR_REPUTATION_MAX) );
     }
 
     graphene::chain::share_type escrow_release_operation::calculate_fee(const fee_parameters_type& k)const
     {
-        return k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        graphene::chain::share_type core_fee_required = k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        if(memo)
+        {
+            core_fee_required += calculate_data_fee( fc::raw::pack_size(memo), k.price_per_kbyte );
+        }
+        return core_fee_required;
     }
 
     void escrow_release_operation::get_required_authorities(std::vector<graphene::chain::authority>& auths)const
@@ -55,11 +63,19 @@ namespace omnibazaar {
     {
         FC_ASSERT( fee.amount >= 0 );
         FC_ASSERT( seller_account != escrow_account );
+        FC_ASSERT( (reputation_vote_for_seller >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_seller <= OMNIBAZAAR_REPUTATION_MAX) );
+        FC_ASSERT( (reputation_vote_for_buyer >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_buyer <= OMNIBAZAAR_REPUTATION_MAX) );
+        FC_ASSERT( (reputation_vote_for_escrow >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_escrow <= OMNIBAZAAR_REPUTATION_MAX) );
     }
 
     graphene::chain::share_type escrow_return_operation::calculate_fee(const fee_parameters_type& k)const
     {
-        return k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        graphene::chain::share_type core_fee_required = k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        if(memo)
+        {
+            core_fee_required += calculate_data_fee( fc::raw::pack_size(memo), k.price_per_kbyte );
+        }
+        return core_fee_required;
     }
 
     void escrow_return_operation::get_required_authorities(std::vector<graphene::chain::authority>& auths)const

@@ -2,6 +2,7 @@
 
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/types.hpp>
+#include <graphene/chain/protocol/memo.hpp>
 
 namespace omnibazaar {
 
@@ -54,6 +55,16 @@ namespace omnibazaar {
         graphene::chain::account_id_type buyer_account;
         graphene::chain::account_id_type escrow_account;
 
+        // User provided data encrypted to the memo key of the "to" account
+        fc::optional<graphene::chain::memo_data> memo;
+
+        // Rating provided by buyer or escrow for seller.
+        uint16_t reputation_vote_for_seller = OMNIBAZAAR_REPUTATION_DEFAULT;
+        // Rating provided by escrow for buyer.
+        uint16_t reputation_vote_for_buyer = OMNIBAZAAR_REPUTATION_DEFAULT;
+        // Rating provided by buyer for escrow.
+        uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
         void validate()const;
@@ -78,6 +89,16 @@ namespace omnibazaar {
         // Accounts that are authorized to perform this operation.
         graphene::chain::account_id_type seller_account;
         graphene::chain::account_id_type escrow_account;
+
+        // User provided data encrypted to the memo key of the "to" account
+        fc::optional<graphene::chain::memo_data> memo;
+
+        // Rating provided by escrow for seller.
+        uint16_t reputation_vote_for_seller = OMNIBAZAAR_REPUTATION_DEFAULT;
+        // Rating provided by seller or escrow for buyer.
+        uint16_t reputation_vote_for_buyer = OMNIBAZAAR_REPUTATION_DEFAULT;
+        // Rating provided by seller for escrow.
+        uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
@@ -104,7 +125,11 @@ FC_REFLECT( omnibazaar::escrow_release_operation,
             (fee_paying_account)
             (escrow)
             (buyer_account)
-            (escrow_account))
+            (escrow_account)
+            (memo)
+            (reputation_vote_for_seller)
+            (reputation_vote_for_buyer)
+            (reputation_vote_for_escrow))
 
 FC_REFLECT( omnibazaar::escrow_return_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_return_operation,
@@ -112,4 +137,8 @@ FC_REFLECT( omnibazaar::escrow_return_operation,
             (fee_paying_account)
             (escrow)
             (seller_account)
-            (escrow_account))
+            (escrow_account)
+            (memo)
+            (reputation_vote_for_seller)
+            (reputation_vote_for_buyer)
+            (reputation_vote_for_escrow))
