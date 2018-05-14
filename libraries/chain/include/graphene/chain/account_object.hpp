@@ -300,7 +300,7 @@ namespace graphene { namespace chain {
 
          // Update reputation for this account given by 'from' account.
          // Not reflected.
-         void update_reputation(database& db, const account_id_type from, const uint16_t reputation, const asset amount);
+         static void update_reputation(database& db, const account_id_type target, const account_id_type from, const uint16_t reputation, const asset amount);
    };
 
 

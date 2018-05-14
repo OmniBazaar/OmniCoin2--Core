@@ -81,8 +81,7 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
    db().adjust_balance( o.from, -o.amount );
    db().adjust_balance( o.to, o.amount );
    // Update reputation vote for receiving account.
-   account_object to = o.to(db());
-   to.update_reputation(db(), o.from, o.reputation_vote, o.amount);
+   account_object::update_reputation(db(), o.to, o.from, o.reputation_vote, o.amount);
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (o) ) }
 

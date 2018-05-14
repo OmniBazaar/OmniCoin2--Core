@@ -457,11 +457,11 @@ void account_publisher_index::object_modified( const object& after )
     }
 }
 
-void account_object::update_reputation(database& db, const account_id_type from, const uint16_t reputation, const asset amount)
+void account_object::update_reputation(database& db, const account_id_type target, const account_id_type from, const uint16_t reputation, const asset amount)
 {
     pop_dlog("Updating reputation vote ${vote} for ${seller} from ${buyer}.",
-             ("vote", reputation)("seller", this->get_id())("buyer", from));
-    db.modify(*this, [&](account_object &acc){
+             ("vote", reputation)("seller", target)("buyer", from));
+    db.modify(target(db), [&](account_object &acc){
         if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
         {
             // Default reputation votes do not count towards Reputation Score

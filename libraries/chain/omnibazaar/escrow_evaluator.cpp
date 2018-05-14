@@ -165,8 +165,7 @@ namespace omnibazaar {
                 if(reputation.first == op.fee_paying_account)
                     continue;
 
-                graphene::chain::account_object target_account = reputation.first(d);
-                target_account.update_reputation(d, op.fee_paying_account, reputation.second, escrow_obj.amount);
+                graphene::chain::account_object::update_reputation(d, reputation.first, op.fee_paying_account, reputation.second, escrow_obj.amount);
             }
 
             // Remove escrow thus closing the process.
@@ -256,8 +255,7 @@ namespace omnibazaar {
                 if(reputation.first == op.fee_paying_account)
                     continue;
 
-                graphene::chain::account_object target_account = reputation.first(d);
-                target_account.update_reputation(d, op.fee_paying_account, reputation.second, escrow_obj.amount);
+                graphene::chain::account_object::update_reputation(d, reputation.first, op.fee_paying_account, reputation.second, escrow_obj.amount);
             }
 
             // Remove escrow thus closing the process.
