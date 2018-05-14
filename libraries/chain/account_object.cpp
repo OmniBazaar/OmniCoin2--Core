@@ -27,6 +27,8 @@
 #include <graphene/chain/hardfork.hpp>
 #include <fc/uint128.hpp>
 
+#include "omnibazaar_util.hpp"
+
 namespace graphene { namespace chain {
 
 share_type cut_fee(share_type a, uint16_t p)
@@ -453,6 +455,24 @@ void account_publisher_index::object_modified( const object& after )
     {
         publishers.erase(a.get_id());
     }
+}
+
+void account_object::update_reputation(database& db, const account_id_type from, const uint16_t reputation, const asset amount)
+{
+    pop_dlog("Updating reputation vote ${vote} for ${seller} from ${buyer}.",
+             ("vote", reputation)("seller", this->get_id())("buyer", from));
+    db.modify(*this, [&](account_object &acc){
+        if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
+        {
+            // Default reputation votes do not count towards Reputation Score
+            // so there's no point in storing them and wasting space.
+            acc.reputation_votes.erase(from);
+        }
+        else
+        {
+            acc.reputation_votes[from] = std::make_pair(reputation, amount);
+        }
+    });
 }
 
 } } // graphene::chain

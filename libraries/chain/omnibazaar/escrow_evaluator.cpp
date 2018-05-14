@@ -112,6 +112,15 @@ namespace omnibazaar {
                            ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
             }
 
+            if(op.fee_paying_account == op.buyer_account)
+            {
+                FC_ASSERT( op.reputation_vote_for_buyer == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+            }
+            if(op.fee_paying_account == op.escrow_account)
+            {
+                FC_ASSERT( op.reputation_vote_for_escrow == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+            }
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -143,6 +152,22 @@ namespace omnibazaar {
             // Send remaining funds to seller.
             escrow_dlog("Adjusting seller balance.");
             d.adjust_balance(escrow_obj.seller, escrow_obj.amount);
+
+            // Update reputation votes.
+            const std::vector<std::pair<graphene::chain::account_id_type, uint16_t>> reputations = {
+                { escrow_obj.seller,    op.reputation_vote_for_seller },
+                { escrow_obj.buyer,     op.reputation_vote_for_buyer },
+                { escrow_obj.escrow,    op.reputation_vote_for_escrow }
+            };
+            for(const auto& reputation : reputations)
+            {
+                // Can't vote for yourself.
+                if(reputation.first == op.fee_paying_account)
+                    continue;
+
+                graphene::chain::account_object target_account = reputation.first(d);
+                target_account.update_reputation(d, op.fee_paying_account, reputation.second, escrow_obj.amount);
+            }
 
             // Remove escrow thus closing the process.
             escrow_dlog("Removing escrow object.");
@@ -178,6 +203,15 @@ namespace omnibazaar {
                            ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
             }
 
+            if(op.fee_paying_account == op.seller_account)
+            {
+                FC_ASSERT( op.reputation_vote_for_seller == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+            }
+            if(op.fee_paying_account == op.escrow_account)
+            {
+                FC_ASSERT( op.reputation_vote_for_escrow == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+            }
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -209,6 +243,22 @@ namespace omnibazaar {
             // Return remaining funds to buyer.
             escrow_dlog("Adjusting buyer balance.");
             d.adjust_balance(escrow_obj.buyer, escrow_obj.amount);
+
+            // Update reputation votes.
+            const std::vector<std::pair<graphene::chain::account_id_type, uint16_t>> reputations = {
+                { escrow_obj.seller,    op.reputation_vote_for_seller },
+                { escrow_obj.buyer,     op.reputation_vote_for_buyer },
+                { escrow_obj.escrow,    op.reputation_vote_for_escrow }
+            };
+            for(const auto& reputation : reputations)
+            {
+                // Can't vote for yourself.
+                if(reputation.first == op.fee_paying_account)
+                    continue;
+
+                graphene::chain::account_object target_account = reputation.first(d);
+                target_account.update_reputation(d, op.fee_paying_account, reputation.second, escrow_obj.amount);
+            }
 
             // Remove escrow thus closing the process.
             escrow_dlog("Removing escrow object.");

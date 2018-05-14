@@ -297,6 +297,10 @@ namespace graphene { namespace chain {
          // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
          map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
          uint64_t reputation_votes_count()const { return reputation_votes.size(); }
+
+         // Update reputation for this account given by 'from' account.
+         // Not reflected.
+         void update_reputation(database& db, const account_id_type from, const uint16_t reputation, const asset amount);
    };
 
 
