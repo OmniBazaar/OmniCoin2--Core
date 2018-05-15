@@ -2,6 +2,8 @@
 #include <listing_object.hpp>
 #include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace omnibazaar {
 
@@ -21,10 +23,15 @@ namespace omnibazaar {
             market_ddump((publisher));
             FC_ASSERT(publisher.is_a_publisher, "Specified account is not a publisher.");
 
-            // Check for listing duplicate.
-            market_dlog("Checking listing duplicate.");
+            // Check for listing duplicate by UUID.
+            market_dlog("Checking listing duplicate by UUID.");
+            const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_uuid>();
+            FC_ASSERT(listings_idx.find(op.uuid) == listings_idx.cend(), "Listing UUID already exists.");
+
+            // Check for listing duplicate by hash.
+            /*market_dlog("Checking listing duplicate by hash.");
             const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
-            FC_ASSERT(listings_idx.find(op.listing_hash) == listings_idx.cend(), "Listing already exists.");
+            FC_ASSERT(listings_idx.find(op.listing_hash) == listings_idx.cend(), "Listing hash already exists.");*/
 
             // Check that Seller has enough funds to pay fee to Publisher.
             market_dlog("Checking fees.");
@@ -53,6 +60,7 @@ namespace omnibazaar {
                 obj.publisher = op.publisher;
                 obj.price = op.price;
                 obj.listing_hash = op.listing_hash;
+                obj.uuid = op.uuid;
             });
 
             // Pay fee to publisher.
@@ -87,12 +95,12 @@ namespace omnibazaar {
             }
 
             // Check for listing duplicate.
-            if(op.listing_hash.valid())
+            /*if(op.listing_hash.valid())
             {
                 market_dlog("Checking listing duplicate.");
                 const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
                 FC_ASSERT(listings_idx.find(*op.listing_hash) == listings_idx.cend(), "Listing already exists.");
-            }
+            }*/
 
             // Check that Seller has enough funds to pay fee to Publisher.
             if(op.price.valid())

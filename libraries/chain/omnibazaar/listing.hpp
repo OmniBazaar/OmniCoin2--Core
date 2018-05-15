@@ -23,6 +23,8 @@ namespace omnibazaar {
         graphene::chain::asset price;
         // Hash of listing contents.
         fc::sha256 listing_hash;
+        // Globally unique ID.
+        std::string uuid;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
@@ -85,7 +87,8 @@ FC_REFLECT(omnibazaar::listing_create_operation,
            (seller)
            (publisher)
            (price)
-           (listing_hash))
+           (listing_hash)
+           (uuid))
 
 FC_REFLECT(omnibazaar::listing_update_operation::fee_parameters_type, (fee)(price_per_kbyte))
 FC_REFLECT(omnibazaar::listing_update_operation,

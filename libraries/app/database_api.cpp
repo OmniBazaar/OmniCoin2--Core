@@ -166,6 +166,10 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       // Escrows
       vector<omnibazaar::escrow_object> get_escrow_objects( const string& account_name )const;
 
+      // Marketplace
+      optional<omnibazaar::listing_object> get_listing_by_uuid( const string& uuid )const;
+      bool check_listing_exists( const string& uuid )const;
+
    //private:
       template<typename T>
       void subscribe_to_item( const T& i )const
@@ -2437,6 +2441,36 @@ vector<omnibazaar::escrow_object> database_api_impl::get_escrow_objects( const s
     }
 
     return result;
+}
+
+//////////////////////////////////////////////////////////////////////
+//                                                                  //
+// Marketplace                                                      //
+//                                                                  //
+//////////////////////////////////////////////////////////////////////
+
+optional<omnibazaar::listing_object> database_api::get_listing_by_uuid( const string& uuid )const
+{
+    return my->get_listing_by_uuid(uuid);
+}
+
+optional<omnibazaar::listing_object> database_api_impl::get_listing_by_uuid( const string& uuid )const
+{
+    const auto& listings_idx = _db.get_index_type<omnibazaar::listing_index>().indices().get<omnibazaar::by_uuid>();
+    const auto iter = listings_idx.find(uuid);
+    return iter == listings_idx.cend()
+            ? optional<omnibazaar::listing_object>()
+            : *iter;
+}
+
+bool database_api::check_listing_exists( const string& uuid )const
+{
+    return my->check_listing_exists(uuid);
+}
+
+bool database_api_impl::check_listing_exists( const string& uuid )const
+{
+    return get_listing_by_uuid(uuid).valid();
 }
 
 } } // graphene::app

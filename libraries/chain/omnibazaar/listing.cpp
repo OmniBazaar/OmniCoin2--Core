@@ -1,10 +1,14 @@
 #include <listing.hpp>
 
+#include <boost/uuid/string_generator.hpp>
+
 namespace omnibazaar {
 
     void listing_create_operation::validate()const
     {
         FC_ASSERT( fee.amount > 0 );
+        FC_ASSERT( !uuid.empty() );
+        FC_ASSERT( !(boost::uuids::string_generator()(uuid)).is_nil(), "Invalid UUID.");
     }
 
     graphene::chain::share_type listing_create_operation::calculate_fee(const fee_parameters_type& k)const
