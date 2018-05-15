@@ -29,6 +29,9 @@ namespace omnibazaar {
         // Flag indicating that all funds should be kept in escrow account instead of blockchain.
         bool transfer_to_escrow;
 
+        // User provided data encrypted to the memo key of the "to" account
+        fc::optional<graphene::chain::memo_data> memo;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return buyer; }
         void validate()const;
@@ -117,7 +120,8 @@ FC_REFLECT( omnibazaar::escrow_create_operation,
             (seller)
             (escrow)
             (amount)
-            (transfer_to_escrow))
+            (transfer_to_escrow)
+            (memo))
 
 FC_REFLECT( omnibazaar::escrow_release_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_release_operation,

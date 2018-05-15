@@ -13,7 +13,12 @@ namespace omnibazaar {
 
     graphene::chain::share_type escrow_create_operation::calculate_fee(const fee_parameters_type& k)const
     {
-        return k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        graphene::chain::share_type core_fee_required = k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        if(memo)
+        {
+            core_fee_required += calculate_data_fee( fc::raw::pack_size(memo), k.price_per_kbyte );
+        }
+        return core_fee_required;
     }
 
     void escrow_create_operation::get_required_authorities(std::vector<graphene::chain::authority>& auths)const
