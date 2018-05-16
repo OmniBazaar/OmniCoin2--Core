@@ -2,8 +2,6 @@
 #include <listing_object.hpp>
 #include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 namespace omnibazaar {
 

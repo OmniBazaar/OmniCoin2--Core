@@ -1,7 +1,5 @@
 #include <listing.hpp>
 
-#include <boost/uuid/string_generator.hpp>
-
 namespace omnibazaar {
 
     void listing_create_operation::validate()const
