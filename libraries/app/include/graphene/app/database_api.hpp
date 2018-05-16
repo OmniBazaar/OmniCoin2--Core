@@ -678,14 +678,9 @@ class database_api
       /////////////////
 
       /**
-       *  @return listing object with corresponding UUID, if it exists.
+       *  @return true if listing with specified ID exists, false otherwise.
        */
-      optional<omnibazaar::listing_object> get_listing_by_uuid( const string& uuid )const;
-
-      /**
-       *  @return true if listing with specified UUID exists, false otherwise.
-       */
-      bool check_listing_exists( const string& uuid )const;
+      bool check_listing_exists( const listing_id_type& id )const;
 
    private:
       std::shared_ptr< database_api_impl > my;
@@ -812,6 +807,5 @@ FC_API(graphene::app::database_api,
 	(filter_current_escrows)
 
     // Marketplace
-    (get_listing_by_uuid)
     (check_listing_exists)
 )

@@ -23,11 +23,6 @@ namespace omnibazaar {
             market_ddump((publisher));
             FC_ASSERT(publisher.is_a_publisher, "Specified account is not a publisher.");
 
-            // Check for listing duplicate by UUID.
-            market_dlog("Checking listing duplicate by UUID.");
-            const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_uuid>();
-            FC_ASSERT(listings_idx.find(op.uuid) == listings_idx.cend(), "Listing UUID already exists.");
-
             // Check for listing duplicate by hash.
             /*market_dlog("Checking listing duplicate by hash.");
             const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
@@ -60,7 +55,6 @@ namespace omnibazaar {
                 obj.publisher = op.publisher;
                 obj.price = op.price;
                 obj.listing_hash = op.listing_hash;
-                obj.uuid = op.uuid;
             });
 
             // Pay fee to publisher.
