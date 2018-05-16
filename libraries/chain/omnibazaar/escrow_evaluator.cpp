@@ -100,6 +100,7 @@ namespace omnibazaar {
             // Check that this operation specifies correct accounts.
             FC_ASSERT( op.buyer_account == escrow_obj.buyer, "Buyer specified in this operation doesn't match initial buyer." );
             FC_ASSERT( op.escrow_account == escrow_obj.escrow, "Escrow agent specified in this operation doesn't match initial agent." );
+            FC_ASSERT( op.seller_account == escrow_obj.seller, "Seller specified in this operation doesn't match initial seller." );
 
             if(escrow_obj.transfer_to_escrow)
             {
@@ -110,15 +111,6 @@ namespace omnibazaar {
                            ("e", op.escrow_account(d).name)
                            ("total_transfer", d.to_pretty_string(escrow_obj.amount))
                            ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
-            }
-
-            if(op.fee_paying_account == op.buyer_account)
-            {
-                FC_ASSERT( op.reputation_vote_for_buyer == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
-            }
-            if(op.fee_paying_account == op.escrow_account)
-            {
-                FC_ASSERT( op.reputation_vote_for_escrow == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
             }
 
             return graphene::chain::void_result();
@@ -190,6 +182,7 @@ namespace omnibazaar {
             // Check that this operation specifies correct accounts.
             FC_ASSERT( op.seller_account == escrow_obj.seller, "Seller specified in this operation doesn't match initial seller." );
             FC_ASSERT( op.escrow_account == escrow_obj.escrow, "Escrow agent specified in this operation doesn't match initial agent." );
+            FC_ASSERT( op.buyer_account == escrow_obj.buyer, "Buyer specified in this operation doesn't match initial buyer." );
 
             if(escrow_obj.transfer_to_escrow)
             {
@@ -200,15 +193,6 @@ namespace omnibazaar {
                            ("e", op.escrow_account(d).name)
                            ("total_transfer", d.to_pretty_string(escrow_obj.amount))
                            ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
-            }
-
-            if(op.fee_paying_account == op.seller_account)
-            {
-                FC_ASSERT( op.reputation_vote_for_seller == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
-            }
-            if(op.fee_paying_account == op.escrow_account)
-            {
-                FC_ASSERT( op.reputation_vote_for_escrow == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
             }
 
             return graphene::chain::void_result();

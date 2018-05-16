@@ -317,6 +317,7 @@ processed_transaction database::push_escrow(const omnibazaar::escrow_object& esc
             escrow_op.escrow = escrow.id;
             escrow_op.buyer_account = escrow.buyer;
             escrow_op.escrow_account = escrow.escrow;
+            escrow_op.seller_account = escrow.seller;
             escrow_op.fee_paying_account = escrow.buyer;
             ptrx.operations.push_back(escrow_op);
         }
@@ -327,6 +328,7 @@ processed_transaction database::push_escrow(const omnibazaar::escrow_object& esc
             escrow_op.escrow = escrow.id;
             escrow_op.seller_account = escrow.seller;
             escrow_op.escrow_account = escrow.escrow;
+            escrow_op.buyer_account = escrow.buyer;
             escrow_op.fee_paying_account = escrow.seller;
             ptrx.operations.push_back(escrow_op);
         }
