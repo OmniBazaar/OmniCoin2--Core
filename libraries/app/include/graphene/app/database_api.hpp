@@ -41,6 +41,7 @@
 #include <graphene/chain/worker_object.hpp>
 #include <graphene/chain/witness_object.hpp>
 #include <../omnibazaar/escrow_object.hpp>
+#include <../omnibazaar/listing_object.hpp>
 
 #include <graphene/market_history/market_history_plugin.hpp>
 
@@ -672,6 +673,15 @@ class database_api
        */
       vector<omnibazaar::escrow_object> get_escrow_objects( const string& account_name )const;
 
+      /////////////////
+      // Marketplace //
+      /////////////////
+
+      /**
+       *  @return true if listing with specified ID exists, false otherwise.
+       */
+      bool check_listing_exists( const listing_id_type& id )const;
+
    private:
       std::shared_ptr< database_api_impl > my;
 };
@@ -795,4 +805,7 @@ FC_API(graphene::app::database_api,
     (get_escrow_objects)
 	(get_number_of_escrows)
 	(filter_current_escrows)
+
+    // Marketplace
+    (check_listing_exists)
 )

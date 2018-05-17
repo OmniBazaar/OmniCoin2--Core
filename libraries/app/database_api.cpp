@@ -166,6 +166,9 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       // Escrows
       vector<omnibazaar::escrow_object> get_escrow_objects( const string& account_name )const;
 
+      // Marketplace
+      bool check_listing_exists( const listing_id_type &id )const;
+
    //private:
       template<typename T>
       void subscribe_to_item( const T& i )const
@@ -2437,6 +2440,22 @@ vector<omnibazaar::escrow_object> database_api_impl::get_escrow_objects( const s
     }
 
     return result;
+}
+
+//////////////////////////////////////////////////////////////////////
+//                                                                  //
+// Marketplace                                                      //
+//                                                                  //
+//////////////////////////////////////////////////////////////////////
+
+bool database_api::check_listing_exists(const listing_id_type &id)const
+{
+    return my->check_listing_exists(id);
+}
+
+bool database_api_impl::check_listing_exists(const listing_id_type &id)const
+{
+    return _db.find_object(id) != nullptr;
 }
 
 } } // graphene::app

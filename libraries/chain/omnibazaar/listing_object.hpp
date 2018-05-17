@@ -24,7 +24,6 @@ namespace omnibazaar {
         fc::sha256 listing_hash;
     };
 
-
     struct by_hash;
     struct by_publisher;
     typedef boost::multi_index_container<
@@ -34,10 +33,10 @@ namespace omnibazaar {
                 graphene::chain::tag< graphene::chain::by_id >,
                 graphene::chain::member< graphene::chain::object, graphene::chain::object_id_type, &graphene::chain::object::id >
             >,
-            graphene::chain::ordered_unique<
+            /*graphene::chain::ordered_unique<
                 graphene::chain::tag< by_hash >,
                 graphene::chain::member< listing_object, fc::sha256, &listing_object::listing_hash >
-            >,
+            >,*/
             graphene::chain::ordered_non_unique<
                 graphene::chain::tag< by_publisher >,
                 graphene::chain::member< listing_object, graphene::chain::account_id_type, &listing_object::publisher >
