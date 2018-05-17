@@ -57,6 +57,8 @@ namespace omnibazaar {
         // Accounts that are authorized to perform this operation.
         graphene::chain::account_id_type buyer_account;
         graphene::chain::account_id_type escrow_account;
+        // Seller will also get notified about this operation.
+        graphene::chain::account_id_type seller_account;
 
         // User provided data encrypted to the memo key of the "to" account
         fc::optional<graphene::chain::memo_data> memo;
@@ -92,6 +94,8 @@ namespace omnibazaar {
         // Accounts that are authorized to perform this operation.
         graphene::chain::account_id_type seller_account;
         graphene::chain::account_id_type escrow_account;
+        // Buyer will also get notified about this operation.
+        graphene::chain::account_id_type buyer_account;
 
         // User provided data encrypted to the memo key of the "to" account
         fc::optional<graphene::chain::memo_data> memo;
@@ -130,6 +134,7 @@ FC_REFLECT( omnibazaar::escrow_release_operation,
             (escrow)
             (buyer_account)
             (escrow_account)
+            (seller_account)
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
@@ -142,6 +147,7 @@ FC_REFLECT( omnibazaar::escrow_return_operation,
             (escrow)
             (seller_account)
             (escrow_account)
+            (buyer_account)
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)

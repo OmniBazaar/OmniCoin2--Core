@@ -38,10 +38,24 @@ namespace omnibazaar {
     void escrow_release_operation::validate()const
     {
         FC_ASSERT( fee.amount >= 0 );
+        FC_ASSERT( buyer_account != seller_account );
         FC_ASSERT( buyer_account != escrow_account );
+        FC_ASSERT( seller_account != escrow_account );
         FC_ASSERT( (reputation_vote_for_buyer >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_buyer <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_escrow >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_escrow <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_seller >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_seller <= OMNIBAZAAR_REPUTATION_MAX) );
+        if(fee_paying_account == buyer_account)
+        {
+            FC_ASSERT( reputation_vote_for_buyer == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+        }
+        if(fee_paying_account == escrow_account)
+        {
+            FC_ASSERT( reputation_vote_for_escrow == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+        }
+        if(fee_paying_account == seller_account)
+        {
+            FC_ASSERT( reputation_vote_for_seller == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+        }
     }
 
     graphene::chain::share_type escrow_release_operation::calculate_fee(const fee_parameters_type& k)const
@@ -67,10 +81,24 @@ namespace omnibazaar {
     void escrow_return_operation::validate()const
     {
         FC_ASSERT( fee.amount >= 0 );
+        FC_ASSERT( buyer_account != seller_account );
+        FC_ASSERT( buyer_account != escrow_account );
         FC_ASSERT( seller_account != escrow_account );
         FC_ASSERT( (reputation_vote_for_seller >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_seller <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_buyer >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_buyer <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_escrow >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_escrow <= OMNIBAZAAR_REPUTATION_MAX) );
+        if(fee_paying_account == seller_account)
+        {
+            FC_ASSERT( reputation_vote_for_seller == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+        }
+        if(fee_paying_account == escrow_account)
+        {
+            FC_ASSERT( reputation_vote_for_escrow == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+        }
+        if(fee_paying_account == buyer_account)
+        {
+            FC_ASSERT( reputation_vote_for_buyer == OMNIBAZAAR_REPUTATION_DEFAULT, "User can't provide reputation vote for himself." );
+        }
     }
 
     graphene::chain::share_type escrow_return_operation::calculate_fee(const fee_parameters_type& k)const
