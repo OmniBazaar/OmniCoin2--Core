@@ -226,6 +226,8 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::escrow_create_operation& op )
    {
       _impacted.insert( op.buyer );
+      _impacted.insert( op.seller );
+      _impacted.insert( op.escrow );
    }
 
    void operator()( const omnibazaar::escrow_release_operation& op )
