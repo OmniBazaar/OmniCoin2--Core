@@ -34,6 +34,7 @@
 #include <graphene/chain/withdraw_permission_object.hpp>
 #include <graphene/chain/witness_object.hpp>
 #include <../omnibazaar/escrow_object.hpp>
+#include <../omnibazaar/listing_object.hpp>
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -232,6 +233,19 @@ void database::clear_expired_escrows()
         // Remove escrow_object anyway so as not to keep it in memory, it will be possible to reconstruct it from
         // escrow_create_operation that created it initially.
         remove(escrow);
+    }
+}
+
+void database::clear_expired_listings()
+{
+    // Go through the list of listings and close those that are expired.
+    const auto& expiration_index = get_index_type<omnibazaar::listing_index>().indices().get<omnibazaar::by_expiration>();
+    while( !expiration_index.empty() && expiration_index.begin()->expiration_time <= head_block_time() )
+    {
+        const omnibazaar::listing_object& listing = *expiration_index.begin();
+        // At the moment, listings do not require any specific actions upon their expiration,
+        // so there's no need to use listing_delete_operation, we can simply remove the object.
+        remove(listing);
     }
 }
 

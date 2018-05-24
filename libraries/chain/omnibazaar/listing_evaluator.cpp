@@ -54,6 +54,7 @@ namespace omnibazaar {
                 obj.price = op.price;
                 obj.listing_hash = op.listing_hash;
                 obj.quantity = op.quantity;
+                obj.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
             });
 
             // Pay fee to publisher.
@@ -95,14 +96,16 @@ namespace omnibazaar {
                 FC_ASSERT(listings_idx.find(*op.listing_hash) == listings_idx.cend(), "Listing already exists.");
             }
 
+            // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
             // Check that Seller has enough funds to pay fee to Publisher.
-            if(op.price.valid())
+            if(op.update_expiration_time || op.publisher.valid())
             {
                 market_dlog("Checking fees.");
-                const graphene::chain::share_type fee = graphene::chain::cut_fee((*op.price).amount, DEFAULT_PUBLISHER_FEE);
-                const graphene::chain::share_type seller_balance = d.get_balance(op.seller, (*op.price).asset_id).amount;
+                const graphene::chain::asset price = op.price.valid() ? *op.price : listing.price;
+                const graphene::chain::share_type fee = graphene::chain::cut_fee((price).amount, DEFAULT_PUBLISHER_FEE);
+                const graphene::chain::share_type seller_balance = d.get_balance(op.seller, (price).asset_id).amount;
                 market_ddump((fee)(seller_balance));
-                FC_ASSERT(seller_balance >= fee, "Insufficient funds to pay fee to publisher.");
+                FC_ASSERT(seller_balance >= (fee + op.fee.amount), "Insufficient funds to pay fee to publisher.");
             }
 
             return graphene::chain::void_result();
@@ -137,14 +140,21 @@ namespace omnibazaar {
                 {
                     listing.quantity = *op.quantity;
                 }
+                if(op.update_expiration_time)
+                {
+                    listing.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
+                }
             });
 
-            // Pay fee to publisher.
-            const listing_object& listing = op.listing_id(d);
-            market_ddump((listing));
-            const graphene::chain::share_type fee = graphene::chain::cut_fee(listing.price.amount, DEFAULT_PUBLISHER_FEE);
-            market_dlog("Paying publisher fee ${fee}", ("fee", fee));
-            d.adjust_balance(listing.publisher, graphene::chain::asset(fee, listing.price.asset_id));
+            // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
+            if(op.update_expiration_time || op.publisher.valid())
+            {
+                const listing_object& listing = op.listing_id(d);
+                market_ddump((listing));
+                const graphene::chain::share_type fee = graphene::chain::cut_fee(listing.price.amount, DEFAULT_PUBLISHER_FEE);
+                market_dlog("Paying publisher fee ${fee}", ("fee", fee));
+                d.adjust_balance(listing.publisher, graphene::chain::asset(fee, listing.price.asset_id));
+            }
 
             return graphene::chain::void_result();
         }

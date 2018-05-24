@@ -20,7 +20,8 @@ namespace omnibazaar {
         const bool has_action = publisher.valid()
                 || price.valid()
                 || listing_hash.valid()
-                || quantity.valid();
+                || quantity.valid()
+                || update_expiration_time;
         FC_ASSERT( has_action );
     }
 
