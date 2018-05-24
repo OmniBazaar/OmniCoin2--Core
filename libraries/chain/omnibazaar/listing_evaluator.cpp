@@ -60,6 +60,7 @@ namespace omnibazaar {
             // Pay fee to publisher.
             const graphene::chain::share_type fee = graphene::chain::cut_fee(op.price.amount, DEFAULT_PUBLISHER_FEE);
             market_dlog("Paying publisher fee ${fee}", ("fee", fee));
+            d.adjust_balance(op.seller, graphene::chain::asset(-fee, op.price.asset_id));
             d.adjust_balance(op.publisher, graphene::chain::asset(fee, op.price.asset_id));
 
             return listing.id;
@@ -153,6 +154,7 @@ namespace omnibazaar {
                 market_ddump((listing));
                 const graphene::chain::share_type fee = graphene::chain::cut_fee(listing.price.amount, DEFAULT_PUBLISHER_FEE);
                 market_dlog("Paying publisher fee ${fee}", ("fee", fee));
+                d.adjust_balance(listing.seller, graphene::chain::asset(-fee, listing.price.asset_id));
                 d.adjust_balance(listing.publisher, graphene::chain::asset(fee, listing.price.asset_id));
             }
 
