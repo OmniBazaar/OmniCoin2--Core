@@ -53,6 +53,7 @@ namespace omnibazaar {
                 obj.publisher = op.publisher;
                 obj.price = op.price;
                 obj.listing_hash = op.listing_hash;
+                obj.quantity = op.quantity;
             });
 
             // Pay fee to publisher.
@@ -131,6 +132,10 @@ namespace omnibazaar {
                 if(op.publisher.valid())
                 {
                     listing.publisher = *op.publisher;
+                }
+                if(op.quantity.valid())
+                {
+                    listing.quantity = *op.quantity;
                 }
             });
 

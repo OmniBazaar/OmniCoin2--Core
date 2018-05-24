@@ -22,6 +22,8 @@ namespace omnibazaar {
         graphene::chain::asset price;
         // Hash of listing contents.
         fc::sha256 listing_hash;
+        // Quantity of product items.
+        uint32_t quantity;
     };
 
     struct by_hash;
@@ -50,4 +52,5 @@ FC_REFLECT_DERIVED(omnibazaar::listing_object, (graphene::chain::object),
                    (seller)
                    (publisher)
                    (price)
-                   (listing_hash))
+                   (listing_hash)
+                   (quantity))

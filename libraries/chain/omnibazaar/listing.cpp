@@ -5,6 +5,7 @@ namespace omnibazaar {
     void listing_create_operation::validate()const
     {
         FC_ASSERT( fee.amount > 0 );
+        FC_ASSERT( price.amount > 0 );
     }
 
     graphene::chain::share_type listing_create_operation::calculate_fee(const fee_parameters_type& k)const
@@ -18,7 +19,8 @@ namespace omnibazaar {
 
         const bool has_action = publisher.valid()
                 || price.valid()
-                || listing_hash.valid();
+                || listing_hash.valid()
+                || quantity.valid();
         FC_ASSERT( has_action );
     }
 
