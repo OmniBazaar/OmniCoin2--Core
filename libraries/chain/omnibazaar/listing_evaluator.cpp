@@ -22,9 +22,9 @@ namespace omnibazaar {
             FC_ASSERT(publisher.is_a_publisher, "Specified account is not a publisher.");
 
             // Check for listing duplicate by hash.
-            /*market_dlog("Checking listing duplicate by hash.");
+            market_dlog("Checking listing duplicate by hash.");
             const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
-            FC_ASSERT(listings_idx.find(op.listing_hash) == listings_idx.cend(), "Listing hash already exists.");*/
+            FC_ASSERT(listings_idx.find(op.listing_hash) == listings_idx.cend(), "Listing hash already exists.");
 
             // Check that Seller has enough funds to pay fee to Publisher.
             market_dlog("Checking fees.");
@@ -87,12 +87,12 @@ namespace omnibazaar {
             }
 
             // Check for listing duplicate.
-            /*if(op.listing_hash.valid())
+            if(op.listing_hash.valid())
             {
                 market_dlog("Checking listing duplicate.");
                 const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
                 FC_ASSERT(listings_idx.find(*op.listing_hash) == listings_idx.cend(), "Listing already exists.");
-            }*/
+            }
 
             // Check that Seller has enough funds to pay fee to Publisher.
             if(op.price.valid())
