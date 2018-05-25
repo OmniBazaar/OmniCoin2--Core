@@ -608,6 +608,7 @@ void database::_apply_block( const signed_block& next_block )
    clear_expired_proposals();
    clear_expired_orders();
    clear_expired_escrows();
+   clear_expired_listings();
    update_expired_feeds();
    update_withdraw_permissions();
 

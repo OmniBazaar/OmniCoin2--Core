@@ -22,10 +22,15 @@ namespace omnibazaar {
         graphene::chain::asset price;
         // Hash of listing contents.
         fc::sha256 listing_hash;
+        // Quantity of product items.
+        uint32_t quantity;
+        // Listing expiration time, after which listing is automatically removed from database.
+        fc::time_point_sec expiration_time;
     };
 
     struct by_hash;
     struct by_publisher;
+    struct by_expiration;
     typedef boost::multi_index_container<
         listing_object,
         graphene::chain::indexed_by<
@@ -33,13 +38,17 @@ namespace omnibazaar {
                 graphene::chain::tag< graphene::chain::by_id >,
                 graphene::chain::member< graphene::chain::object, graphene::chain::object_id_type, &graphene::chain::object::id >
             >,
-            /*graphene::chain::ordered_unique<
+            graphene::chain::ordered_unique<
                 graphene::chain::tag< by_hash >,
                 graphene::chain::member< listing_object, fc::sha256, &listing_object::listing_hash >
-            >,*/
+            >,
             graphene::chain::ordered_non_unique<
                 graphene::chain::tag< by_publisher >,
                 graphene::chain::member< listing_object, graphene::chain::account_id_type, &listing_object::publisher >
+            >,
+            graphene::chain::ordered_non_unique<
+                graphene::chain::tag< by_expiration >,
+                graphene::chain::member< listing_object, fc::time_point_sec, &listing_object::expiration_time >
             >
         >
     > listing_multi_index_container;
@@ -50,4 +59,6 @@ FC_REFLECT_DERIVED(omnibazaar::listing_object, (graphene::chain::object),
                    (seller)
                    (publisher)
                    (price)
-                   (listing_hash))
+                   (listing_hash)
+                   (quantity)
+                   (expiration_time))

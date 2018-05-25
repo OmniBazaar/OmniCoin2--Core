@@ -23,6 +23,8 @@ namespace omnibazaar {
         graphene::chain::asset price;
         // Hash of listing contents.
         fc::sha256 listing_hash;
+        // Quantity of product items.
+        uint32_t quantity;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
@@ -50,6 +52,10 @@ namespace omnibazaar {
         fc::optional<graphene::chain::asset> price;
         // Hash of listing contents.
         fc::optional<fc::sha256> listing_hash;
+        // Quantity of product items.
+        fc::optional<uint32_t> quantity;
+        // True if seller wants to extend listing registration. Involves paying publisher fee.
+        bool update_expiration_time = false;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
@@ -85,7 +91,8 @@ FC_REFLECT(omnibazaar::listing_create_operation,
            (seller)
            (publisher)
            (price)
-           (listing_hash))
+           (listing_hash)
+           (quantity))
 
 FC_REFLECT(omnibazaar::listing_update_operation::fee_parameters_type, (fee)(price_per_kbyte))
 FC_REFLECT(omnibazaar::listing_update_operation,
@@ -94,7 +101,9 @@ FC_REFLECT(omnibazaar::listing_update_operation,
            (listing_id)
            (publisher)
            (price)
-           (listing_hash))
+           (listing_hash)
+           (quantity)
+           (update_expiration_time))
 
 FC_REFLECT(omnibazaar::listing_delete_operation::fee_parameters_type, (fee)(price_per_kbyte))
 FC_REFLECT(omnibazaar::listing_delete_operation,

@@ -70,6 +70,7 @@ namespace graphene { namespace chain {
       uint8_t                 account_fee_scale_bitshifts         = GRAPHENE_DEFAULT_ACCOUNT_FEE_SCALE_BITSHIFTS; ///< number of times to left bitshift account registration fee at each scaling
       uint8_t                 max_authority_depth                 = GRAPHENE_MAX_SIG_CHECK_DEPTH;
       uint32_t                maximum_escrow_lifetime             = OMNIBAZAAR_DEFAULT_MAX_ESCROW_LIFETIME_SEC; ///< maximum lifetime in seconds for escrows to be kept, before expiring
+      uint32_t                maximum_listing_lifetime            = OMNIBAZAAR_DEFAULT_MAX_LISTINGS_LIFETIME_SEC; ///< maximum lifetime in seconds for listings to remain in database, before automatic deletion
       extensions_type         extensions;
 
       /** defined in fee_schedule.cpp */
@@ -107,5 +108,7 @@ FC_REFLECT( graphene::chain::chain_parameters,
             (accounts_per_fee_scale)
             (account_fee_scale_bitshifts)
             (max_authority_depth)
+            (maximum_escrow_lifetime)
+            (maximum_listing_lifetime)
             (extensions)
           )
