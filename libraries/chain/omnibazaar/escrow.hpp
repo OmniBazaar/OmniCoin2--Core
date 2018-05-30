@@ -32,6 +32,9 @@ namespace omnibazaar {
         // User provided data encrypted to the memo key of the "to" account
         fc::optional<graphene::chain::memo_data> memo;
 
+        // Specify listing ID if this is a Sale operation.
+        fc::optional<graphene::chain::listing_id_type> listing;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return buyer; }
         void validate()const;
@@ -125,7 +128,8 @@ FC_REFLECT( omnibazaar::escrow_create_operation,
             (escrow)
             (amount)
             (transfer_to_escrow)
-            (memo))
+            (memo)
+            (listing))
 
 FC_REFLECT( omnibazaar::escrow_release_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_release_operation,
