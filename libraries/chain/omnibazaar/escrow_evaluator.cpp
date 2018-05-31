@@ -44,7 +44,7 @@ namespace omnibazaar {
                        || (std::find_if(other.cbegin(), other.cend(), auths_predicate) != other.cend()),
                        "Missing buyer authority for escrow create operation");
 
-            if(op.listing)
+            if(op.listing.valid())
             {
                 const omnibazaar::listing_object listing = (*op.listing)(d);
                 FC_ASSERT( listing.quantity >= (*op.listing_count), "Insufficient items in stock." );
@@ -92,6 +92,15 @@ namespace omnibazaar {
             {
                 escrow_dlog("Adjusting escrow balance.");
                 d.adjust_balance(op.escrow, op.amount);
+            }
+
+            // "Reserve" items.
+            if(op.listing.valid() && op.listing_count.valid())
+            {
+                escrow_dlog("Reserving items.");
+                d.modify((*op.listing)(d), [&](listing_object& listing){
+                    listing.quantity -= *op.listing_count;
+                });
             }
 
             return escrow.id;
@@ -170,18 +179,6 @@ namespace omnibazaar {
                     continue;
 
                 graphene::chain::account_object::update_reputation(d, reputation.first, op.fee_paying_account, reputation.second, escrow_obj.amount);
-            }
-
-            // Update listing quantity
-            if(escrow_obj.listing)
-            {
-                escrow_dlog("Updating listing quantity.");
-                d.modify((*escrow_obj.listing)(d), [&](listing_object& listing){
-                    if(listing.quantity > 0)
-                    {
-                        listing.quantity -= *escrow_obj.listing_count;
-                    }
-                });
             }
 
             // Remove escrow thus closing the process.
@@ -264,6 +261,15 @@ namespace omnibazaar {
                     continue;
 
                 graphene::chain::account_object::update_reputation(d, reputation.first, op.fee_paying_account, reputation.second, escrow_obj.amount);
+            }
+
+            // Return listing quantity to initial value.
+            if(escrow_obj.listing.valid())
+            {
+                escrow_dlog("Updating listing quantity.");
+                d.modify((*escrow_obj.listing)(d), [&](listing_object& listing){
+                    listing.quantity += *escrow_obj.listing_count;
+                });
             }
 
             // Remove escrow thus closing the process.

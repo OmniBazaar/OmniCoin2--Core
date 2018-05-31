@@ -72,7 +72,7 @@ void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
                  "Insufficient Balance: ${balance}, unable to transfer '${total_transfer}' from account '${a}' to '${t}'", 
                  ("a",from_account.name)("t",to_account.name)("total_transfer",d.to_pretty_string(op.amount))("balance",d.to_pretty_string(d.get_balance(from_account, asset_type))) );
 
-      if(op.listing)
+      if(op.listing.valid())
       {
           const omnibazaar::listing_object listing = (*op.listing)(d);
           FC_ASSERT( listing.quantity >= (*op.listing_count), "Insufficient items in stock." );
@@ -96,10 +96,8 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
    if(o.listing.valid() && o.listing_count.valid())
    {
        db().modify((*o.listing)(db()), [&](omnibazaar::listing_object& listing){
-           if(listing.quantity > 0)
-           {
-               listing.quantity -= *o.listing_count;
-           }
+           // Quantity was already checked in do_evaluate so it's safe to just reduce it.
+           listing.quantity -= *o.listing_count;
        });
    }
 
