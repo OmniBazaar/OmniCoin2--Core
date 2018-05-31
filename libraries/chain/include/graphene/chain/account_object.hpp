@@ -293,10 +293,14 @@ namespace graphene { namespace chain {
          // Users that this account added to acceptable Escrow agents.
          std::set<account_id_type> escrows;
 
+         // Reputation Score, expressed in GRAPHENE_1_PERCENT.
+         uint16_t reputation_score;
+         // Number of current reputation votes.
+         uint64_t reputation_votes_count;
+
          // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
          // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
          map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
-         uint64_t reputation_votes_count()const { return reputation_votes.size(); }
 
          // Update reputation for this account given by 'from' account.
          // Not reflected.
@@ -491,12 +495,24 @@ namespace graphene { namespace chain {
    typedef multi_index_container<
       account_object,
       indexed_by<
-         ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
-         ordered_unique< tag<by_name>, member<account_object, string, &account_object::name> >,
+         ordered_unique<
+            tag<by_id>,
+            member< object, object_id_type, &object::id >
+         >,
+         ordered_unique<
+            tag<by_name>,
+            member<account_object, string, &account_object::name>
+         >,
          // Add index that will sort accounts by the number of reputation votes that they have.
-         ordered_non_unique< tag<by_reputation_votes>, const_mem_fun<account_object, uint64_t, &account_object::reputation_votes_count > >,
+         ordered_non_unique<
+            tag<by_reputation_votes>,
+            member<account_object, uint64_t, &account_object::reputation_votes_count >
+         >,
          // Add index that will separate publishers from users.
-         ordered_non_unique< tag<by_publishers>, member<account_object, bool, &account_object::is_a_publisher> >
+         ordered_non_unique<
+            tag<by_publishers>,
+            member<account_object, bool, &account_object::is_a_publisher>
+         >
       >
    > account_multi_index_type;
 
@@ -535,6 +551,8 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (escrow_fee)
                     (buyers)
                     (escrows)
+                    (reputation_score)
+                    (reputation_votes_count)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

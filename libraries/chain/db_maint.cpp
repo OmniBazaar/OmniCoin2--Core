@@ -199,7 +199,7 @@ void database::update_witness_scores()
     // Get the largest number of reputation votes for any user.
     // Index is sorted in ascending order, so use last element value.
     const auto& accounts_reputations = get_index_type<account_index>().indices().get<by_reputation_votes>();
-    const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count();
+    const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count;
     pop_ddump((max_reputation_votes));
 
     const auto& all_witnesses = get_index_type<witness_index>().indices();
@@ -272,15 +272,9 @@ void database::update_witness_scores()
                 weight_sum += vote_info.second.amount.value;
             }
             pop_ddump((weighted_votes_sum)(weight_sum));
+
             // Just for display, store score without transfers number weight applied.
-            // Raw formula is:
-            //    weighted_votes_sum
-            //    ------------------
-            //        weight_sum         * GRAPHENE_100_PERCENT
-            // -------------------------
-            // OMNIBAZAAR_REPUTATION_MAX
-            _reputation_unweighted_buffer[wit.vote_id] = (weighted_votes_sum * GRAPHENE_100_PERCENT / weight_sum / OMNIBAZAAR_REPUTATION_MAX).to_integer();
-            pop_ddump((_reputation_unweighted_buffer[wit.vote_id]));
+            _reputation_unweighted_buffer[wit.vote_id] = account.reputation_score;
 
             // For actual score store value with transfers number weight applied.
             // Raw formula is:
@@ -289,7 +283,7 @@ void database::update_witness_scores()
             //      weight_sum            max_reputation_votes       * GRAPHENE_100_PERCENT
             // -----------------------------------------------------
             //               OMNIBAZAAR_REPUTATION_MAX
-            _reputation_score_buffer[wit.vote_id] = ((weighted_votes_sum * account.reputation_votes_count() * GRAPHENE_100_PERCENT)
+            _reputation_score_buffer[wit.vote_id] = ((weighted_votes_sum * account.reputation_votes_count * GRAPHENE_100_PERCENT)
                     / (weight_sum * max_reputation_votes)
                     / OMNIBAZAAR_REPUTATION_MAX
                     ).to_integer();
@@ -373,7 +367,7 @@ void database::update_active_witnesses()
        _pop_score_buffer[wit.vote_id] = pop_score;
        pop_ddump((wit.witness_account)(pop_score));
 
-       const uint64_t votes = wit.witness_account(*this).reputation_votes_count();
+       const uint64_t votes = wit.witness_account(*this).reputation_votes_count;
 
        // Update values in witness_object for UI display.
        modify( wit, [&]( witness_object& obj ){

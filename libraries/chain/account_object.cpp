@@ -461,7 +461,34 @@ void account_object::update_reputation(database& db, const account_id_type targe
 {
     pop_dlog("Updating reputation vote ${vote} for ${seller} from ${buyer}.",
              ("vote", reputation)("seller", target)("buyer", from));
-    db.modify(target(db), [&](account_object &acc){
+
+    // Temporarily update reputation_votes to calculate Reputation Score for display.
+    account_object target_account = target(db);
+    if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
+        target_account.reputation_votes.erase(from);
+    else
+        target_account.reputation_votes[from] = std::make_pair(reputation, amount);
+
+    // Calculate score outside of database::modify callback.
+    fc::uint128_t weighted_votes_sum = 0;
+    fc::uint128_t weight_sum = 0;
+    for(const auto& iter : target_account.reputation_votes)
+    {
+        const std::pair<uint16_t, asset> vote_info = iter.second;
+        weighted_votes_sum += fc::uint128_t(vote_info.first) * vote_info.second.amount.value;
+        weight_sum += vote_info.second.amount.value;
+    }
+    // Just for display, store score without transfers number weight applied.
+    // Raw formula is:
+    //    weighted_votes_sum
+    //    ------------------
+    //        weight_sum         * GRAPHENE_100_PERCENT
+    // -------------------------
+    // OMNIBAZAAR_REPUTATION_MAX
+    const uint16_t score = (weighted_votes_sum * GRAPHENE_100_PERCENT / weight_sum / OMNIBAZAAR_REPUTATION_MAX).to_integer();;
+    pop_ddump((score));
+
+    db.modify(target_account, [&](account_object &acc){
         if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
         {
             // Default reputation votes do not count towards Reputation Score
@@ -472,6 +499,8 @@ void account_object::update_reputation(database& db, const account_id_type targe
         {
             acc.reputation_votes[from] = std::make_pair(reputation, amount);
         }
+        acc.reputation_score = score;
+        acc.reputation_votes_count = acc.reputation_votes.size();
     });
 }
 
