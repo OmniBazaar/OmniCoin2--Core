@@ -32,7 +32,7 @@ namespace omnibazaar {
 
     void listing_delete_operation::validate()const
     {
-        FC_ASSERT( fee.amount > 0 );
+        FC_ASSERT( fee.amount >= 0 );
     }
 
     graphene::chain::share_type listing_delete_operation::calculate_fee(const fee_parameters_type& k)const
