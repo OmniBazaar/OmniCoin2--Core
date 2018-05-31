@@ -1,5 +1,6 @@
 #include <escrow_evaluator.hpp>
 #include <escrow_object.hpp>
+#include <listing_object.hpp>
 #include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
 
@@ -43,6 +44,15 @@ namespace omnibazaar {
                        || (std::find_if(other.cbegin(), other.cend(), auths_predicate) != other.cend()),
                        "Missing buyer authority for escrow create operation");
 
+            if(op.listing.valid())
+            {
+                const omnibazaar::listing_object listing = (*op.listing)(d);
+                FC_ASSERT( listing.quantity >= (*op.listing_count), "Insufficient items in stock." );
+                FC_ASSERT( op.amount.asset_id == listing.price.asset_id );
+                FC_ASSERT( op.amount.amount >= (listing.price.amount * (*op.listing_count)), "Amount is insufficient to buy specified listing." );
+                FC_ASSERT( op.seller == listing.seller, "Transfer destination is not listing seller." );
+            }
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -69,6 +79,8 @@ namespace omnibazaar {
                 e.escrow_fee = graphene::chain::asset(fee, op.amount.asset_id);
                 // Store amount excluding the fee.
                 e.amount = op.amount - e.escrow_fee;
+                e.listing = op.listing;
+                e.listing_count = op.listing_count;
             });
 
             // Lock buyer funds. Deduct entire amount (including escrow fee).
@@ -80,6 +92,15 @@ namespace omnibazaar {
             {
                 escrow_dlog("Adjusting escrow balance.");
                 d.adjust_balance(op.escrow, op.amount);
+            }
+
+            // "Reserve" items.
+            if(op.listing.valid() && op.listing_count.valid())
+            {
+                escrow_dlog("Reserving items.");
+                d.modify((*op.listing)(d), [&](listing_object& listing){
+                    listing.quantity -= *op.listing_count;
+                });
             }
 
             return escrow.id;
@@ -240,6 +261,15 @@ namespace omnibazaar {
                     continue;
 
                 graphene::chain::account_object::update_reputation(d, reputation.first, op.fee_paying_account, reputation.second, escrow_obj.amount);
+            }
+
+            // Return listing quantity to initial value.
+            if(escrow_obj.listing.valid())
+            {
+                escrow_dlog("Updating listing quantity.");
+                d.modify((*escrow_obj.listing)(d), [&](listing_object& listing){
+                    listing.quantity += *escrow_obj.listing_count;
+                });
             }
 
             // Remove escrow thus closing the process.

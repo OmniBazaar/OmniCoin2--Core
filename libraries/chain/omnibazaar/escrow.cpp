@@ -9,6 +9,15 @@ namespace omnibazaar {
         FC_ASSERT( buyer != seller );
         FC_ASSERT( buyer != escrow );
         FC_ASSERT( seller != escrow );
+        if(listing.valid())
+        {
+            FC_ASSERT( listing_count.valid(), "Listing ID is specified but count is not." );
+        }
+        if(listing_count.valid())
+        {
+            FC_ASSERT( (*listing_count) > 0 );
+            FC_ASSERT( listing.valid(), "Listing count is specified but listing ID is not." );
+        }
     }
 
     graphene::chain::share_type escrow_create_operation::calculate_fee(const fee_parameters_type& k)const

@@ -28,6 +28,7 @@
 #include <graphene/chain/is_authorized_asset.hpp>
 
 #include <omnibazaar_util.hpp>
+#include <listing_object.hpp>
 
 namespace graphene { namespace chain {
 void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
@@ -71,6 +72,15 @@ void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
                  "Insufficient Balance: ${balance}, unable to transfer '${total_transfer}' from account '${a}' to '${t}'", 
                  ("a",from_account.name)("t",to_account.name)("total_transfer",d.to_pretty_string(op.amount))("balance",d.to_pretty_string(d.get_balance(from_account, asset_type))) );
 
+      if(op.listing.valid())
+      {
+          const omnibazaar::listing_object listing = (*op.listing)(d);
+          FC_ASSERT( listing.quantity >= (*op.listing_count), "Insufficient items in stock." );
+          FC_ASSERT( op.amount.asset_id == listing.price.asset_id );
+          FC_ASSERT( op.amount.amount >= (listing.price.amount * (*op.listing_count)), "Amount is insufficient to buy specified listing." );
+          FC_ASSERT( op.to == listing.seller, "Transfer destination is not listing seller." );
+      }
+
       return void_result();
    } FC_RETHROW_EXCEPTIONS( error, "Unable to transfer ${a} from ${f} to ${t}", ("a",d.to_pretty_string(op.amount))("f",op.from(d).name)("t",op.to(d).name) );
 
@@ -82,6 +92,15 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
    db().adjust_balance( o.to, o.amount );
    // Update reputation vote for receiving account.
    account_object::update_reputation(db(), o.to, o.from, o.reputation_vote, o.amount);
+
+   if(o.listing.valid() && o.listing_count.valid())
+   {
+       db().modify((*o.listing)(db()), [&](omnibazaar::listing_object& listing){
+           // Quantity was already checked in do_evaluate so it's safe to just reduce it.
+           listing.quantity -= *o.listing_count;
+       });
+   }
+
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (o) ) }
 
