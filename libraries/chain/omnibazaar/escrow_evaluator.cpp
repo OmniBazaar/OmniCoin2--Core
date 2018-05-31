@@ -46,9 +46,10 @@ namespace omnibazaar {
 
             if(op.listing)
             {
-                const listing_object listing = (*op.listing)(d);
+                const omnibazaar::listing_object listing = (*op.listing)(d);
+                FC_ASSERT( listing.quantity >= (*op.listing_count), "Insufficient items in stock." );
                 FC_ASSERT( op.amount.asset_id == listing.price.asset_id );
-                FC_ASSERT( op.amount.amount >= listing.price.amount, "Amount is insufficient to buy specified listing." );
+                FC_ASSERT( op.amount.amount >= (listing.price.amount * (*op.listing_count)), "Amount is insufficient to buy specified listing." );
                 FC_ASSERT( op.seller == listing.seller, "Transfer destination is not listing seller." );
             }
 
@@ -79,6 +80,7 @@ namespace omnibazaar {
                 // Store amount excluding the fee.
                 e.amount = op.amount - e.escrow_fee;
                 e.listing = op.listing;
+                e.listing_count = op.listing_count;
             });
 
             // Lock buyer funds. Deduct entire amount (including escrow fee).
@@ -174,10 +176,10 @@ namespace omnibazaar {
             if(escrow_obj.listing)
             {
                 escrow_dlog("Updating listing quantity.");
-                d.modify((*escrow_obj.listing)(d), [](listing_object& listing){
+                d.modify((*escrow_obj.listing)(d), [&](listing_object& listing){
                     if(listing.quantity > 0)
                     {
-                        --listing.quantity;
+                        listing.quantity -= *escrow_obj.listing_count;
                     }
                 });
             }

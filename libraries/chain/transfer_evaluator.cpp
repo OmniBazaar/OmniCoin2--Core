@@ -75,8 +75,9 @@ void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
       if(op.listing)
       {
           const omnibazaar::listing_object listing = (*op.listing)(d);
+          FC_ASSERT( listing.quantity >= (*op.listing_count), "Insufficient items in stock." );
           FC_ASSERT( op.amount.asset_id == listing.price.asset_id );
-          FC_ASSERT( op.amount.amount >= listing.price.amount, "Amount is insufficient to buy specified listing." );
+          FC_ASSERT( op.amount.amount >= (listing.price.amount * (*op.listing_count)), "Amount is insufficient to buy specified listing." );
           FC_ASSERT( op.to == listing.seller, "Transfer destination is not listing seller." );
       }
 
@@ -92,12 +93,12 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
    // Update reputation vote for receiving account.
    account_object::update_reputation(db(), o.to, o.from, o.reputation_vote, o.amount);
 
-   if(o.listing)
+   if(o.listing.valid() && o.listing_count.valid())
    {
-       db().modify((*o.listing)(db()), [](omnibazaar::listing_object& listing){
+       db().modify((*o.listing)(db()), [&](omnibazaar::listing_object& listing){
            if(listing.quantity > 0)
            {
-               --listing.quantity;
+               listing.quantity -= *o.listing_count;
            }
        });
    }

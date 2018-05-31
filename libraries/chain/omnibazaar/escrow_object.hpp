@@ -30,6 +30,8 @@ namespace omnibazaar {
         bool transfer_to_escrow;
         // Specify listing ID if this is a Sale operation.
         fc::optional<graphene::chain::listing_id_type> listing;
+        // Amount of items to buy.
+        fc::optional<uint32_t> listing_count;
     };
 
     // Tracks all of the escrow objects that are relevant for an individual account.
@@ -64,4 +66,5 @@ FC_REFLECT_DERIVED(omnibazaar::escrow_object, (graphene::chain::object),
                    (amount)
                    (escrow_fee)
                    (transfer_to_escrow)
-                   (listing))
+                   (listing)
+                   (listing_count))

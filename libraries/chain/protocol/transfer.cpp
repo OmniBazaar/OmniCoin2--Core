@@ -40,6 +40,15 @@ void transfer_operation::validate()const
    FC_ASSERT( from != to );
    FC_ASSERT( amount.amount > 0 );
    FC_ASSERT( (reputation_vote >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote <= OMNIBAZAAR_REPUTATION_MAX) );
+   if(listing.valid())
+   {
+       FC_ASSERT( listing_count.valid(), "Listing ID is specified but count is not." );
+   }
+   if(listing_count.valid())
+   {
+       FC_ASSERT( (*listing_count) > 0 );
+       FC_ASSERT( listing.valid(), "Listing count is specified but listing ID is not." );
+   }
 }
 
 

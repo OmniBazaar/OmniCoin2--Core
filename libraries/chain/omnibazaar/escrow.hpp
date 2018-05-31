@@ -34,6 +34,8 @@ namespace omnibazaar {
 
         // Specify listing ID if this is a Sale operation.
         fc::optional<graphene::chain::listing_id_type> listing;
+        // Amount of items to buy.
+        fc::optional<uint32_t> listing_count;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return buyer; }
@@ -129,7 +131,8 @@ FC_REFLECT( omnibazaar::escrow_create_operation,
             (amount)
             (transfer_to_escrow)
             (memo)
-            (listing))
+            (listing)
+            (listing_count))
 
 FC_REFLECT( omnibazaar::escrow_release_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_release_operation,
