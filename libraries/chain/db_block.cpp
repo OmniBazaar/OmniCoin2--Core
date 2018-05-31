@@ -345,7 +345,6 @@ processed_transaction database::push_escrow(const omnibazaar::escrow_object& esc
             {
                 eval_state.operation_results.emplace_back(apply_operation(eval_state, op));
             }
-            remove(escrow);
             session.merge();
         }
         catch ( const fc::exception& e )

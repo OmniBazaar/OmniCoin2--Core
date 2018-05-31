@@ -243,9 +243,50 @@ void database::clear_expired_listings()
     while( !expiration_index.empty() && expiration_index.begin()->expiration_time <= head_block_time() )
     {
         const omnibazaar::listing_object& listing = *expiration_index.begin();
-        // At the moment, listings do not require any specific actions upon their expiration,
-        // so there's no need to use listing_delete_operation, we can simply remove the object.
-        remove(listing);
+
+        // Create a transaction that will delete the listing.
+
+        transaction_evaluation_state eval_state(this);
+
+        omnibazaar::listing_delete_operation listing_op;
+        listing_op.listing_id = listing.id;
+        listing_op.seller = listing.seller;
+
+        processed_transaction ptrx;
+        ptrx.expiration = listing.expiration_time;
+        ptrx.operations.push_back(listing_op);
+        ptrx.validate();
+        eval_state._trx = &ptrx;
+
+        size_t old_applied_ops_size = _applied_ops.size();
+
+        // Apply transaction to the database.
+        try
+        {
+            auto session = _undo_db.start_undo_session(true);
+            for(const auto& op : ptrx.operations)
+            {
+                eval_state.operation_results.emplace_back(apply_operation(eval_state, op));
+            }
+            session.merge();
+        }
+        catch ( const fc::exception& e )
+        {
+            if( head_block_time() <= HARDFORK_483_TIME )
+            {
+                for( size_t i = old_applied_ops_size, n = _applied_ops.size(); i < n; i++ )
+                {
+                    ilog( "removing failed operation from applied_ops: ${op}", ("op", *(_applied_ops[i])) );
+                    _applied_ops[i].reset();
+                }
+            }
+            else
+            {
+                _applied_ops.resize( old_applied_ops_size );
+            }
+            elog( "e", ("e",e.to_detail_string() ) );
+            throw;
+        }
     }
 }
 

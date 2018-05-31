@@ -298,6 +298,9 @@ namespace graphene { namespace chain {
          // Number of current reputation votes.
          uint64_t reputation_votes_count;
 
+         // Stores number of listings hosted by this user if this account is a publisher.
+         uint64_t listings_count;
+
          // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
          // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
          map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
@@ -488,6 +491,7 @@ namespace graphene { namespace chain {
    struct by_name{};
    struct by_reputation_votes;
    struct by_publishers;
+   struct by_listings_count;
 
    /**
     * @ingroup object_index
@@ -512,6 +516,11 @@ namespace graphene { namespace chain {
          ordered_non_unique<
             tag<by_publishers>,
             member<account_object, bool, &account_object::is_a_publisher>
+         >,
+         // Index that will sort users by the number of listings they host as publishers.
+         ordered_non_unique<
+            tag<by_listings_count>,
+            member<account_object, uint64_t, &account_object::listings_count>
          >
       >
    > account_multi_index_type;
@@ -553,6 +562,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (escrows)
                     (reputation_score)
                     (reputation_votes_count)
+                    (listings_count)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

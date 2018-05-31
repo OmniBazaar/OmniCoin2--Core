@@ -63,6 +63,10 @@ namespace omnibazaar {
             d.adjust_balance(op.seller, graphene::chain::asset(-fee, op.price.asset_id));
             d.adjust_balance(op.publisher, graphene::chain::asset(fee, op.price.asset_id));
 
+            d.modify(op.publisher(d), [](graphene::chain::account_object& a){
+                ++a.listings_count;
+            });
+
             return listing.id;
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -121,6 +125,21 @@ namespace omnibazaar {
             market_ddump((op));
 
             graphene::chain::database& d = db();
+
+            // If listing is going to be moved to another publisher, update listings count for both publishers.
+            if(op.publisher.valid())
+            {
+                const listing_object listing = op.listing_id(d);
+                d.modify(listing.publisher(d), [](graphene::chain::account_object& a){
+                    if(a.listings_count > 0)
+                    {
+                        --a.listings_count;
+                    }
+                });
+                d.modify((*op.publisher)(d), [](graphene::chain::account_object& a){
+                    ++a.listings_count;
+                });
+            }
 
             // Modify listing object in blockchain.
             market_dlog("Modifying listing object.");
@@ -188,6 +207,16 @@ namespace omnibazaar {
             market_ddump((op));
 
             graphene::chain::database& d = db();
+
+            const listing_object listing = op.listing_id(d);
+
+            // Update publisher's listings count.
+            d.modify(listing.publisher(d), [](graphene::chain::account_object& a){
+                if(a.listings_count > 0)
+                {
+                    --a.listings_count;
+                }
+            });
 
             // Delete object from blockchain.
             market_dlog("Deleting listing object.");
