@@ -490,7 +490,7 @@ void account_object::update_reputation(database& db, const account_id_type targe
             : 0;
     pop_ddump((score));
 
-    db.modify(target_account, [&](account_object &acc){
+    db.modify(target(db), [&](account_object &acc){
         if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
         {
             // Default reputation votes do not count towards Reputation Score

@@ -2131,16 +2131,16 @@ public:
           tx.operations.push_back(sale_fee_founder_op);
           tx.operations.push_back(sale_fee_seller_op);
           tx.operations.push_back(sale_fee_buyer_op);
-      }
 
-      // Add Sale Bonus.
-      if(_remote_db->is_sale_bonus_available(to_id, from_id))
-      {
-          omnibazaar::sale_bonus_operation sale_op;
-          sale_op.seller = to_id;
-          sale_op.buyer = from_id;
-          sale_op.payer = xfer_op.fee_payer();
-          tx.operations.push_back(sale_op);
+          // Add Sale Bonus.
+          if(_remote_db->is_sale_bonus_available(to_id, from_id))
+          {
+              omnibazaar::sale_bonus_operation sale_op;
+              sale_op.seller = to_id;
+              sale_op.buyer = from_id;
+              sale_op.payer = xfer_op.fee_payer();
+              tx.operations.push_back(sale_op);
+          }
       }
 
       set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
