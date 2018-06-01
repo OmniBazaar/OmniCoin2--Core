@@ -485,7 +485,9 @@ void account_object::update_reputation(database& db, const account_id_type targe
     //        weight_sum         * GRAPHENE_100_PERCENT
     // -------------------------
     // OMNIBAZAAR_REPUTATION_MAX
-    const uint16_t score = (weighted_votes_sum * GRAPHENE_100_PERCENT / weight_sum / OMNIBAZAAR_REPUTATION_MAX).to_integer();;
+    const uint16_t score = weight_sum > 0
+            ? (weighted_votes_sum * GRAPHENE_100_PERCENT / weight_sum / OMNIBAZAAR_REPUTATION_MAX).to_integer()
+            : 0;
     pop_ddump((score));
 
     db.modify(target_account, [&](account_object &acc){
