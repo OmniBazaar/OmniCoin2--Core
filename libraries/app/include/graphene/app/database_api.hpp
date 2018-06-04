@@ -682,6 +682,11 @@ class database_api
        */
       bool check_listing_exists( const listing_id_type& id )const;
 
+      /**
+       *  @return Listings that belong to specified seller.
+       */
+      vector<omnibazaar::listing_object> get_listings_by_seller(const string& seller_name);
+
    private:
       std::shared_ptr< database_api_impl > my;
 };

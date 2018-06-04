@@ -168,6 +168,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
 
       // Marketplace
       bool check_listing_exists( const listing_id_type &id )const;
+      vector<omnibazaar::listing_object> get_listings_by_seller(const string& seller_name);
 
    //private:
       template<typename T>
@@ -2456,6 +2457,30 @@ bool database_api::check_listing_exists(const listing_id_type &id)const
 bool database_api_impl::check_listing_exists(const listing_id_type &id)const
 {
     return _db.find_object(id) != nullptr;
+}
+
+vector<omnibazaar::listing_object> database_api::get_listings_by_seller(const string& seller_name)
+{
+    return my->get_listings_by_seller(seller_name);
+}
+
+vector<omnibazaar::listing_object> database_api_impl::get_listings_by_seller(const string &seller_name)
+{
+    FC_ASSERT( !seller_name.empty() );
+
+    const optional<account_object> seller_obj = get_account_by_name(seller_name);
+    FC_ASSERT( seller_obj.valid(), "Account does not exist." );
+
+    vector<omnibazaar::listing_object> result;
+
+    const auto& index = _db.get_index_type<omnibazaar::listing_index>().indices().get<omnibazaar::by_seller>();
+    auto iter = index.equal_range((*seller_obj).get_id());
+    while(iter.first != iter.second)
+    {
+        result.push_back(*iter.first++);
+    }
+
+    return result;
 }
 
 } } // graphene::app
