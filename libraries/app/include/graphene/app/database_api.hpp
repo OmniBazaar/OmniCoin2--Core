@@ -813,4 +813,5 @@ FC_API(graphene::app::database_api,
 
     // Marketplace
     (check_listing_exists)
+    (get_listings_by_seller)
 )
