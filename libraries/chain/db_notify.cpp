@@ -204,11 +204,14 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::referral_bonus_operation& op )
    {
       _impacted.insert( op.payer );
+      _impacted.insert( op.receiver );
    }
 
    void operator()( const omnibazaar::sale_bonus_operation& op )
    {
       _impacted.insert( op.payer );
+      _impacted.insert( op.seller );
+      _impacted.insert( op.buyer );
    }
 
    void operator()( const omnibazaar::founder_bonus_operation& op )
@@ -249,6 +252,10 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::multisig_transfer_operation& op )
    {
       _impacted.insert( op.to );
+      for(auto a : op.signatories)
+      {
+          _impacted.insert(a);
+      }
    }
 
    void operator()( const omnibazaar::listing_create_operation& op )

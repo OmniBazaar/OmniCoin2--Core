@@ -299,7 +299,7 @@ namespace graphene { namespace chain {
          uint64_t reputation_votes_count;
 
          // Stores number of listings hosted by this user if this account is a publisher.
-         uint64_t listings_count;
+         uint64_t listings_count = 0;
 
          // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
          // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
