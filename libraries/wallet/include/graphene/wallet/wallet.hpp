@@ -363,6 +363,7 @@ class wallet_api
        * @returns a list of \c operation_history_objects
        */
       vector<operation_detail>  get_account_history(string name, int limit)const;
+      vector<operation_history_object>  get_account_history_raw(string name, int limit)const;
 
       /** Returns the relative operations on the named account from start number.
        *
@@ -1724,6 +1725,7 @@ FC_API( graphene::wallet::wallet_api,
         (get_block)
         (get_account_count)
         (get_account_history)
+        (get_account_history_raw)
         (get_relative_account_history)
         (get_collateral_bids)
         (is_public_key_registered)

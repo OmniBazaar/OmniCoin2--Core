@@ -56,7 +56,7 @@ namespace graphene { namespace chain {
     * Defines the set of valid operations as a discriminated union type.
     */
    typedef fc::static_variant<
-            transfer_operation,
+            transfer_operation,                     //0
             limit_order_create_operation,
             limit_order_cancel_operation,
             call_order_update_operation,
@@ -66,7 +66,7 @@ namespace graphene { namespace chain {
             account_whitelist_operation,
             account_upgrade_operation,
             account_transfer_operation,
-            asset_create_operation,
+            asset_create_operation,                 //10
             asset_update_operation,
             asset_update_bitasset_operation,
             asset_update_feed_producers_operation,
@@ -76,7 +76,7 @@ namespace graphene { namespace chain {
             asset_settle_operation,
             asset_global_settle_operation,
             asset_publish_feed_operation,
-            witness_create_operation,
+            witness_create_operation,               //20
             witness_update_operation,
             proposal_create_operation,
             proposal_update_operation,
@@ -86,7 +86,7 @@ namespace graphene { namespace chain {
             withdraw_permission_claim_operation,
             withdraw_permission_delete_operation,
             committee_member_create_operation,
-            committee_member_update_operation,
+            committee_member_update_operation,      //30
             committee_member_update_global_parameters_operation,
             vesting_balance_create_operation,
             vesting_balance_withdraw_operation,
@@ -96,7 +96,7 @@ namespace graphene { namespace chain {
             balance_claim_operation,
             override_transfer_operation,
             transfer_to_blind_operation,
-            blind_transfer_operation,
+            blind_transfer_operation,               //40
             transfer_from_blind_operation,
             asset_settle_cancel_operation,  // VIRTUAL
             asset_claim_fees_operation,
@@ -106,7 +106,7 @@ namespace graphene { namespace chain {
             omnibazaar::welcome_bonus_operation,
             omnibazaar::referral_bonus_operation,
             omnibazaar::sale_bonus_operation,
-            omnibazaar::founder_bonus_operation,
+            omnibazaar::founder_bonus_operation,    //50
             omnibazaar::witness_bonus_operation,
             omnibazaar::escrow_create_operation,
             omnibazaar::escrow_release_operation,
