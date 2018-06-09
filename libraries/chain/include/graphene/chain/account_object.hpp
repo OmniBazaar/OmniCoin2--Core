@@ -492,6 +492,7 @@ namespace graphene { namespace chain {
    struct by_reputation_votes;
    struct by_publishers;
    struct by_listings_count;
+   struct by_publisher_ip;
 
    /**
     * @ingroup object_index
@@ -521,6 +522,13 @@ namespace graphene { namespace chain {
          ordered_non_unique<
             tag<by_listings_count>,
             member<account_object, uint64_t, &account_object::listings_count>
+         >,
+         // Index that will sort publishers by their IP address and allow quick search by IP.
+         // Publishers should not be allowed to have same IP,
+         // but many users will have empty "publisher_ip" member which is why "ordered_non_unique" is used.
+         ordered_non_unique<
+            tag<by_publisher_ip>,
+            member<account_object, string, &account_object::publisher_ip>
          >
       >
    > account_multi_index_type;

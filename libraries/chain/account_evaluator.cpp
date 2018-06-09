@@ -303,6 +303,11 @@ void_result account_update_evaluator::do_evaluate( const account_update_operatio
                    ? *o.is_a_publisher
                    : acnt->is_a_publisher;
            FC_ASSERT( will_be_publisher, "Cannot set publisher IP while not being publisher." );
+
+           // Check for duplicating addresses.
+           const auto& idx = d.get_index_type<account_index>().indices().get<by_publisher_ip>();
+           const auto itr = idx.find(*o.publisher_ip);
+           FC_ASSERT( itr == idx.end(), "IP ${ip} is already registered.", ("ip", *o.publisher_ip) );
        }
    }
 
