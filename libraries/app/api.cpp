@@ -43,6 +43,7 @@
 
 #include <../omnibazaar/mail_controller.hpp>
 #include <../omnibazaar/mail_object.hpp>
+#include <../omnibazaar/escrow.hpp>
 
 namespace graphene { namespace app {
 
@@ -466,6 +467,73 @@ namespace graphene { namespace app {
        }
        return result;
     } FC_CAPTURE_AND_RETHROW( (a)(b)(bucket_seconds)(start)(end) ) }
+
+    vector<operation_history_object> history_api::get_purchase_history(const account_id_type account_id,
+                                                                       operation_history_id_type start,
+                                                                       operation_history_id_type stop,
+                                                                       unsigned limit)
+    {
+        try
+        {
+            FC_ASSERT( _app.chain_database() );
+            FC_ASSERT( limit <= 100 );
+
+            vector<operation_history_object> result;
+
+            const auto& db = *_app.chain_database();
+            const auto& stats = account_id(db).statistics(db);
+
+            if( stats.most_recent_op == account_transaction_history_id_type() )
+            {
+                return result;
+            }
+
+            const account_transaction_history_object* node = &stats.most_recent_op(db);
+            if( start == operation_history_id_type() )
+            {
+                start = node->operation_id;
+            }
+
+            while(node && node->operation_id.instance.value > stop.instance.value && result.size() < limit)
+            {
+                if( node->operation_id.instance.value <= start.instance.value )
+                {
+                    const operation_history_object op_history = node->operation_id(db);
+                    const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
+                            && op_history.op.get<transfer_operation>().listing.valid();
+                    const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
+                            && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid();
+                    if(is_transfer_sale || is_escrow_sale)
+                    {
+                        result.push_back( op_history );
+                    }
+                }
+                if( node->next == account_transaction_history_id_type() )
+                {
+                    node = nullptr;
+                }
+                else
+                {
+                    node = &node->next(db);
+                }
+            }
+            if( stop.instance.value == 0 && result.size() < limit )
+            {
+                const account_transaction_history_object head = account_transaction_history_id_type()(db);
+                const operation_history_object op_history = head.operation_id(db);
+                const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
+                        && op_history.op.get<transfer_operation>().listing.valid();
+                const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
+                        && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid();
+                if( head.account == account_id && (is_transfer_sale || is_escrow_sale) )
+                {
+                    result.push_back(head.operation_id(db));
+                }
+            }
+            return result;
+        }
+        FC_CAPTURE_AND_RETHROW( (account_id) );
+    }
 
     crypto_api::crypto_api(){};
 

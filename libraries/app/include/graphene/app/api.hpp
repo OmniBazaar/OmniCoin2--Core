@@ -146,6 +146,20 @@ namespace graphene { namespace app {
          vector<bucket_object> get_market_history( asset_id_type a, asset_id_type b, uint32_t bucket_seconds,
                                                    fc::time_point_sec start, fc::time_point_sec end )const;
          flat_set<uint32_t> get_market_history_buckets()const;
+
+         /**
+          * @brief get_purchase_history Get sale transactions for specified buyer.
+          * @param account_id buyer.
+          * @param start ID of the most recent operation to retrieve
+          * @param stop ID of the earliest operation to retrieve
+          * @param limit Maximum number of operations to retrieve (must not exceed 100)
+          * @return list of sale (purchase) transactions.
+          */
+         vector<operation_history_object> get_purchase_history(const account_id_type account_id,
+                                                               operation_history_id_type start = operation_history_id_type(),
+                                                               operation_history_id_type stop = operation_history_id_type(),
+                                                               unsigned limit = 100);
+
       private:
            application& _app;
    };
@@ -441,6 +455,7 @@ FC_API(graphene::app::history_api,
        (get_fill_order_history)
        (get_market_history)
        (get_market_history_buckets)
+       (get_purchase_history)
      )
 FC_API(graphene::app::block_api,
        (get_blocks)
