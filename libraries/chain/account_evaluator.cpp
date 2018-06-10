@@ -374,6 +374,11 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
           // Clear IP address when account is not a publisher anymore.
           a.publisher_ip = string();
       }
+
+      if(o.implicit_escrow_options)
+      {
+          a.implicit_escrow_options = *o.implicit_escrow_options;
+      }
             
       sa_after = a.has_special_authority();
    });

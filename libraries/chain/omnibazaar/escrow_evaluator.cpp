@@ -6,6 +6,14 @@
 
 namespace omnibazaar {
 
+    template<typename T>
+    std::set<T> operator +(const std::set<T>& a, const std::set<T>& b)
+    {
+        std::set<T> result;
+        std::merge(a.begin(), a.end(), b.begin(), b.end(), std::inserter(result, result.begin()));
+        return result;
+    }
+
     graphene::chain::void_result escrow_create_evaluator::do_evaluate( const escrow_create_operation& op )
     {
         try
@@ -16,9 +24,11 @@ namespace omnibazaar {
             const auto& global_parameters = d.get_global_properties().parameters;
 
             // Check mutually acceptable escrow agents.
-            escrow_ddump((op.buyer(d).escrows)(op.seller(d).escrows));
-            FC_ASSERT( op.buyer(d).escrows.find(op.escrow) != op.buyer(d).escrows.end(), "Escrow agent is not buyer's acceptable list of agents." );
-            FC_ASSERT( op.seller(d).escrows.find(op.escrow) != op.seller(d).escrows.end(), "Escrow agent is not seller's acceptable list of agents." );
+            const auto buyer_escrows = op.buyer(d).escrows + d.get_implicit_escrows(op.buyer);
+            const auto seller_escrows = op.seller(d).escrows + d.get_implicit_escrows(op.seller);
+            escrow_ddump((buyer_escrows)(seller_escrows));
+            FC_ASSERT( buyer_escrows.find(op.escrow) != buyer_escrows.end(), "Escrow agent is not buyer's acceptable list of agents." );
+            FC_ASSERT( seller_escrows.find(op.escrow) != seller_escrows.end(), "Escrow agent is not seller's acceptable list of agents." );
 
             // Check funds.
             FC_ASSERT( d.get_balance(op.buyer, op.amount.asset_id).amount >= op.amount.amount,

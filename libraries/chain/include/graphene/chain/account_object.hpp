@@ -117,7 +117,6 @@ namespace graphene { namespace chain {
          void  adjust_balance(const asset& delta);
    };
 
-
    /**
     * @brief This class represents an account on the object graph
     * @ingroup object
@@ -293,10 +292,13 @@ namespace graphene { namespace chain {
          // Users that this account added to acceptable Escrow agents.
          std::set<account_id_type> escrows;
 
+         // Options for implicitly approving certain types of escrow accounts.
+         escrow_options implicit_escrow_options;
+
          // Reputation Score, expressed in GRAPHENE_1_PERCENT.
-         uint16_t reputation_score;
+         uint16_t reputation_score = 0;
          // Number of current reputation votes.
-         uint64_t reputation_votes_count;
+         uint64_t reputation_votes_count = 0;
 
          // Stores number of listings hosted by this user if this account is a publisher.
          uint64_t listings_count = 0;
@@ -304,6 +306,10 @@ namespace graphene { namespace chain {
          // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
          // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
          map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
+
+         // Set of accounts which received positive reputation vote from this account.
+         // Not reflected.
+         set<account_id_type> my_reputation_votes;
 
          // Update reputation for this account given by 'from' account.
          // Not reflected.
@@ -407,14 +413,6 @@ namespace graphene { namespace chain {
 	   }
    };
 
-   struct escrow_filter_options {
-	   bool any_user_i_give_pos_rating;
-	   bool any_user_i_votes_as_trans_proc;
-	   bool any_user_who_is_trans_proc;
-       // Account used in checking "any_user_i_give_pos_rating" and "any_user_i_votes_as_trans_proc" options.
-       fc::optional<account_id_type> my_account;
-   };
-
 
    /**
     *  @brief This secondary index will allow lookup of Escrow agents.
@@ -428,7 +426,7 @@ namespace graphene { namespace chain {
          virtual void object_modified( const object& after  ) override;
 
 		 // get escrow names that start with search_term, paginated by start and limit
-		 std::vector<account_object_name> filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options, std::function<bool(account_id_type)> options_matcher) const;
+         std::vector<account_object_name> filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term) const;
 
 		 // list of objects that contain username and id of the account
          std::vector<account_object_name> current_escrows;
@@ -540,13 +538,6 @@ namespace graphene { namespace chain {
 
 }}
 
-FC_REFLECT(graphene::chain::escrow_filter_options, 
-	(any_user_i_give_pos_rating)
-	(any_user_i_votes_as_trans_proc)
-	(any_user_who_is_trans_proc)
-    (my_account)
-)
-
 FC_REFLECT( graphene::chain::account_object_name,
 	(id)
 	(name)
@@ -568,6 +559,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (escrow_fee)
                     (buyers)
                     (escrows)
+                    (implicit_escrow_options)
                     (reputation_score)
                     (reputation_votes_count)
                     (listings_count)

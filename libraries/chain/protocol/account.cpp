@@ -244,6 +244,7 @@ void account_update_operation::validate()const
       || is_a_publisher.valid()
       || publisher_ip.valid()
       || is_an_escrow.valid()
+      || implicit_escrow_options.valid()
       );
 
    FC_ASSERT( has_action );

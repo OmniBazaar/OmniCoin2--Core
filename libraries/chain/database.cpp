@@ -34,3 +34,4 @@
 #include "db_witness_schedule.cpp"
 #include "db_notify.cpp"
 #include "db_bonus.cpp"
+#include "db_escrow.cpp"

@@ -22,6 +22,7 @@ if( GRAPHENE_DISABLE_UNITY_BUILD )
         db_update.cpp
         db_witness_schedule.cpp
         db_bonus.cpp
+        db_escrow.cpp
       )
    message( STATUS "Graphene database unity build disabled" )
 else( GRAPHENE_DISABLE_UNITY_BUILD )
