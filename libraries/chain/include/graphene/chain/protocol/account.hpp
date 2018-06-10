@@ -60,6 +60,17 @@ namespace graphene { namespace chain {
       void validate()const;
    };
 
+   // Options for selecting implicit escrow agents for a particular user.
+   struct escrow_options
+   {
+       // Any user who received positive vote from current user.
+       bool positive_rating = false;
+       // Any user who is voted for as a witness by current user.
+       bool voted_witness = false;
+       // Any of current active witnesses.
+       bool active_witness = false;
+   };
+
    /**
     *  @ingroup operations
     */
@@ -155,6 +166,9 @@ namespace graphene { namespace chain {
 
       /// New list of acceptable escrows
       optional<std::set<account_id_type>> escrows;
+
+      /// New options for implicitly approved escrows.
+      optional<escrow_options> implicit_escrow_options;
 
       /// New account options
       optional<account_options> new_options;
@@ -278,6 +292,12 @@ namespace graphene { namespace chain {
 
 } } // graphene::chain
 
+FC_REFLECT( graphene::chain::escrow_options,
+            (positive_rating)
+            (voted_witness)
+            (active_witness)
+            )
+
 FC_REFLECT(graphene::chain::account_options, (memo_key)(voting_account)(num_witness)(num_committee)(votes)(extensions))
 FC_REFLECT_ENUM( graphene::chain::account_whitelist_operation::account_listing,
                 (no_listing)(white_listed)(black_listed)(white_and_black_listed))
@@ -291,7 +311,7 @@ FC_REFLECT( graphene::chain::account_create_operation,
 
 FC_REFLECT(graphene::chain::account_update_operation::ext, (null_ext)(owner_special_authority)(active_special_authority) )
 FC_REFLECT( graphene::chain::account_update_operation,
-            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(publisher_ip)(is_an_escrow)(escrow_fee)(escrows)
+            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(publisher_ip)(is_an_escrow)(escrow_fee)(escrows)(implicit_escrow_options)
           )
 
 FC_REFLECT( graphene::chain::account_upgrade_operation,

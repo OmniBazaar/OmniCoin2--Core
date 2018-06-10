@@ -387,7 +387,7 @@ void account_escrow_index::insert_keeping_sorted(const account_object_name& acco
 	current_escrows.insert(escrow_it, account_object_name);
 }
 
-std::vector<account_object_name> account_escrow_index::filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options, std::function<bool(account_id_type)> options_matcher) const
+std::vector<account_object_name> account_escrow_index::filter_by_name(uint32_t start, uint32_t limit, const std::string& search_term) const
 {
 	std::vector<account_object_name> result;
 	result.reserve(limit);
@@ -409,11 +409,6 @@ std::vector<account_object_name> account_escrow_index::filter_by_name(uint32_t s
 		// get the current escrow name
 		const std::string current_escrow_name = escrow_it->name;
 		
-		if (!options_matcher(escrow_it->id)) {
-			escrow_it++;
-			continue;
-		}
-
 		// if the escrow name doesn't start with search term, we're done
 		if (current_escrow_name.find(search_term) != 0)
 			break;
@@ -490,6 +485,7 @@ void account_object::update_reputation(database& db, const account_id_type targe
             : 0;
     pop_ddump((score));
 
+    // Update reputation for receiving account.
     db.modify(target(db), [&](account_object &acc){
         if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
         {
@@ -503,6 +499,18 @@ void account_object::update_reputation(database& db, const account_id_type targe
         }
         acc.reputation_score = score;
         acc.reputation_votes_count = acc.reputation_votes.size();
+    });
+
+    // Update reputation for sending account.
+    db.modify(from(db), [&](account_object &acc){
+        if(reputation > OMNIBAZAAR_REPUTATION_DEFAULT)
+        {
+            acc.my_reputation_votes.insert(target);
+        }
+        else
+        {
+            acc.my_reputation_votes.erase(target);
+        }
     });
 }
 

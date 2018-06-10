@@ -435,6 +435,15 @@ namespace graphene { namespace chain {
            */
          bool is_sale_bonus_available(const account_id_type& seller_id, const account_id_type& buyer_id)const;
 
+         //////////////////// db_escrow.cpp ////////////////////
+
+         /**
+           * @brief Get a list of escrows which are implicitly approved by target_account.
+           * @param target_account account which approves escrows.
+           * @return list of approved escrow agents.
+           */
+         set<account_id_type> get_implicit_escrows(const account_id_type target_account_id) const;
+
    protected:
          //Mark pop_undo() as protected -- we do not want outside calling pop_undo(); it should call pop_block() instead
          void pop_undo() { object_database::pop_undo(); }

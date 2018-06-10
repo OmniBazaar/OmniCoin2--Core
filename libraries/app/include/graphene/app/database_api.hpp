@@ -297,9 +297,9 @@ class database_api
 	  uint32_t get_number_of_escrows() const;
 
 	  /**
-	  *  @return all accounts that are currently registered as Escrow agents with pagination, name search term and options for discarding some agents
+      *  @return all accounts that are currently registered as Escrow agents with pagination and name search term.
 	  */
-	  vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term, const escrow_filter_options& options) const;
+      vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
 
 
       //////////////
@@ -673,6 +673,13 @@ class database_api
        */
       vector<omnibazaar::escrow_object> get_escrow_objects( const string& account_name )const;
 
+      /**
+        * @brief Get a list of escrows which are implicitly approved by target_account.
+        * @param target_account account which approves escrows.
+        * @return list of approved escrow agents.
+        */
+      set<account_id_type> get_implicit_escrows(const account_id_type target_account_id);
+
       /////////////////
       // Marketplace //
       /////////////////
@@ -810,6 +817,7 @@ FC_API(graphene::app::database_api,
     (get_escrow_objects)
 	(get_number_of_escrows)
 	(filter_current_escrows)
+    (get_implicit_escrows)
 
     // Marketplace
     (check_listing_exists)
