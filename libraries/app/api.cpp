@@ -500,9 +500,11 @@ namespace graphene { namespace app {
                 {
                     const operation_history_object op_history = node->operation_id(db);
                     const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
-                            && op_history.op.get<transfer_operation>().listing.valid();
+                            && op_history.op.get<transfer_operation>().listing.valid()
+                            && (op_history.op.get<transfer_operation>().from == account_id);
                     const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
-                            && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid();
+                            && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid()
+                            && (op_history.op.get<omnibazaar::escrow_create_operation>().buyer == account_id);
                     if(is_transfer_sale || is_escrow_sale)
                     {
                         result.push_back( op_history );
@@ -522,9 +524,11 @@ namespace graphene { namespace app {
                 const account_transaction_history_object head = account_transaction_history_id_type()(db);
                 const operation_history_object op_history = head.operation_id(db);
                 const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
-                        && op_history.op.get<transfer_operation>().listing.valid();
+                        && op_history.op.get<transfer_operation>().listing.valid()
+                        && (op_history.op.get<transfer_operation>().from == account_id);
                 const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
-                        && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid();
+                        && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid()
+                        && (op_history.op.get<omnibazaar::escrow_create_operation>().buyer == account_id);
                 if( head.account == account_id && (is_transfer_sale || is_escrow_sale) )
                 {
                     result.push_back(head.operation_id(db));
