@@ -42,7 +42,7 @@ namespace omnibazaar {
             graphene::chain::database& d = db();
 
             // Calculate available bonus value.
-            const graphene::chain::share_type bonus_sum = get_bonus_sum() * GRAPHENE_BLOCKCHAIN_PRECISION;
+            const graphene::chain::share_type bonus_sum = get_bonus_sum();
             bonus_ddump((bonus_sum));
 
             // Send bonus.
@@ -73,17 +73,17 @@ namespace omnibazaar {
         FC_CAPTURE_AND_RETHROW( (op) )
     }
 
-    double sale_bonus_evaluator::get_bonus_sum()const
+    graphene::chain::share_type sale_bonus_evaluator::get_bonus_sum()const
     {
         bonus_ddump((""));
 
         const auto users_count = graphene::app::database_api(db()).get_account_count();
         bonus_ddump((users_count));
 
-        if      (users_count <= 100000  )   return 500.;
-        else if (users_count <= 1000000 )   return 250.;
-        else if (users_count <= 10000000)   return 125.;
-        else                                return 62.5;
+        if      (users_count <= 100000  )   return 500 * GRAPHENE_BLOCKCHAIN_PRECISION;
+        else if (users_count <= 1000000 )   return 250 * GRAPHENE_BLOCKCHAIN_PRECISION;
+        else if (users_count <= 10000000)   return 125 * GRAPHENE_BLOCKCHAIN_PRECISION;
+        else                                return 62  * GRAPHENE_BLOCKCHAIN_PRECISION + 5 * GRAPHENE_BLOCKCHAIN_PRECISION / 10;
     }
 
 }
