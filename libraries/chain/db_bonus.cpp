@@ -1,4 +1,5 @@
 #include <graphene/chain/database.hpp>
+#include <omnibazaar_util.hpp>
 
 namespace graphene { namespace chain {
 
@@ -6,8 +7,8 @@ bool database::is_welcome_bonus_available(const string &harddrive_id, const stri
 {
     if (harddrive_id.empty() || mac_address.empty())
     {
-        wlog("We can't get your machine identity. "
-             "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
+        bonus_wlog("We can't get your machine identity. "
+                   "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
         return false;
     }
 
@@ -17,8 +18,8 @@ bool database::is_welcome_bonus_available(const string &harddrive_id, const stri
     const bool has_mac_address = bonus_idx.mac_addresses.find(mac_address) != bonus_idx.mac_addresses.end();
     if(has_drive_id || has_mac_address)
     {
-        wlog("You have already received a sign-up bonus for a user on this machine. "
-             "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
+        bonus_wlog("You have already received a sign-up bonus for a user on this machine. "
+                   "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
         return false;
     }
 
