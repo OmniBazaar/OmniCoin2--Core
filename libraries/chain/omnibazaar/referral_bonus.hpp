@@ -8,23 +8,21 @@ namespace omnibazaar {
     struct referral_bonus_operation : public graphene::chain::base_operation
     {
         struct fee_parameters_type {
-           uint64_t fee = GRAPHENE_BLOCKCHAIN_PRECISION;
-           uint32_t price_per_kbyte = 10;
+           uint64_t fee = 0;
         };
 
         // Operation fee.
         graphene::chain::asset fee;
-        // Operation fee payer.
-        graphene::chain::account_id_type payer;
+        // Newly registered account.
+        graphene::chain::account_id_type referred_account;
         // Bonus receiver.
-        graphene::chain::account_id_type receiver;
+        graphene::chain::account_id_type referrer_account;
 
         // base_operation interface
-        graphene::chain::account_id_type fee_payer()const { return payer; }
+        graphene::chain::account_id_type fee_payer()const { return referred_account; }
         void validate()const;
-        graphene::chain::share_type calculate_fee(const fee_parameters_type& k)const;
     };
 }
 
-FC_REFLECT( omnibazaar::referral_bonus_operation::fee_parameters_type, (fee)(price_per_kbyte) )
-FC_REFLECT( omnibazaar::referral_bonus_operation, (fee)(payer)(receiver) )
+FC_REFLECT( omnibazaar::referral_bonus_operation::fee_parameters_type, (fee) )
+FC_REFLECT( omnibazaar::referral_bonus_operation, (fee)(referred_account)(referrer_account) )

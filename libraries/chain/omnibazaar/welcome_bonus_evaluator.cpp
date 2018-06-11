@@ -9,30 +9,19 @@ namespace omnibazaar {
         try
         {
             bonus_ddump((op));
-            graphene::chain::database& d = db();
+            const graphene::chain::database& d = db();
 
             // Check if the bonus is depleted.
             bonus_ddump((d.get_dynamic_global_properties().welcome_bonus));
-            if(d.get_dynamic_global_properties().welcome_bonus >= (6.2e9 * GRAPHENE_BLOCKCHAIN_PRECISION))
-            {
-                FC_THROW("Welcome Bonus is depleted");
-            }
+            FC_ASSERT(d.get_dynamic_global_properties().welcome_bonus < OMNIBAZAAR_WELCOME_BONUS_LIMIT, "Welcome Bonus is depleted.");
 
             // Check if account already received a bonus.
-            const auto receiver = graphene::app::database_api(d).get_account_by_name(op.receiver_name);
+            const graphene::chain::account_object receiver = op.receiver(d);
             bonus_ddump((receiver));
-            if(!receiver.valid())
-            {
-                FC_THROW("Account '${name}' doesn't exist", ("name", op.receiver_name));
-            }
-			else
-			{
-                _receiver_account = (*receiver).get_id();
-			}
-            if (!d.is_welcome_bonus_available(op.drive_id, op.mac_address))
-            {
-                FC_THROW("Account '${name}' has already received a welcome bonus", ("name", receiver->name));
-            }
+            FC_ASSERT(receiver.drive_id.empty() && receiver.mac_address.empty(), "${name} already received Welcome Bonus.", ("name", receiver.name));
+            FC_ASSERT(d.is_welcome_bonus_available(op.drive_id, op.mac_address),
+                      "Welcome Bonus was already received for ${drive}, ${mac}.",
+                      ("drive", op.drive_id)("mac", op.mac_address));
 
             return graphene::chain::void_result();
         }
@@ -48,17 +37,16 @@ namespace omnibazaar {
             graphene::chain::database& d = db();
 
             // Calculate available bonus value.
-            const graphene::chain::share_type bonus_sum = get_bonus_sum() * GRAPHENE_BLOCKCHAIN_PRECISION;
+            const graphene::chain::share_type bonus_sum = get_bonus_sum();
             bonus_ddump((bonus_sum));
 
-            bonus_ddump((_receiver_account));
             // Send bonus.
             bonus_dlog("Adjusting balance.");
-            d.adjust_balance(_receiver_account, bonus_sum);
+            d.adjust_balance(op.receiver, bonus_sum);
 
             // Set user hardware info to prevent multiple bonuses per machine.
             bonus_dlog("Setting hardware info.");
-            d.modify(_receiver_account(d), [&](graphene::chain::account_object& a) {
+            d.modify(op.receiver(d), [&](graphene::chain::account_object& a) {
                 a.drive_id = op.drive_id;
                 a.mac_address = op.mac_address;
             });
@@ -81,18 +69,18 @@ namespace omnibazaar {
         FC_CAPTURE_AND_RETHROW( (op) )
     }
 
-    double welcome_bonus_evaluator::get_bonus_sum()const
+    graphene::chain::share_type welcome_bonus_evaluator::get_bonus_sum()const
     {
         bonus_ddump((""));
 
         const auto users_count = graphene::app::database_api(db()).get_account_count();
         bonus_ddump((users_count));
 
-        if      (users_count <= 1000   )    return 10000.;
-        else if (users_count <= 10000  )    return 5000.;
-        else if (users_count <= 100000 )    return 2500.;
-        else if (users_count <= 1000000)    return 1250.;
-        else                                return 625.;
+        if      (users_count <= 1000   )    return 10000 * GRAPHENE_BLOCKCHAIN_PRECISION;
+        else if (users_count <= 10000  )    return 5000  * GRAPHENE_BLOCKCHAIN_PRECISION;
+        else if (users_count <= 100000 )    return 2500  * GRAPHENE_BLOCKCHAIN_PRECISION;
+        else if (users_count <= 1000000)    return 1250  * GRAPHENE_BLOCKCHAIN_PRECISION;
+        else                                return 625   * GRAPHENE_BLOCKCHAIN_PRECISION;
     }
 
 }

@@ -19,10 +19,7 @@ namespace omnibazaar {
 
     private:
         // Calculate bonus value.
-        double get_bonus_sum()const;
-
-        // Cache account id between do_evaluate and do_apply calls to avoid weird behavior and segmentation faults.
-        graphene::chain::account_id_type _receiver_account;
+        graphene::chain::share_type get_bonus_sum()const;
     };
 
 }

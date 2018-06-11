@@ -128,7 +128,6 @@ public:
    std::string operator()(const account_create_operation& op)const;
    std::string operator()(const account_update_operation& op)const;
    std::string operator()(const asset_create_operation& op)const;
-   std::string operator()(const omnibazaar::welcome_bonus_operation& op)const;
 };
 
 template<class T>
@@ -1001,24 +1000,6 @@ public:
 
       tx.operations.push_back( account_create_op );
 
-      if(_remote_db->is_welcome_bonus_available(harddrive_id, mac_address))
-      {
-          omnibazaar::welcome_bonus_operation welcome_bonus_op;
-          welcome_bonus_op.receiver_name = name;
-          welcome_bonus_op.payer = account_create_op.fee_payer();
-          welcome_bonus_op.drive_id = harddrive_id;
-          welcome_bonus_op.mac_address = mac_address;
-          tx.operations.push_back( welcome_bonus_op );
-
-          if(_remote_db->is_referral_bonus_available())
-          {
-              omnibazaar::referral_bonus_operation referral_bonus_op;
-              referral_bonus_op.receiver = referrer_account_object.id;
-              referral_bonus_op.payer = account_create_op.fee_payer();
-              tx.operations.push_back(referral_bonus_op);
-          }
-      }
-
       auto current_fees = _remote_db->get_global_properties().parameters.current_fees;
       set_operation_fees( tx, current_fees );
 
@@ -1145,26 +1126,6 @@ public:
          signed_transaction tx;
 
          tx.operations.push_back( account_create_op );
-
-         const string harddrive_id = omnibazaar::util::get_harddrive_id();
-         const string mac_address = omnibazaar::util::get_primary_mac();
-         if(_remote_db->is_welcome_bonus_available(harddrive_id, mac_address))
-         {
-             omnibazaar::welcome_bonus_operation welcome_bonus_op;
-             welcome_bonus_op.receiver_name = account_name;
-             welcome_bonus_op.payer = account_create_op.fee_payer();
-             welcome_bonus_op.drive_id = harddrive_id;
-             welcome_bonus_op.mac_address = mac_address;
-             tx.operations.push_back( welcome_bonus_op );
-
-             if(_remote_db->is_referral_bonus_available())
-             {
-                 omnibazaar::referral_bonus_operation referral_bonus_op;
-                 referral_bonus_op.receiver = referrer_account_object.id;
-                 referral_bonus_op.payer = account_create_op.fee_payer();
-                 tx.operations.push_back(referral_bonus_op);
-             }
-         }
 
          set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
 
@@ -2836,12 +2797,6 @@ std::string operation_printer::operator()(const asset_create_operation& op) cons
       out << "User-Issue Asset ";
    out << "'" << op.symbol << "' with issuer " << wallet.get_account(op.issuer).name;
    return fee(op.fee);
-}
-
-std::string operation_printer::operator()(const omnibazaar::welcome_bonus_operation& op)const
-{
-    out << "Welcome bonus for " << op.receiver_name;
-    return fee(op.fee);
 }
 
 std::string operation_result_printer::operator()(const void_result& x) const
