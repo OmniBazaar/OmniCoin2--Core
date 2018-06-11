@@ -203,8 +203,8 @@ struct get_impacted_account_visitor
 
    void operator()( const omnibazaar::referral_bonus_operation& op )
    {
-      _impacted.insert( op.payer );
-      _impacted.insert( op.receiver );
+      _impacted.insert( op.referred_account );
+      _impacted.insert( op.referrer_account );
    }
 
    void operator()( const omnibazaar::sale_bonus_operation& op )

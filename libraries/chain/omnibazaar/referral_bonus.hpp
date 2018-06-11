@@ -13,16 +13,16 @@ namespace omnibazaar {
 
         // Operation fee.
         graphene::chain::asset fee;
-        // Operation fee payer.
-        graphene::chain::account_id_type payer;
+        // Newly registered account.
+        graphene::chain::account_id_type referred_account;
         // Bonus receiver.
-        graphene::chain::account_id_type receiver;
+        graphene::chain::account_id_type referrer_account;
 
         // base_operation interface
-        graphene::chain::account_id_type fee_payer()const { return payer; }
+        graphene::chain::account_id_type fee_payer()const { return referred_account; }
         void validate()const;
     };
 }
 
 FC_REFLECT( omnibazaar::referral_bonus_operation::fee_parameters_type, (fee) )
-FC_REFLECT( omnibazaar::referral_bonus_operation, (fee)(payer)(receiver) )
+FC_REFLECT( omnibazaar::referral_bonus_operation, (fee)(referred_account)(referrer_account) )

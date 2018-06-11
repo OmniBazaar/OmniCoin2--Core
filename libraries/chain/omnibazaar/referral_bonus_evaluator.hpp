@@ -17,7 +17,7 @@ namespace omnibazaar {
 
     private:
         // Calculate bonus value.
-        double get_bonus_sum()const;
+        graphene::chain::share_type get_bonus_sum()const;
     };
 
 }

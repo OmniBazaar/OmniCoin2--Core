@@ -303,6 +303,9 @@ namespace graphene { namespace chain {
          // Stores number of listings hosted by this user if this account is a publisher.
          uint64_t listings_count = 0;
 
+         // Flag indicating that this account sent Referral bonus to its referrer.
+         bool sent_referral_bonus = false;
+
          // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
          // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
          map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
@@ -563,6 +566,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (reputation_score)
                     (reputation_votes_count)
                     (listings_count)
+                    (sent_referral_bonus)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,
