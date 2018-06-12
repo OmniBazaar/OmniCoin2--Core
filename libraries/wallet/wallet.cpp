@@ -2964,6 +2964,35 @@ vector<operation_history_object> wallet_api::get_account_history_raw(string name
     return result;
 }
 
+vector<operation_history_object>  wallet_api::get_account_purchase_history(string name, int limit)const
+{
+    vector<operation_history_object> result;
+    auto account_id = get_account(name).get_id();
+
+    while( limit > 0 )
+    {
+       operation_history_id_type start;
+       if( result.size() )
+       {
+          start = result.back().id;
+          start = start + 1;
+       }
+
+       vector<operation_history_object> current = my->_remote_hist->get_purchase_history(account_id, start, operation_history_id_type(), std::min(100, limit));
+       for( auto& o : current )
+       {
+          result.push_back( o );
+       }
+       if( int(current.size()) < std::min(100,limit) )
+       {
+           break;
+       }
+       limit -= current.size();
+    }
+
+    return result;
+}
+
 vector<operation_detail> wallet_api::get_relative_account_history(string name, uint32_t stop, int limit, uint32_t start)const
 {
    vector<operation_detail> result;
