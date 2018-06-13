@@ -49,15 +49,15 @@ namespace graphene { namespace chain {
          // Total number of correct blocks that this witness produced.
          int64_t          total_produced = 0;
          // Proof of Participation scores in GRAPHENE_1_PERCENT.
-         uint16_t referral_score;
-         uint16_t listings_score;
-         uint16_t trust_score;
-         uint16_t reliability_score;
-         uint16_t reputation_score;
-         uint16_t reputation_unweighted_score;
-         uint16_t pop_score;
+         uint16_t referral_score = 0;
+         uint16_t listings_score = 0;
+         uint16_t trust_score = 0;
+         uint16_t reliability_score = 0;
+         uint16_t reputation_score = 0;
+         uint16_t reputation_unweighted_score = 0;
+         uint16_t pop_score = 0;
          // Number of reputation votes for this account.
-         uint64_t reputation_votes;
+         uint64_t reputation_votes = 0;
 
          witness_object() : vote_id(vote_id_type::witness) {}
    };
