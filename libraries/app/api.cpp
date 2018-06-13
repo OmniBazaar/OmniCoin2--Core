@@ -494,20 +494,24 @@ namespace graphene { namespace app {
                 start = node->operation_id;
             }
 
+            const auto is_purchase = [&](){
+                const operation_history_object op_history = node->operation_id(db);
+                const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
+                        && op_history.op.get<transfer_operation>().listing.valid()
+                        && (op_history.op.get<transfer_operation>().from == account_id);
+                const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
+                        && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid()
+                        && (op_history.op.get<omnibazaar::escrow_create_operation>().buyer == account_id);
+                return is_transfer_sale || is_escrow_sale;
+            };
+
             while(node && node->operation_id.instance.value > stop.instance.value && result.size() < limit)
             {
                 if( node->operation_id.instance.value <= start.instance.value )
                 {
-                    const operation_history_object op_history = node->operation_id(db);
-                    const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
-                            && op_history.op.get<transfer_operation>().listing.valid()
-                            && (op_history.op.get<transfer_operation>().from == account_id);
-                    const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
-                            && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid()
-                            && (op_history.op.get<omnibazaar::escrow_create_operation>().buyer == account_id);
-                    if(is_transfer_sale || is_escrow_sale)
+                    if(is_purchase())
                     {
-                        result.push_back( op_history );
+                        result.push_back( node->operation_id(db) );
                     }
                 }
                 if( node->next == account_transaction_history_id_type() )
@@ -519,21 +523,19 @@ namespace graphene { namespace app {
                     node = &node->next(db);
                 }
             }
+
             if( stop.instance.value == 0 && result.size() < limit )
             {
-                const account_transaction_history_object head = account_transaction_history_id_type()(db);
-                const operation_history_object op_history = head.operation_id(db);
-                const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
-                        && op_history.op.get<transfer_operation>().listing.valid()
-                        && (op_history.op.get<transfer_operation>().from == account_id);
-                const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
-                        && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid()
-                        && (op_history.op.get<omnibazaar::escrow_create_operation>().buyer == account_id);
-                if( head.account == account_id && (is_transfer_sale || is_escrow_sale) )
+                node = db.find(account_transaction_history_id_type());
+                if(node && (node->account == account_id))
                 {
-                    result.push_back(head.operation_id(db));
+                    if(is_purchase())
+                    {
+                        result.push_back( node->operation_id(db) );
+                    }
                 }
             }
+
             return result;
         }
         FC_CAPTURE_AND_RETHROW( (account_id) );
