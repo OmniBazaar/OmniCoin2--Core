@@ -658,7 +658,6 @@ std::map<std::string, full_account> database_api_impl::get_full_accounts( const 
       acnt.statistics = account->statistics(_db);
       acnt.registrar_name = account->registrar(_db).name;
       acnt.referrer_name = account->referrer(_db).name;
-      acnt.lifetime_referrer_name = account->lifetime_referrer(_db).name;
       acnt.votes = lookup_vote_ids( vector<vote_id_type>(account->options.votes.begin(),account->options.votes.end()) );
 
       // Add the account itself, its statistics object, cashback balance, and referral account names

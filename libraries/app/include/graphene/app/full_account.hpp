@@ -37,7 +37,6 @@ namespace graphene { namespace app {
       account_statistics_object        statistics;
       string                           registrar_name;
       string                           referrer_name;
-      string                           lifetime_referrer_name;
       vector<variant>                  votes;
       optional<vesting_balance_object> cashback_balance;
       vector<account_balance_object>   balances;
@@ -58,7 +57,6 @@ FC_REFLECT( graphene::app::full_account,
             (statistics)
             (registrar_name)
             (referrer_name)
-            (lifetime_referrer_name)
             (votes)
             (cashback_balance)
             (balances)

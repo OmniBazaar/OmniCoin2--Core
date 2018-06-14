@@ -979,10 +979,7 @@ public:
       FC_ASSERT( referrer_percent <= 100 );
       // TODO:  process when pay_from_account is ID
 
-      account_object registrar_account_object =
-            this->get_account( registrar_account );
-      FC_ASSERT( registrar_account_object.is_lifetime_member() );
-
+      account_object registrar_account_object = this->get_account( registrar_account );
       account_id_type registrar_account_id = registrar_account_object.id;
 
       account_object referrer_account_object =
@@ -1028,24 +1025,6 @@ public:
          _remote_net_broadcast->broadcast_transaction( tx );
       return tx;
    } FC_CAPTURE_AND_RETHROW( (name)(owner)(active)(registrar_account)(referrer_account)(referrer_percent)(broadcast) ) }
-
-
-   signed_transaction upgrade_account(string name, bool broadcast)
-   { try {
-      FC_ASSERT( !self.is_locked() );
-      account_object account_obj = get_account(name);
-      FC_ASSERT( !account_obj.is_lifetime_member() );
-
-      signed_transaction tx;
-      account_upgrade_operation op;
-      op.account_to_upgrade = account_obj.get_id();
-      op.upgrade_to_lifetime_member = true;
-      tx.operations = {op};
-      set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees );
-      tx.validate();
-
-      return sign_transaction( tx, broadcast );
-   } FC_CAPTURE_AND_RETHROW( (name) ) }
 
 
    // This function generates derived keys starting with index 0 and keeps incrementing
@@ -3939,11 +3918,6 @@ map<public_key_type, string> wallet_api::dump_private_keys()
 {
    FC_ASSERT(!is_locked());
    return my->_keys;
-}
-
-signed_transaction wallet_api::upgrade_account( string name, bool broadcast )
-{
-   return my->upgrade_account(name,broadcast);
 }
 
 signed_transaction wallet_api::sell_asset(string seller_account,

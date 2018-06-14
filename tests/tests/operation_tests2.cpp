@@ -934,7 +934,6 @@ BOOST_AUTO_TEST_CASE( feed_limit_test )
 BOOST_AUTO_TEST_CASE( witness_create )
 { try {
    ACTOR(nathan);
-   upgrade_to_lifetime_member(nathan_id);
    trx.clear();
    witness_id_type nathan_witness_id = create_witness(nathan_id, nathan_private_key).id;
    // Give nathan some voting stake
@@ -1068,7 +1067,6 @@ BOOST_AUTO_TEST_CASE( global_settle_test )
 BOOST_AUTO_TEST_CASE( worker_create_test )
 { try {
    ACTOR(nathan);
-   upgrade_to_lifetime_member(nathan_id);
    generate_block();
 
    {
@@ -1189,7 +1187,6 @@ BOOST_AUTO_TEST_CASE( worker_pay_test )
 BOOST_AUTO_TEST_CASE( refund_worker_test )
 {try{
    ACTOR(nathan);
-   upgrade_to_lifetime_member(nathan_id);
    generate_block();
    generate_blocks(db.get_dynamic_global_properties().next_maintenance_time);
    set_expiration( db, trx );
@@ -1262,7 +1259,6 @@ BOOST_AUTO_TEST_CASE( refund_worker_test )
 BOOST_AUTO_TEST_CASE( burn_worker_test )
 {try{
    ACTOR(nathan);
-   upgrade_to_lifetime_member(nathan_id);
    generate_block();
    generate_blocks(db.get_dynamic_global_properties().next_maintenance_time);
    set_expiration( db, trx );
@@ -1742,7 +1738,6 @@ BOOST_AUTO_TEST_CASE(zero_second_vbo)
          db.push_transaction( tx, database::skip_authority_check | database::skip_tapos_check | database::skip_transaction_signatures );
       }
       enable_fees();
-      upgrade_to_lifetime_member(alice_id);
       generate_block();
 
       // Wait for a maintenance interval to ensure we have a full day's budget to work with.
@@ -2071,7 +2066,6 @@ BOOST_AUTO_TEST_CASE( top_n_special )
 BOOST_AUTO_TEST_CASE( buyback )
 {
    ACTORS( (alice)(bob)(chloe)(dan)(izzy)(philbin) );
-   upgrade_to_lifetime_member(philbin_id);
 
    generate_blocks( HARDFORK_538_TIME );
    generate_blocks( HARDFORK_555_TIME );

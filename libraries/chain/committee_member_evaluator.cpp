@@ -35,7 +35,6 @@ namespace graphene { namespace chain {
 
 void_result committee_member_create_evaluator::do_evaluate( const committee_member_create_operation& op )
 { try {
-   FC_ASSERT(db().get(op.committee_member_account).is_lifetime_member());
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (op) ) }
 

@@ -64,10 +64,9 @@ namespace graphene { namespace chain {
             account_create_operation,
             account_update_operation,
             account_whitelist_operation,
-            account_upgrade_operation,
             account_transfer_operation,
-            asset_create_operation,                 //10
-            asset_update_operation,
+            asset_create_operation,
+            asset_update_operation,                 //10
             asset_update_bitasset_operation,
             asset_update_feed_producers_operation,
             asset_issue_operation,
@@ -76,8 +75,8 @@ namespace graphene { namespace chain {
             asset_settle_operation,
             asset_global_settle_operation,
             asset_publish_feed_operation,
-            witness_create_operation,               //20
-            witness_update_operation,
+            witness_create_operation,
+            witness_update_operation,               //20
             proposal_create_operation,
             proposal_update_operation,
             proposal_delete_operation,
@@ -86,8 +85,8 @@ namespace graphene { namespace chain {
             withdraw_permission_claim_operation,
             withdraw_permission_delete_operation,
             committee_member_create_operation,
-            committee_member_update_operation,      //30
-            committee_member_update_global_parameters_operation,
+            committee_member_update_operation,
+            committee_member_update_global_parameters_operation,      //30
             vesting_balance_create_operation,
             vesting_balance_withdraw_operation,
             worker_create_operation,
@@ -96,8 +95,8 @@ namespace graphene { namespace chain {
             balance_claim_operation,
             override_transfer_operation,
             transfer_to_blind_operation,
-            blind_transfer_operation,               //40
-            transfer_from_blind_operation,
+            blind_transfer_operation,
+            transfer_from_blind_operation,          //40
             asset_settle_cancel_operation,  // VIRTUAL
             asset_claim_fees_operation,
             fba_distribute_operation,       // VIRTUAL
@@ -106,8 +105,8 @@ namespace graphene { namespace chain {
             omnibazaar::welcome_bonus_operation,
             omnibazaar::referral_bonus_operation,
             omnibazaar::sale_bonus_operation,
-            omnibazaar::founder_bonus_operation,    //50
-            omnibazaar::witness_bonus_operation,
+            omnibazaar::founder_bonus_operation,
+            omnibazaar::witness_bonus_operation,    //50
             omnibazaar::escrow_create_operation,
             omnibazaar::escrow_release_operation,
             omnibazaar::escrow_return_operation,

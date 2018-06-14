@@ -728,17 +728,6 @@ class wallet_api
                                           string mac_address,
                                           bool broadcast = false);
 
-      /**
-       *  Upgrades an account to prime status.
-       *  This makes the account holder a 'lifetime member'.
-       *
-       *  @todo there is no option for annual membership
-       *  @param name the name or id of the account to upgrade
-       * @param broadcast true to broadcast the transaction on the network
-       * @returns the signed transaction upgrading the account
-       */
-      signed_transaction upgrade_account(string name, bool broadcast);
-
       /** Creates a new account and registers it on the blockchain.
        *
        * @todo why no referrer_percent here?
@@ -1682,7 +1671,6 @@ FC_API( graphene::wallet::wallet_api,
         (suggest_brain_key)
         (derive_owner_keys_from_brain_key)
         (register_account)
-        (upgrade_account)
         (create_account_with_brain_key)
         (sell_asset)
         (sell)

@@ -36,7 +36,6 @@ void_result worker_create_evaluator::do_evaluate(const worker_create_evaluator::
 { try {
    database& d = db();
 
-   FC_ASSERT(d.get(o.owner).is_lifetime_member());
    FC_ASSERT(o.work_begin_date >= d.head_block_time());
 
    return void_result();

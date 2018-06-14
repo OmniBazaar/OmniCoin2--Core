@@ -141,7 +141,6 @@ void database::initialize_evaluators()
    _operation_evaluators.resize(255);
    register_evaluator<account_create_evaluator>();
    register_evaluator<account_update_evaluator>();
-   register_evaluator<account_upgrade_evaluator>();
    register_evaluator<account_whitelist_evaluator>();
    register_evaluator<committee_member_create_evaluator>();
    register_evaluator<committee_member_update_evaluator>();
@@ -279,9 +278,7 @@ void database::init_genesis(const genesis_state_type& genesis_state)
    });
    const account_object& committee_account =
       create<account_object>( [&](account_object& n) {
-         n.membership_expiration_date = time_point_sec::maximum();
          n.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
-         n.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
          n.owner.weight_threshold = 1;
          n.active.weight_threshold = 1;
          n.name = "committee-account";
@@ -293,60 +290,48 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
        a.owner.weight_threshold = 1;
        a.active.weight_threshold = 1;
-       a.registrar = a.lifetime_referrer = a.referrer = GRAPHENE_WITNESS_ACCOUNT;
-       a.membership_expiration_date = time_point_sec::maximum();
+       a.registrar = a.referrer = GRAPHENE_WITNESS_ACCOUNT;
        a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
-       a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
    }).get_id() == GRAPHENE_WITNESS_ACCOUNT);
    FC_ASSERT(create<account_object>([this](account_object& a) {
        a.name = "relaxed-committee-account";
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
        a.owner.weight_threshold = 1;
        a.active.weight_threshold = 1;
-       a.registrar = a.lifetime_referrer = a.referrer = GRAPHENE_RELAXED_COMMITTEE_ACCOUNT;
-       a.membership_expiration_date = time_point_sec::maximum();
+       a.registrar = a.referrer = GRAPHENE_RELAXED_COMMITTEE_ACCOUNT;
        a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
-       a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
    }).get_id() == GRAPHENE_RELAXED_COMMITTEE_ACCOUNT);
    FC_ASSERT(create<account_object>([this](account_object& a) {
        a.name = "null-account";
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
        a.owner.weight_threshold = 1;
        a.active.weight_threshold = 1;
-       a.registrar = a.lifetime_referrer = a.referrer = GRAPHENE_NULL_ACCOUNT;
-       a.membership_expiration_date = time_point_sec::maximum();
+       a.registrar = a.referrer = GRAPHENE_NULL_ACCOUNT;
        a.network_fee_percentage = 0;
-       a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT;
    }).get_id() == GRAPHENE_NULL_ACCOUNT);
    FC_ASSERT(create<account_object>([this](account_object& a) {
        a.name = "temp-account";
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
        a.owner.weight_threshold = 0;
        a.active.weight_threshold = 0;
-       a.registrar = a.lifetime_referrer = a.referrer = GRAPHENE_TEMP_ACCOUNT;
-       a.membership_expiration_date = time_point_sec::maximum();
+       a.registrar = a.referrer = GRAPHENE_TEMP_ACCOUNT;
        a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
-       a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
    }).get_id() == GRAPHENE_TEMP_ACCOUNT);
    FC_ASSERT(create<account_object>([this](account_object& a) {
        a.name = "proxy-to-self";
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
        a.owner.weight_threshold = 1;
        a.active.weight_threshold = 1;
-       a.registrar = a.lifetime_referrer = a.referrer = GRAPHENE_NULL_ACCOUNT;
-       a.membership_expiration_date = time_point_sec::maximum();
+       a.registrar = a.referrer = GRAPHENE_NULL_ACCOUNT;
        a.network_fee_percentage = 0;
-       a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT;
    }).get_id() == GRAPHENE_PROXY_TO_SELF_ACCOUNT);
    FC_ASSERT(create<account_object>([this](account_object& a) {
        a.name = "omnibazaar";
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
        a.owner.weight_threshold = 1;
        a.active.weight_threshold = 1;
-       a.registrar = a.lifetime_referrer = a.referrer = OMNIBAZAAR_FOUNDER_ACCOUNT;
-       a.membership_expiration_date = time_point_sec::maximum();
+       a.registrar = a.referrer = OMNIBAZAAR_FOUNDER_ACCOUNT;
        a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
-       a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
    }).get_id() == OMNIBAZAAR_FOUNDER_ACCOUNT);
 
    // Create more special accounts
@@ -360,10 +345,8 @@ void database::init_genesis(const genesis_state_type& genesis_state)
           a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
           a.owner.weight_threshold = 1;
           a.active.weight_threshold = 1;
-          a.registrar = a.lifetime_referrer = a.referrer = account_id_type(id);
-          a.membership_expiration_date = time_point_sec::maximum();
+          a.registrar = a.referrer = account_id_type(id);
           a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
-          a.lifetime_referrer_fee_percentage = GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
       });
       FC_ASSERT( acct.get_id() == account_id_type(id) );
       remove( acct );
@@ -466,14 +449,6 @@ void database::init_genesis(const genesis_state_type& genesis_state)
          cop.options.memo_key = account.active_key;
       }
       account_id_type account_id(apply_operation(genesis_eval_state, cop).get<object_id_type>());
-
-      if( account.is_lifetime_member )
-      {
-          account_upgrade_operation op;
-          op.account_to_upgrade = account_id;
-          op.upgrade_to_lifetime_member = true;
-          apply_operation(genesis_eval_state, op);
-      }
    }
 
    // Helper function to get account ID by name
