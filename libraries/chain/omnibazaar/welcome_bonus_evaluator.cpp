@@ -28,7 +28,7 @@ namespace omnibazaar {
         FC_CAPTURE_AND_RETHROW( (op) )
     }
 
-    graphene::chain::void_result welcome_bonus_evaluator::do_apply(const welcome_bonus_operation& op )
+    graphene::chain::asset welcome_bonus_evaluator::do_apply(const welcome_bonus_operation& op )
     {
         try
         {
@@ -64,7 +64,7 @@ namespace omnibazaar {
                prop.welcome_bonus += bonus_sum;
             });
 
-            return graphene::chain::void_result();
+            return graphene::chain::asset(bonus_sum);
         }
         FC_CAPTURE_AND_RETHROW( (op) )
     }

@@ -21,7 +21,7 @@ namespace omnibazaar {
         FC_CAPTURE_AND_RETHROW( (op) )
     }
 
-    graphene::chain::void_result witness_bonus_evaluator::do_apply( const witness_bonus_operation& op )
+    graphene::chain::asset witness_bonus_evaluator::do_apply( const witness_bonus_operation& op )
     {
         try
         {
@@ -44,7 +44,7 @@ namespace omnibazaar {
                 dynamic_asset.current_supply += bonus_sum;
             });
 
-            return graphene::chain::void_result();
+            return graphene::chain::asset(bonus_sum);
         }
         FC_CAPTURE_AND_RETHROW( (op) )
     }

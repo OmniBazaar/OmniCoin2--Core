@@ -15,7 +15,7 @@ namespace omnibazaar {
 
         // Methods required by graphene::chain::evaluator to process an operation.
         graphene::chain::void_result do_evaluate( const welcome_bonus_operation& op );
-        graphene::chain::void_result do_apply( const welcome_bonus_operation& op );
+        graphene::chain::asset do_apply( const welcome_bonus_operation& op );
 
     private:
         // Calculate bonus value.
