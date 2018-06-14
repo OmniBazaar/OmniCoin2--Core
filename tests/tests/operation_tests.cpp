@@ -431,16 +431,6 @@ BOOST_AUTO_TEST_CASE( update_account )
       BOOST_CHECK(nathan.options.votes.size() == 2);
 
       enable_fees();
-      {
-         account_upgrade_operation op;
-         op.account_to_upgrade = nathan.id;
-         op.upgrade_to_lifetime_member = true;
-         op.fee = db.get_global_properties().parameters.current_fees->calculate_fee(op);
-         trx.operations = {op};
-         PUSH_TX( db, trx, ~0 );
-      }
-
-      BOOST_CHECK( nathan.is_lifetime_member() );
    } catch (fc::exception& e) {
       edump((e.to_detail_string()));
       throw;
@@ -1211,11 +1201,9 @@ BOOST_AUTO_TEST_CASE( witness_pay_test )
    const asset_object* core = &asset_id_type()(db);
    const account_object* nathan = &get_account("nathan");
    enable_fees();
-   BOOST_CHECK_GT(db.current_fee_schedule().get<account_upgrade_operation>().membership_lifetime_fee, 0);
    // Based on the size of the reserve fund later in the test, the witness budget will be set to this value
    const uint64_t ref_budget =
-      ((uint64_t( db.current_fee_schedule().get<account_upgrade_operation>().membership_lifetime_fee )
-         * GRAPHENE_CORE_ASSET_CYCLE_RATE * 30
+      ((uint64_t( GRAPHENE_CORE_ASSET_CYCLE_RATE * 30 )
          * block_interval
        ) + ((uint64_t(1) << GRAPHENE_CORE_ASSET_CYCLE_RATE_BITS)-1)
       ) >> GRAPHENE_CORE_ASSET_CYCLE_RATE_BITS
@@ -1236,18 +1224,14 @@ BOOST_AUTO_TEST_CASE( witness_pay_test )
 
    BOOST_CHECK_EQUAL(core->dynamic_asset_data_id(db).accumulated_fees.value, 0);
    BOOST_TEST_MESSAGE( "Upgrading account" );
-   account_upgrade_operation uop;
-   uop.account_to_upgrade = nathan->get_id();
-   uop.upgrade_to_lifetime_member = true;
    set_expiration( db, trx );
-   trx.operations.push_back(uop);
    for( auto& op : trx.operations ) db.current_fee_schedule().set_fee(op);
    trx.validate();
    sign( trx, init_account_priv_key );
    PUSH_TX( db, trx );
    auto pay_fee_time = db.head_block_time().sec_since_epoch();
    trx.clear();
-   BOOST_CHECK( get_balance(*nathan, *core) == 20000*prec - account_upgrade_operation::fee_parameters_type().membership_lifetime_fee );;
+   BOOST_CHECK( get_balance(*nathan, *core) == 20000*prec );
 
    generate_block();
    nathan = &get_account("nathan");

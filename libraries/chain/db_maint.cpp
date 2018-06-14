@@ -880,37 +880,6 @@ void create_buyback_orders( database& db )
    return;
 }
 
-void deprecate_annual_members( database& db )
-{
-   const auto& account_idx = db.get_index_type<account_index>().indices().get<by_id>();
-   fc::time_point_sec now = db.head_block_time();
-   for( const account_object& acct : account_idx )
-   {
-      try
-      {
-         transaction_evaluation_state upgrade_context(&db);
-         upgrade_context.skip_fee_schedule_check = true;
-
-         if( acct.is_annual_member( now ) )
-         {
-            account_upgrade_operation upgrade_vop;
-            upgrade_vop.fee = asset( 0, asset_id_type() );
-            upgrade_vop.account_to_upgrade = acct.id;
-            upgrade_vop.upgrade_to_lifetime_member = true;
-            db.apply_operation( upgrade_context, upgrade_vop );
-         }
-      }
-      catch( const fc::exception& e )
-      {
-         // we can in fact get here, e.g. if asset issuer of buy/sell asset blacklists/whitelists the buyback account
-         wlog( "Skipping annual member deprecate processing for account ${a} (${an}) at block ${n}; exception was ${e}",
-               ("a", acct.id)("an", acct.name)("n", db.head_block_num())("e", e.to_detail_string()) );
-         continue;
-      }
-   }
-   return;
-}
-
 void database::process_bids( const asset_bitasset_data_object& bad )
 {
    if( bad.is_prediction_market ) return;
@@ -990,7 +959,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       }
 
       void operator()(const account_object& stake_account) {
-         if( props.parameters.count_non_member_votes || stake_account.is_member(d.head_block_time()) )
+         if( props.parameters.count_non_member_votes )
          {
             // There may be a difference between the account whose stake is voting and the one specifying opinions.
             // Usually they're the same, but if the stake account has specified a voting_account, that account is the one
@@ -1129,9 +1098,6 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    }
 
    const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
-
-   if( (dgpo.next_maintenance_time < HARDFORK_613_TIME) && (next_maintenance_time >= HARDFORK_613_TIME) )
-      deprecate_annual_members(*this);
 
    modify(dgpo, [next_maintenance_time](dynamic_global_property_object& d) {
       d.next_maintenance_time = next_maintenance_time;

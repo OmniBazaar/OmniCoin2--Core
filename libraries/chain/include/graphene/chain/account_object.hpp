@@ -132,27 +132,13 @@ namespace graphene { namespace chain {
          static const uint8_t space_id = protocol_ids;
          static const uint8_t type_id  = account_object_type;
 
-         /**
-          * The time at which this account's membership expires.
-          * If set to any time in the past, the account is a basic account.
-          * If set to time_point_sec::maximum(), the account is a lifetime member.
-          * If set to any time not in the past less than time_point_sec::maximum(), the account is an annual member.
-          *
-          * See @ref is_lifetime_member, @ref is_basic_account, @ref is_annual_member, and @ref is_member
-          */
-         time_point_sec membership_expiration_date;
-
          ///The account that paid the fee to register this account. Receives a percentage of referral rewards.
          account_id_type registrar;
          /// The account credited as referring this account. Receives a percentage of referral rewards.
          account_id_type referrer;
-         /// The lifetime member at the top of the referral tree. Receives a percentage of referral rewards.
-         account_id_type lifetime_referrer;
 
          /// Percentage of fee which should go to network.
          uint16_t network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
-         /// Percentage of fee which should go to lifetime referrer.
-         uint16_t lifetime_referrer_fee_percentage = 0;
          /// Percentage of referral rewards (leftover fee after paying network and lifetime referrer) which should go
          /// to referrer. The remainder of referral rewards goes to the registrar.
          uint16_t referrer_rewards_percentage = 0;
@@ -243,28 +229,6 @@ namespace graphene { namespace chain {
          {
             FC_ASSERT(cashback_vb);
             return db.get(*cashback_vb);
-         }
-
-         /// @return true if this is a lifetime member account; false otherwise.
-         bool is_lifetime_member()const
-         {
-            return membership_expiration_date == time_point_sec::maximum();
-         }
-         /// @return true if this is a basic account; false otherwise.
-         bool is_basic_account(time_point_sec now)const
-         {
-            return now > membership_expiration_date;
-         }
-         /// @return true if the account is an unexpired annual member; false otherwise.
-         /// @note This method will return false for lifetime members.
-         bool is_annual_member(time_point_sec now)const
-         {
-            return !is_lifetime_member() && !is_basic_account(now);
-         }
-         /// @return true if the account is an annual or lifetime member; false otherwise.
-         bool is_member(time_point_sec now)const
-         {
-            return !is_basic_account(now);
          }
 
          account_id_type get_id()const { return id; }
@@ -548,8 +512,8 @@ FC_REFLECT( graphene::chain::account_object_name,
 
 FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (graphene::db::object),
-                    (membership_expiration_date)(registrar)(referrer)(lifetime_referrer)
-                    (network_fee_percentage)(lifetime_referrer_fee_percentage)(referrer_rewards_percentage)
+                    (registrar)(referrer)
+                    (network_fee_percentage)(referrer_rewards_percentage)
                     (name)(owner)(active)(options)(statistics)(whitelisting_accounts)(blacklisting_accounts)
                     (whitelisted_accounts)(blacklisted_accounts)
                     (cashback_vb)

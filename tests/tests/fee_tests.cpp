@@ -327,8 +327,6 @@ BOOST_AUTO_TEST_CASE( cashback_test )
    alife.bal += alife.b0;
    transfer(account_id_type(), rog_id, asset(arog.b0));
    arog.bal += arog.b0;
-   upgrade_to_lifetime_member(life_id);
-   upgrade_to_lifetime_member(rog_id);
 
    BOOST_TEST_MESSAGE("Enable fees");
    const auto& fees = db.get_global_properties().parameters.current_fees;
@@ -371,8 +369,6 @@ BOOST_AUTO_TEST_CASE( cashback_test )
 
    int64_t reg_fee    = fees->get< account_create_operation >().premium_fee;
    int64_t xfer_fee   = fees->get< transfer_operation >().fee;
-   int64_t upg_an_fee = fees->get< account_upgrade_operation >().membership_annual_fee;
-   int64_t upg_lt_fee = fees->get< account_upgrade_operation >().membership_lifetime_fee;
    // all percentages here are cut from whole pie!
    uint64_t network_pct = 20 * P1;
    uint64_t lt_pct = 375 * P100 / 1000;
@@ -386,9 +382,6 @@ BOOST_AUTO_TEST_CASE( cashback_test )
       transfer(life_id, ann_id, asset(aann.b0));
       alife.vcb += xfer_fee; alife.bal += -xfer_fee -aann.b0; aann.bal += aann.b0;
       CustomAudit();
-
-      upgrade_to_annual_member(ann_id);
-      aann.ucb += upg_an_fee; aann.bal += -upg_an_fee;
 
       // audit distribution of fees from Ann
       alife.ubal += pct( P100-network_pct, aann.ucb );
@@ -411,9 +404,6 @@ BOOST_AUTO_TEST_CASE( cashback_test )
    transfer(life_id, stud_id, asset(astud.b0));
    alife.vcb += xfer_fee; alife.bal += -astud.b0 -xfer_fee; astud.bal += astud.b0;
    CustomAudit();
-
-   upgrade_to_lifetime_member(stud_id);
-   astud.ucb += upg_lt_fee; astud.bal -= upg_lt_fee;
 
 /*
 network_cut:   20000
@@ -549,7 +539,6 @@ REG : net' ltm' ref'
 
    BOOST_TEST_MESSAGE("Waiting for annual membership to expire");
 
-   generate_blocks(ann_id(db).membership_expiration_date);
    generate_block();
 
    BOOST_TEST_MESSAGE("Transferring from scud to pleb");
@@ -742,7 +731,6 @@ BOOST_AUTO_TEST_CASE( stealth_fba_test )
    try
    {
       ACTORS( (alice)(bob)(chloe)(dan)(izzy)(philbin)(tom) );
-      upgrade_to_lifetime_member(philbin_id);
 
       generate_blocks( HARDFORK_538_TIME );
       generate_blocks( HARDFORK_555_TIME );
