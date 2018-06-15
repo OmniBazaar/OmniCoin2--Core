@@ -81,7 +81,7 @@ void account_statistics_object::process_fees(const account_object& a, database& 
          d.deposit_cashback(d.get(account.referrer), referrer_cut, require_vesting);
          d.deposit_cashback(d.get(account.registrar), registrar_cut, require_vesting);
 
-         assert( referrer_cut + registrar_cut + accumulated + reserveed + lifetime_cut == core_fee_total );
+         assert( referrer_cut + registrar_cut + accumulated + reserveed == core_fee_total );
       };
 
       pay_out_fees(a, pending_fees, true);
