@@ -238,6 +238,8 @@ namespace graphene { namespace chain {
          string drive_id;
          string mac_address;
 
+         bool received_welcome_bonus = false;
+
          // Flag to indicate if the account has chosen to be a publisher
          bool is_a_publisher = false;
 
@@ -329,25 +331,6 @@ namespace graphene { namespace chain {
 
          /** maps the referrer to the set of accounts that they have referred */
          map< account_id_type, set<account_id_type> > referred_by;
-   };
-
-   /**
-    *  @brief This secondary index will allow a lookup of registered hardware info
-    *  to determine Welcome Bonus eligibility for a new user.
-    */
-   class account_welcome_bonus_index : public secondary_index
-   {
-      public:
-         virtual void object_inserted( const object& obj ) override;
-         virtual void object_removed( const object& obj ) override;
-         virtual void about_to_modify( const object& before ) override;
-         virtual void object_modified( const object& after  ) override;
-
-         // Store hardware info in this index for now, possible way for later improvement to reduce RAM usage:
-         // keep this index as interface for blockchain database, but offload storage to external DB (e.g. sqlite),
-         // if it can provide sufficiently low latency (API calls have timeouts so we need storage with fast read access).
-         unordered_map<string, account_id_type> drive_ids;
-         unordered_map<string, account_id_type> mac_addresses;
    };
 
    /* structure that contains just account name and id */
@@ -458,6 +441,7 @@ namespace graphene { namespace chain {
    struct by_publishers;
    struct by_listings_count;
    struct by_publisher_ip;
+   struct by_hardware_info;
 
    /**
     * @ingroup object_index
@@ -494,6 +478,15 @@ namespace graphene { namespace chain {
          ordered_non_unique<
             tag<by_publisher_ip>,
             member<account_object, string, &account_object::publisher_ip>
+         >,
+         // Index that will sort users based on their hardware info.
+         ordered_non_unique<
+            tag<by_hardware_info>,
+            composite_key<
+                account_object,
+                member<account_object, string, &account_object::drive_id>,
+                member<account_object, string, &account_object::mac_address>
+            >
          >
       >
    > account_multi_index_type;
@@ -520,6 +513,9 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (owner_special_authority)(active_special_authority)
                     (top_n_control_flags)
                     (allowed_assets)
+                    (drive_id)
+                    (mac_address)
+                    (received_welcome_bonus)
                     (is_a_publisher)
                     (publisher_ip)
                     (is_an_escrow)

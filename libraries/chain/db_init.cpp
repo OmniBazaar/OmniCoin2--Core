@@ -206,7 +206,6 @@ void database::initialize_indexes()
    auto acnt_index = add_index< primary_index<account_index> >();
    acnt_index->add_secondary_index<account_member_index>();
    acnt_index->add_secondary_index<account_referrer_index>();
-   acnt_index->add_secondary_index<account_welcome_bonus_index>();
    acnt_index->add_secondary_index<account_escrow_index>();
    acnt_index->add_secondary_index<account_publisher_index>();
 
