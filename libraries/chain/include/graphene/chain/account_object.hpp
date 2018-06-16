@@ -385,20 +385,6 @@ namespace graphene { namespace chain {
 			void insert_keeping_sorted(const account_object_name& account_object);
    };
 
-   /**
-    *  @brief This secondary index will allow to lookup current Publisher accounts
-    */
-   class account_publisher_index : public secondary_index
-   {
-      public:
-         virtual void object_inserted( const object& obj ) override;
-         virtual void object_removed( const object& obj ) override;
-         virtual void about_to_modify( const object& before ) override;
-         virtual void object_modified( const object& after ) override;
-
-         set<account_id_type> publishers;
-   };
-
    struct by_account_asset;
    struct by_asset_balance;
    /**

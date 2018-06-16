@@ -367,38 +367,6 @@ std::vector<account_object_name> account_escrow_index::filter_by_name(uint32_t s
 	return result;
 }
 
-void account_publisher_index::object_inserted( const object& obj )
-{
-    const account_object& a = static_cast<const account_object&>(obj);
-    if(a.is_a_publisher)
-    {
-        publishers.insert(a.get_id());
-    }
-}
-
-void account_publisher_index::object_removed( const object& obj )
-{
-    const account_object& a = static_cast<const account_object&>(obj);
-    publishers.erase(a.get_id());
-}
-
-void account_publisher_index::about_to_modify( const object& before )
-{
-}
-
-void account_publisher_index::object_modified( const object& after )
-{
-    const account_object& a = static_cast<const account_object&>(after);
-    if(a.is_a_publisher)
-    {
-        publishers.insert(a.get_id());
-    }
-    else
-    {
-        publishers.erase(a.get_id());
-    }
-}
-
 void account_object::update_reputation(database& db, const account_id_type target, const account_id_type from, const uint16_t reputation, const asset amount)
 {
     pop_dlog("Updating reputation vote ${vote} for ${seller} from ${buyer}.",
