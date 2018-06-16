@@ -412,7 +412,7 @@ void account_object::update_reputation(database& db, const account_id_type targe
         {
             acc.reputation_votes[from] = std::make_pair(reputation, amount);
         }
-        acc.reputation_score = score;
+        acc.reputation_unweighted_score = score;
         acc.reputation_votes_count = acc.reputation_votes.size();
     });
 
