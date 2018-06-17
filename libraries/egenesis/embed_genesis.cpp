@@ -248,8 +248,16 @@ int main( int argc, char** argv )
 
    egenesis_info info;
 
-   load_genesis( options, info );
-   info.fillin();
+   try
+   {
+       load_genesis( options, info );
+       info.fillin();
+   }
+   catch(fc::exception &ex)
+   {
+       std::cout << ex.to_string() << std::endl;
+       throw ex;
+   }
 
    fc::mutable_variant_object template_context = fc::mutable_variant_object()
       ( "generated_file_banner", generated_file_banner )
