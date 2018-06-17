@@ -87,6 +87,12 @@ namespace graphene { namespace chain {
           */
          share_type pending_vested_fees;
 
+         /// map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
+         map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
+
+         /// Set of accounts which received positive reputation vote from this account.
+         set<account_id_type> my_reputation_votes;
+
          /// @brief Split up and pay out @ref pending_fees and @ref pending_vested_fees
          void process_fees(const account_object& a, database& d) const;
 
@@ -278,16 +284,7 @@ namespace graphene { namespace chain {
          // Number of reputation votes for this account.
          uint64_t reputation_votes_count = 0;
 
-         // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
-         // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
-         map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
-
-         // Set of accounts which received positive reputation vote from this account.
-         // Not reflected.
-         set<account_id_type> my_reputation_votes;
-
          // Update reputation for this account given by 'from' account.
-         // Not reflected.
          static void update_reputation(database& db, const account_id_type target, const account_id_type from, const uint16_t reputation, const asset amount);
    };
 
@@ -539,6 +536,8 @@ FC_REFLECT_DERIVED( graphene::chain::account_statistics_object,
                     (total_core_in_orders)
                     (lifetime_fees_paid)
                     (pending_fees)(pending_vested_fees)
+                    (reputation_votes)
+                    (my_reputation_votes)
                   )
 
 

@@ -43,7 +43,8 @@ set<account_id_type> database::get_implicit_escrows(const account_id_type target
     // Add accounts that target account gave positive rating to.
     if(target_account.implicit_escrow_options.positive_rating)
     {
-        for(const auto account_id : target_account.my_reputation_votes)
+        const account_statistics_object& stats = target_account.statistics(*this);
+        for(const auto account_id : stats.my_reputation_votes)
         {
             if(account_id(*this).is_an_escrow)
             {

@@ -272,11 +272,12 @@ void database::update_account_scores()
 
         // Reputation Score
         // Calculated based on reputation votes from transfer operations. Only non-default votes counts.
-        if(!account.reputation_votes.empty())
+        const account_statistics_object& stats = account.statistics(*this);
+        if(!stats.reputation_votes.empty())
         {
             fc::uint128_t weighted_votes_sum = 0;
             fc::uint128_t weight_sum = 0;
-            for(const auto& iter : account.reputation_votes)
+            for(const auto& iter : stats.reputation_votes)
             {
                 const std::pair<uint16_t, asset> vote_info = iter.second;
                 weighted_votes_sum += fc::uint128_t(vote_info.first) * vote_info.second.amount.value;
