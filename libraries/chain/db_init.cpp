@@ -192,6 +192,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::listing_create_evaluator>();
    register_evaluator<omnibazaar::listing_update_evaluator>();
    register_evaluator<omnibazaar::listing_delete_evaluator>();
+   register_evaluator<omnibazaar::listing_report_evaluator>();
 }
 
 void database::initialize_indexes()

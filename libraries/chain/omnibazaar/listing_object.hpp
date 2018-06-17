@@ -23,9 +23,13 @@ namespace omnibazaar {
         // Hash of listing contents.
         fc::sha256 listing_hash;
         // Quantity of product items.
-        uint32_t quantity;
+        uint32_t quantity = 0;
         // Listing expiration time, after which listing is automatically removed from database.
         fc::time_point_sec expiration_time;
+        // Proof Of Participation score of seller at the time of creating this listing.
+        uint16_t seller_score = 0;
+        // Combined PoP scores of users who reported this listing.
+        uint32_t reported_score = 0;
     };
 
     struct by_hash;
@@ -66,4 +70,6 @@ FC_REFLECT_DERIVED(omnibazaar::listing_object, (graphene::chain::object),
                    (price)
                    (listing_hash)
                    (quantity)
-                   (expiration_time))
+                   (expiration_time)
+                   (seller_score)
+                   (reported_score))

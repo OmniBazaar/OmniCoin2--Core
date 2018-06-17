@@ -113,7 +113,8 @@ namespace graphene { namespace chain {
             omnibazaar::multisig_transfer_operation,
             omnibazaar::listing_create_operation,
             omnibazaar::listing_update_operation,
-            omnibazaar::listing_delete_operation
+            omnibazaar::listing_delete_operation,
+            omnibazaar::listing_report_operation
          > operation;
 
    /// @} // operations group

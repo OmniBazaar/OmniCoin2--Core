@@ -39,4 +39,9 @@ namespace omnibazaar {
     {
         return k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
     }
+
+    void listing_report_operation::validate()const
+    {
+        FC_ASSERT( fee.amount >= 0 );
+    }
 }

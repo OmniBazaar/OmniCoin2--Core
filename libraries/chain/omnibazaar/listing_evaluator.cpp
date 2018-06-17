@@ -55,6 +55,7 @@ namespace omnibazaar {
                 obj.listing_hash = op.listing_hash;
                 obj.quantity = op.quantity;
                 obj.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
+                obj.seller_score = op.seller(d).pop_score;
             });
 
             // Pay fee to publisher.
@@ -221,6 +222,40 @@ namespace omnibazaar {
             // Delete object from blockchain.
             market_dlog("Deleting listing object.");
             d.remove(op.listing_id(d));
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
+    graphene::chain::void_result listing_report_evaluator::do_evaluate( const listing_report_operation& op )
+    {
+        try
+        {
+            market_ddump((op));
+
+            const graphene::chain::database& d = db();
+
+            // Check that listing exists.
+            const auto& listing = op.listing_id(d);
+            boost::ignore_unused_variable_warning(listing);
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
+    graphene::chain::void_result listing_report_evaluator::do_apply( const listing_report_operation& op )
+    {
+        try
+        {
+            market_ddump((op));
+
+            graphene::chain::database& d = db();
+
+            d.modify(op.listing_id(d), [&](listing_object& listing){
+                listing.reported_score += op.reporting_account(d).pop_score;
+            });
 
             return graphene::chain::void_result();
         }
