@@ -240,6 +240,9 @@ namespace omnibazaar {
             const auto& listing = op.listing_id(d);
             boost::ignore_unused_variable_warning(listing);
 
+            // Check that reporting user has any weight.
+            FC_ASSERT( op.reporting_account(d).pop_score > 0, "${n} Proof of Participation score is too low.", ("n", op.reporting_account(d).name) );
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
