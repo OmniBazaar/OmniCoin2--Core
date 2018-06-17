@@ -105,6 +105,10 @@ namespace graphene { namespace chain {
       authority       owner;
       authority       active;
 
+      // Hard drive ID and MAC address are stored to prevent multiple bonuses per machine.
+      string drive_id;
+      string mac_address;
+
       account_options options;
       extension< ext > extensions;
 
@@ -274,7 +278,7 @@ FC_REFLECT(graphene::chain::account_create_operation::ext, (null_ext)(owner_spec
 FC_REFLECT( graphene::chain::account_create_operation,
             (fee)(registrar)
             (referrer)(referrer_percent)
-            (name)(owner)(active)(options)(extensions)
+            (name)(owner)(active)(drive_id)(mac_address)(options)(extensions)
           )
 
 FC_REFLECT(graphene::chain::account_update_operation::ext, (null_ext)(owner_special_authority)(active_special_authority) )
