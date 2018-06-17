@@ -274,50 +274,6 @@ void account_referrer_index::object_modified( const object& after  )
     object_inserted(after);
 }
 
-void account_welcome_bonus_index::object_inserted( const object& obj )
-{
-    const account_object& a = static_cast<const account_object&>(obj);
-
-    if(!a.drive_id.empty())
-    {
-        drive_ids[a.drive_id] = a.get_id();
-    }
-
-    if(!a.mac_address.empty())
-    {
-        mac_addresses[a.mac_address] = a.get_id();
-    }
-}
-
-void account_welcome_bonus_index::object_removed( const object& obj )
-{
-    const account_object& a = static_cast<const account_object&>(obj);
-
-    const auto& drive_itr = drive_ids.find(a.drive_id);
-    if((drive_itr != drive_ids.end()) && (drive_itr->second == a.get_id()))
-    {
-        drive_ids.erase(drive_itr);
-    }
-
-    const auto& mac_itr = mac_addresses.find(a.mac_address);
-    if((mac_itr != mac_addresses.end()) && (mac_itr->second == a.get_id()))
-    {
-        mac_addresses.erase(mac_itr);
-    }
-}
-
-void account_welcome_bonus_index::about_to_modify( const object& before )
-{
-    // Delete old values.
-    object_removed(before);
-}
-
-void account_welcome_bonus_index::object_modified( const object& after )
-{
-    // Add new values.
-    object_inserted(after);
-}
-
 void account_escrow_index::object_inserted( const object& obj )
 {
     const account_object& a = static_cast<const account_object&>(obj);
@@ -409,38 +365,6 @@ std::vector<account_object_name> account_escrow_index::filter_by_name(uint32_t s
 	}
 
 	return result;
-}
-
-void account_publisher_index::object_inserted( const object& obj )
-{
-    const account_object& a = static_cast<const account_object&>(obj);
-    if(a.is_a_publisher)
-    {
-        publishers.insert(a.get_id());
-    }
-}
-
-void account_publisher_index::object_removed( const object& obj )
-{
-    const account_object& a = static_cast<const account_object&>(obj);
-    publishers.erase(a.get_id());
-}
-
-void account_publisher_index::about_to_modify( const object& before )
-{
-}
-
-void account_publisher_index::object_modified( const object& after )
-{
-    const account_object& a = static_cast<const account_object&>(after);
-    if(a.is_a_publisher)
-    {
-        publishers.insert(a.get_id());
-    }
-    else
-    {
-        publishers.erase(a.get_id());
-    }
 }
 
 void account_object::update_reputation(database& db, const account_id_type target, const account_id_type from, const uint16_t reputation, const asset amount)

@@ -12,15 +12,17 @@ bool database::is_welcome_bonus_available(const string &harddrive_id, const stri
         return false;
     }
 
-    const auto& account_idx = dynamic_cast<const primary_index<account_index>&>(get_index_type<account_index>());
-    const auto& bonus_idx = account_idx.get_secondary_index<account_welcome_bonus_index>();
-    const bool has_drive_id = bonus_idx.drive_ids.find(harddrive_id) != bonus_idx.drive_ids.end();
-    const bool has_mac_address = bonus_idx.mac_addresses.find(mac_address) != bonus_idx.mac_addresses.end();
-    if(has_drive_id || has_mac_address)
+    const auto& hardware_idx = get_index_type<account_index>().indices().get<by_hardware_info>();
+    auto iters = hardware_idx.equal_range(std::make_tuple(harddrive_id, mac_address));
+    while(iters.first != iters.second)
     {
-        bonus_wlog("You have already received a sign-up bonus for a user on this machine. "
-                   "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
-        return false;
+        if(iters.first->received_welcome_bonus)
+        {
+            bonus_wlog("You have already received a sign-up bonus for a user on this machine. "
+                       "Your new user account has been created, but that new account will not receive a Welcome Bonus.");
+            return false;
+        }
+        ++iters.first;
     }
 
     return true;

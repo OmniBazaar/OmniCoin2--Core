@@ -822,12 +822,12 @@ std::vector<std::string> database_api_impl::get_publisher_nodes_names()
 {
    std::vector<std::string> accounts_names;
 
-   const auto& accounts_index = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
-   const auto& publishers_index = accounts_index.get_secondary_index<account_publisher_index>();
-   accounts_names.reserve(publishers_index.publishers.size());
-   for(const auto& publisher_id : publishers_index.publishers)
+   const auto& publishers_index = _db.get_index_type<account_index>().indices().get<by_publishers>();
+   auto iters = publishers_index.equal_range(true);
+   while(iters.first != iters.second)
    {
-       accounts_names.push_back(publisher_id(_db).name);
+       accounts_names.push_back(iters.first->name);
+       ++iters.first;
    }
 
    return accounts_names;

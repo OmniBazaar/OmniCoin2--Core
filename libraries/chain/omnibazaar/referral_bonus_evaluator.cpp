@@ -19,7 +19,7 @@ namespace omnibazaar {
             const graphene::chain::account_object referred = op.referred_account(d);
             FC_ASSERT(!referred.sent_referral_bonus, "${name} already sent a Referral Bonus.", ("name", referred.name));
             FC_ASSERT(referred.referrer == op.referrer_account, "Invalid referrer, can't send Referral Bonus.");
-            FC_ASSERT(!referred.drive_id.empty() && !referred.mac_address.empty(),
+            FC_ASSERT(referred.received_welcome_bonus,
                       "${name} did not receive Welcome Bonus, can't send Referral Bonus.",
                       ("name", referred.name));
 

@@ -18,7 +18,7 @@ namespace omnibazaar {
             // Check if account already received a bonus.
             const graphene::chain::account_object receiver = op.receiver(d);
             bonus_ddump((receiver));
-            FC_ASSERT(receiver.drive_id.empty() && receiver.mac_address.empty(), "${name} already received Welcome Bonus.", ("name", receiver.name));
+            FC_ASSERT(!receiver.received_welcome_bonus, "${name} already received Welcome Bonus.", ("name", receiver.name));
             FC_ASSERT(d.is_welcome_bonus_available(op.drive_id, op.mac_address),
                       "Welcome Bonus was already received for ${drive}, ${mac}.",
                       ("drive", op.drive_id)("mac", op.mac_address));
@@ -49,6 +49,7 @@ namespace omnibazaar {
             d.modify(op.receiver(d), [&](graphene::chain::account_object& a) {
                 a.drive_id = op.drive_id;
                 a.mac_address = op.mac_address;
+                a.received_welcome_bonus = true;
             });
 
             // Adjust asset supply value.
