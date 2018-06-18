@@ -106,6 +106,11 @@ namespace detail {
                                                 GRAPHENE_MAX_SHARE_SUPPLY});
       initial_state.initial_chain_id = fc::sha256::hash( "BOGUS" );
 
+      // Use password "P5KZ9qL7t5rgpks5TzrCWwKTNWdQTHMz3PfsqqNkRR2F6" to login with this account.
+      initial_state.founder = {"omnibazaar",
+                               public_key::from_base58("BTS6zCRQ1aRJ6WaNYmywJdM7SvrXPap4uU3aG79g3PNh92UvtGWFL"),
+                               public_key::from_base58("BTS8PXvwPyP1U38F7dTXRR7ExtsxQDy9gh694TwCvgaoEMSYEH4sm")};
+
       return initial_state;
    }
 

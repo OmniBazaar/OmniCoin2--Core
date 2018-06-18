@@ -324,11 +324,12 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.registrar = a.referrer = GRAPHENE_NULL_ACCOUNT;
        a.network_fee_percentage = 0;
    }).get_id() == GRAPHENE_PROXY_TO_SELF_ACCOUNT);
-   FC_ASSERT(create<account_object>([this](account_object& a) {
-       a.name = "omnibazaar";
+   FC_ASSERT(create<account_object>([&](account_object& a) {
+       a.name = genesis_state.founder.name;
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
-       a.owner.weight_threshold = 1;
-       a.active.weight_threshold = 1;
+       a.owner = authority(1, genesis_state.founder.owner_key, 1);
+       a.active = authority(1, genesis_state.founder.active_key, 1);
+       a.options.memo_key = genesis_state.founder.active_key;
        a.registrar = a.referrer = OMNIBAZAAR_FOUNDER_ACCOUNT;
        a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
    }).get_id() == OMNIBAZAAR_FOUNDER_ACCOUNT);
@@ -466,7 +467,7 @@ void database::init_genesis(const genesis_state_type& genesis_state)
       auto itr = assets_by_symbol.find(symbol);
 
       // TODO: This is temporary for handling BTS snapshot
-      if( symbol == "BTS" )
+      if( symbol == "XOM" )
           itr = assets_by_symbol.find(GRAPHENE_SYMBOL);
 
       FC_ASSERT(itr != assets_by_symbol.end(),
