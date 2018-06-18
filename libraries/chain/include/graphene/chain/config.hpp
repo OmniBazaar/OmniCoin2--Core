@@ -192,3 +192,7 @@
 #define OMNIBAZAAR_REPUTATION_MAX 10
 #define OMNIBAZAAR_REPUTATION_DEFAULT 5
 
+/// Determines how many times reported score has to be more than seller score
+/// in order for a listing to get banned.
+#define OMNIBAZAAR_LISTING_BAN_THRESHOLD 3
+

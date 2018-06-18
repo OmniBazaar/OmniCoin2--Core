@@ -71,6 +71,7 @@ namespace graphene { namespace chain {
       uint8_t                 max_authority_depth                 = GRAPHENE_MAX_SIG_CHECK_DEPTH;
       uint32_t                maximum_escrow_lifetime             = OMNIBAZAAR_DEFAULT_MAX_ESCROW_LIFETIME_SEC; ///< maximum lifetime in seconds for escrows to be kept, before expiring
       uint32_t                maximum_listing_lifetime            = OMNIBAZAAR_DEFAULT_MAX_LISTINGS_LIFETIME_SEC; ///< maximum lifetime in seconds for listings to remain in database, before automatic deletion
+      uint32_t                listing_ban_threshold               = OMNIBAZAAR_LISTING_BAN_THRESHOLD; /// number fo times reporting score has to be larger than seller score
       extensions_type         extensions;
 
       /** defined in fee_schedule.cpp */
@@ -110,5 +111,6 @@ FC_REFLECT( graphene::chain::chain_parameters,
             (max_authority_depth)
             (maximum_escrow_lifetime)
             (maximum_listing_lifetime)
+            (listing_ban_threshold)
             (extensions)
           )

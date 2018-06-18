@@ -992,6 +992,8 @@ public:
       account_create_op.owner = authority(1, owner, 1);
       account_create_op.active = authority(1, active, 1);
       account_create_op.options.memo_key = active;
+      account_create_op.drive_id = harddrive_id;
+      account_create_op.mac_address = mac_address;
 
       signed_transaction tx;
 

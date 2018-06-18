@@ -374,15 +374,16 @@ void account_object::update_reputation(database& db, const account_id_type targe
 
     // Temporarily update reputation_votes to calculate Reputation Score for display.
     account_object target_account = target(db);
+    account_statistics_object stats = target_account.statistics(db);
     if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
-        target_account.reputation_votes.erase(from);
+        stats.reputation_votes.erase(from);
     else
-        target_account.reputation_votes[from] = std::make_pair(reputation, amount);
+        stats.reputation_votes[from] = std::make_pair(reputation, amount);
 
     // Calculate score outside of database::modify callback.
     fc::uint128_t weighted_votes_sum = 0;
     fc::uint128_t weight_sum = 0;
-    for(const auto& iter : target_account.reputation_votes)
+    for(const auto& iter : stats.reputation_votes)
     {
         const std::pair<uint16_t, asset> vote_info = iter.second;
         weighted_votes_sum += fc::uint128_t(vote_info.first) * vote_info.second.amount.value;
@@ -401,30 +402,32 @@ void account_object::update_reputation(database& db, const account_id_type targe
     pop_ddump((score));
 
     // Update reputation for receiving account.
-    db.modify(target(db), [&](account_object &acc){
+    db.modify(target(db).statistics(db), [&](account_statistics_object& s){
         if(reputation == OMNIBAZAAR_REPUTATION_DEFAULT)
         {
             // Default reputation votes do not count towards Reputation Score
             // so there's no point in storing them and wasting space.
-            acc.reputation_votes.erase(from);
+            s.reputation_votes.erase(from);
         }
         else
         {
-            acc.reputation_votes[from] = std::make_pair(reputation, amount);
+            s.reputation_votes[from] = std::make_pair(reputation, amount);
         }
-        acc.reputation_score = score;
-        acc.reputation_votes_count = acc.reputation_votes.size();
+    });
+    db.modify(target(db), [&](account_object &acc){
+        acc.reputation_unweighted_score = score;
+        acc.reputation_votes_count = stats.reputation_votes.size();
     });
 
     // Update reputation for sending account.
-    db.modify(from(db), [&](account_object &acc){
+    db.modify(from(db).statistics(db), [&](account_statistics_object& s){
         if(reputation > OMNIBAZAAR_REPUTATION_DEFAULT)
         {
-            acc.my_reputation_votes.insert(target);
+            s.my_reputation_votes.insert(target);
         }
         else
         {
-            acc.my_reputation_votes.erase(target);
+            s.my_reputation_votes.erase(target);
         }
     });
 }

@@ -55,6 +55,7 @@ namespace omnibazaar {
                 obj.listing_hash = op.listing_hash;
                 obj.quantity = op.quantity;
                 obj.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
+                obj.seller_score = op.seller(d).pop_score;
             });
 
             // Pay fee to publisher.
@@ -221,6 +222,64 @@ namespace omnibazaar {
             // Delete object from blockchain.
             market_dlog("Deleting listing object.");
             d.remove(op.listing_id(d));
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
+    graphene::chain::void_result listing_report_evaluator::do_evaluate( const listing_report_operation& op )
+    {
+        try
+        {
+            market_ddump((op));
+
+            const graphene::chain::database& d = db();
+
+            // Check that reporting user has any weight.
+            FC_ASSERT( op.reporting_account(d).pop_score > 0, "${n} Proof of Participation score is too low.", ("n", op.reporting_account(d).name) );
+
+            // Check that reporting user did not previously report this listing.
+            const listing_object& listing = op.listing_id(d);
+            FC_ASSERT( listing.reported_accounts.find(op.reporting_account) == listing.reported_accounts.end(),
+                       "${n} already reported listing ${l}.",
+                       ("n", op.reporting_account(d).name)("l", listing.id));
+
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
+    graphene::chain::void_result listing_report_evaluator::do_apply( const listing_report_operation& op )
+    {
+        try
+        {
+            market_ddump((op));
+
+            graphene::chain::database& d = db();
+
+            const graphene::chain::account_object& reporting_account = op.reporting_account(d);
+            const listing_object& listing = op.listing_id(d);
+            market_ddump((reporting_account)(listing));
+
+            const uint32_t future_score = listing.reported_score + reporting_account.pop_score;
+            const bool ban_listing = listing.seller_score <= 0
+                    ? true
+                    : (future_score / listing.seller_score) >= d.get_global_properties().parameters.listing_ban_threshold;
+            market_ddump((d.get_global_properties().parameters.listing_ban_threshold)(ban_listing));
+
+            if(ban_listing)
+            {
+                d.remove(op.listing_id(d));
+            }
+            else
+            {
+                d.modify(op.listing_id(d), [&](listing_object& listing){
+                    listing.reported_score += reporting_account.pop_score;
+                    listing.reported_accounts.insert(op.reporting_account);
+                });
+            }
 
             return graphene::chain::void_result();
         }

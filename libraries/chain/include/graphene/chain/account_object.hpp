@@ -87,6 +87,12 @@ namespace graphene { namespace chain {
           */
          share_type pending_vested_fees;
 
+         /// map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
+         map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
+
+         /// Set of accounts which received positive reputation vote from this account.
+         set<account_id_type> my_reputation_votes;
+
          /// @brief Split up and pay out @ref pending_fees and @ref pending_vested_fees
          void process_fees(const account_object& a, database& d) const;
 
@@ -261,27 +267,24 @@ namespace graphene { namespace chain {
          // Options for implicitly approving certain types of escrow accounts.
          escrow_options implicit_escrow_options;
 
-         // Reputation Score, expressed in GRAPHENE_1_PERCENT.
-         uint16_t reputation_score = 0;
-         // Number of current reputation votes.
-         uint64_t reputation_votes_count = 0;
-
          // Stores number of listings hosted by this user if this account is a publisher.
          uint64_t listings_count = 0;
 
          // Flag indicating that this account sent Referral bonus to its referrer.
          bool sent_referral_bonus = false;
 
-         // map<account, pair<vote value, asset>> used to store transaction votes and calculate Reputation Score for Proof of Participation.
-         // Not added to FC_REFLECT so as not to put extra load on serialization and because frontend doesn't need this anyway.
-         map<account_id_type, std::pair<uint16_t, asset>> reputation_votes;
-
-         // Set of accounts which received positive reputation vote from this account.
-         // Not reflected.
-         set<account_id_type> my_reputation_votes;
+         // Proof of Participation scores in GRAPHENE_1_PERCENT.
+         uint16_t referral_score = 0;
+         uint16_t listings_score = 0;
+         uint16_t reputation_score = 0;
+         uint16_t reputation_unweighted_score = 0;
+         uint16_t trust_score = 0;
+         uint16_t reliability_score = 0;
+         uint16_t pop_score = 0;
+         // Number of reputation votes for this account.
+         uint64_t reputation_votes_count = 0;
 
          // Update reputation for this account given by 'from' account.
-         // Not reflected.
          static void update_reputation(database& db, const account_id_type target, const account_id_type from, const uint16_t reputation, const asset amount);
    };
 
@@ -509,7 +512,13 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (buyers)
                     (escrows)
                     (implicit_escrow_options)
+                    (referral_score)
+                    (listings_score)
                     (reputation_score)
+                    (reputation_unweighted_score)
+                    (trust_score)
+                    (reliability_score)
+                    (pop_score)
                     (reputation_votes_count)
                     (listings_count)
                     (sent_referral_bonus)
@@ -527,6 +536,8 @@ FC_REFLECT_DERIVED( graphene::chain::account_statistics_object,
                     (total_core_in_orders)
                     (lifetime_fees_paid)
                     (pending_fees)(pending_vested_fees)
+                    (reputation_votes)
+                    (my_reputation_votes)
                   )
 
 

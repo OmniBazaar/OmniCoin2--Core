@@ -24,4 +24,9 @@ namespace omnibazaar {
     {
         FC_ASSERT( fee.amount >= 0 );
     }
+
+    void listing_report_operation::validate()const
+    {
+        FC_ASSERT( fee.amount >= 0 );
+    }
 }

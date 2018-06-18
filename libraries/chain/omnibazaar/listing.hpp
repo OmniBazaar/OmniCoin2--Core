@@ -77,6 +77,25 @@ namespace omnibazaar {
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
     };
+
+    // Operation for reporting illegal listings.
+    struct listing_report_operation : public graphene::chain::base_operation
+    {
+        struct fee_parameters_type {
+           uint64_t fee = GRAPHENE_BLOCKCHAIN_PRECISION;
+        };
+
+        // Operation fee.
+        graphene::chain::asset fee;
+        // User that reports the listing.
+        graphene::chain::account_id_type reporting_account;
+        // ID of listing object that will be reported as illegal.
+        graphene::chain::listing_id_type listing_id;
+
+        // base_operation interface
+        graphene::chain::account_id_type fee_payer()const { return reporting_account; }
+        void validate()const;
+    };
 }
 
 FC_REFLECT(omnibazaar::listing_create_operation::fee_parameters_type, (fee))
@@ -103,4 +122,10 @@ FC_REFLECT(omnibazaar::listing_delete_operation::fee_parameters_type, (fee))
 FC_REFLECT(omnibazaar::listing_delete_operation,
            (fee)
            (seller)
+           (listing_id))
+
+FC_REFLECT(omnibazaar::listing_report_operation::fee_parameters_type, (fee))
+FC_REFLECT(omnibazaar::listing_report_operation,
+           (fee)
+           (reporting_account)
            (listing_id))
