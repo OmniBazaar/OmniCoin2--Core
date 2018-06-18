@@ -4,7 +4,7 @@ namespace omnibazaar {
 
     void escrow_create_operation::validate()const
     {
-        FC_ASSERT( fee.amount > 0 );
+        FC_ASSERT( fee.amount >= 0 );
         FC_ASSERT( amount.amount > 0 );
         FC_ASSERT( buyer != seller );
         FC_ASSERT( buyer != escrow );
@@ -22,7 +22,8 @@ namespace omnibazaar {
 
     graphene::chain::share_type escrow_create_operation::calculate_fee(const fee_parameters_type& k)const
     {
-        graphene::chain::share_type core_fee_required = k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        // Purchases have zero fees.
+        graphene::chain::share_type core_fee_required = listing.valid() ? 0 : k.fee;
         if(memo)
         {
             core_fee_required += calculate_data_fee( fc::raw::pack_size(memo), k.price_per_kbyte );
@@ -69,7 +70,8 @@ namespace omnibazaar {
 
     graphene::chain::share_type escrow_release_operation::calculate_fee(const fee_parameters_type& k)const
     {
-        graphene::chain::share_type core_fee_required = k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        // Purchases have zero fees.
+        graphene::chain::share_type core_fee_required = is_sale ? 0 : k.fee;
         if(memo)
         {
             core_fee_required += calculate_data_fee( fc::raw::pack_size(memo), k.price_per_kbyte );
@@ -112,7 +114,8 @@ namespace omnibazaar {
 
     graphene::chain::share_type escrow_return_operation::calculate_fee(const fee_parameters_type& k)const
     {
-        graphene::chain::share_type core_fee_required = k.fee + calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte );
+        // Purchases have zero fees.
+        graphene::chain::share_type core_fee_required = is_sale ? 0 : k.fee;
         if(memo)
         {
             core_fee_required += calculate_data_fee( fc::raw::pack_size(memo), k.price_per_kbyte );

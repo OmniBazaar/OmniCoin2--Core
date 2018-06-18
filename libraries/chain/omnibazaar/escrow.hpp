@@ -75,6 +75,9 @@ namespace omnibazaar {
         // Rating provided by buyer for escrow.
         uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
 
+        // True if this operation closes escrow process that corresponds to a purchase.
+        bool is_sale = false;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
         void validate()const;
@@ -112,6 +115,9 @@ namespace omnibazaar {
         // Rating provided by seller for escrow.
         uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
 
+        // True if this operation closes escrow process that corresponds to a purchase.
+        bool is_sale = false;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
         void validate()const;
@@ -145,7 +151,8 @@ FC_REFLECT( omnibazaar::escrow_release_operation,
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
-            (reputation_vote_for_escrow))
+            (reputation_vote_for_escrow)
+            (is_sale))
 
 FC_REFLECT( omnibazaar::escrow_return_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_return_operation,
@@ -158,4 +165,5 @@ FC_REFLECT( omnibazaar::escrow_return_operation,
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
-            (reputation_vote_for_escrow))
+            (reputation_vote_for_escrow)
+            (is_sale))
