@@ -259,10 +259,27 @@ namespace omnibazaar {
 
             graphene::chain::database& d = db();
 
-            d.modify(op.listing_id(d), [&](listing_object& listing){
-                listing.reported_score += op.reporting_account(d).pop_score;
-                listing.reported_accounts.insert(op.reporting_account);
-            });
+            const graphene::chain::account_object& reporting_account = op.reporting_account(d);
+            const listing_object& listing = op.listing_id(d);
+            market_ddump((reporting_account)(listing));
+
+            const uint32_t future_score = listing.reported_score + reporting_account.pop_score;
+            const bool ban_listing = listing.seller_score <= 0
+                    ? true
+                    : (future_score / listing.seller_score) >= d.get_global_properties().parameters.listing_ban_threshold;
+            market_ddump((d.get_global_properties().parameters.listing_ban_threshold)(ban_listing));
+
+            if(ban_listing)
+            {
+                d.remove(op.listing_id(d));
+            }
+            else
+            {
+                d.modify(op.listing_id(d), [&](listing_object& listing){
+                    listing.reported_score += reporting_account.pop_score;
+                    listing.reported_accounts.insert(op.reporting_account);
+                });
+            }
 
             return graphene::chain::void_result();
         }
