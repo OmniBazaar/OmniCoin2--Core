@@ -30,6 +30,8 @@ namespace omnibazaar {
         uint16_t seller_score = 0;
         // Combined PoP scores of users who reported this listing.
         uint32_t reported_score = 0;
+        // Users that reported this listing.
+        std::set<graphene::chain::account_id_type> reported_accounts;
     };
 
     struct by_hash;
@@ -72,4 +74,5 @@ FC_REFLECT_DERIVED(omnibazaar::listing_object, (graphene::chain::object),
                    (quantity)
                    (expiration_time)
                    (seller_score)
-                   (reported_score))
+                   (reported_score)
+                   (reported_accounts))

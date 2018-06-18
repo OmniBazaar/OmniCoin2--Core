@@ -236,12 +236,15 @@ namespace omnibazaar {
 
             const graphene::chain::database& d = db();
 
-            // Check that listing exists.
-            const auto& listing = op.listing_id(d);
-            boost::ignore_unused_variable_warning(listing);
-
             // Check that reporting user has any weight.
             FC_ASSERT( op.reporting_account(d).pop_score > 0, "${n} Proof of Participation score is too low.", ("n", op.reporting_account(d).name) );
+
+            // Check that reporting user did not previously report this listing.
+            const listing_object& listing = op.listing_id(d);
+            FC_ASSERT( listing.reported_accounts.find(op.reporting_account) == listing.reported_accounts.end(),
+                       "${n} already reported listing ${l}.",
+                       ("n", op.reporting_account(d).name)("l", listing.id));
+
 
             return graphene::chain::void_result();
         }
@@ -258,6 +261,7 @@ namespace omnibazaar {
 
             d.modify(op.listing_id(d), [&](listing_object& listing){
                 listing.reported_score += op.reporting_account(d).pop_score;
+                listing.reported_accounts.insert(op.reporting_account);
             });
 
             return graphene::chain::void_result();
