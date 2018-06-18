@@ -10,7 +10,6 @@ namespace omnibazaar {
     {
         struct fee_parameters_type {
            uint64_t fee = 20 * GRAPHENE_BLOCKCHAIN_PRECISION;
-           uint32_t price_per_kbyte = 10;
         };
 
         // Operation fee.
@@ -29,7 +28,6 @@ namespace omnibazaar {
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
-        graphene::chain::share_type calculate_fee(const fee_parameters_type& k)const;
     };
 
     // Operation for updating marketplace listing data.
@@ -37,7 +35,6 @@ namespace omnibazaar {
     {
         struct fee_parameters_type {
            uint64_t fee = 20 * GRAPHENE_BLOCKCHAIN_PRECISION;
-           uint32_t price_per_kbyte = 10;
         };
 
         // Operation fee.
@@ -60,7 +57,6 @@ namespace omnibazaar {
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
-        graphene::chain::share_type calculate_fee(const fee_parameters_type& k)const;
     };
 
     // Operation for removing marketplace listing from blockchain.
@@ -68,7 +64,6 @@ namespace omnibazaar {
     {
         struct fee_parameters_type {
            uint64_t fee = 20 * GRAPHENE_BLOCKCHAIN_PRECISION;
-           uint32_t price_per_kbyte = 10;
         };
 
         // Operation fee.
@@ -81,7 +76,6 @@ namespace omnibazaar {
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
-        graphene::chain::share_type calculate_fee(const fee_parameters_type& k)const;
     };
 
     // Operation for reporting illegal listings.
@@ -104,7 +98,7 @@ namespace omnibazaar {
     };
 }
 
-FC_REFLECT(omnibazaar::listing_create_operation::fee_parameters_type, (fee)(price_per_kbyte))
+FC_REFLECT(omnibazaar::listing_create_operation::fee_parameters_type, (fee))
 FC_REFLECT(omnibazaar::listing_create_operation,
            (fee)
            (seller)
@@ -113,7 +107,7 @@ FC_REFLECT(omnibazaar::listing_create_operation,
            (listing_hash)
            (quantity))
 
-FC_REFLECT(omnibazaar::listing_update_operation::fee_parameters_type, (fee)(price_per_kbyte))
+FC_REFLECT(omnibazaar::listing_update_operation::fee_parameters_type, (fee))
 FC_REFLECT(omnibazaar::listing_update_operation,
            (fee)
            (seller)
@@ -124,7 +118,7 @@ FC_REFLECT(omnibazaar::listing_update_operation,
            (quantity)
            (update_expiration_time))
 
-FC_REFLECT(omnibazaar::listing_delete_operation::fee_parameters_type, (fee)(price_per_kbyte))
+FC_REFLECT(omnibazaar::listing_delete_operation::fee_parameters_type, (fee))
 FC_REFLECT(omnibazaar::listing_delete_operation,
            (fee)
            (seller)
