@@ -83,7 +83,7 @@ namespace detail {
 
    genesis_state_type create_example_genesis() {
       auto nathan_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
-      dlog("Allocating all stake to ${key}", ("key", utilities::key_to_wif(nathan_key)));
+      wlog("Allocating all stake to ${key}", ("key", utilities::key_to_wif(nathan_key)));
       genesis_state_type initial_state;
       initial_state.initial_parameters.current_fees = fee_schedule::get_default();//->set_all_fees(GRAPHENE_BLOCKCHAIN_PRECISION);
       initial_state.initial_active_witnesses = GRAPHENE_DEFAULT_MIN_WITNESS_COUNT;
@@ -106,10 +106,11 @@ namespace detail {
                                                 GRAPHENE_MAX_SHARE_SUPPLY});
       initial_state.initial_chain_id = fc::sha256::hash( "BOGUS" );
 
-      // Use password "P5KZ9qL7t5rgpks5TzrCWwKTNWdQTHMz3PfsqqNkRR2F6" to login with this account.
+      // Use password "P5KbaKcTzHPQgzSsJhd4XkF7JbsHQ2Zr2o2uwJeRKhUGS" to login with this account.
       initial_state.founder = {"omnibazaar",
-                               public_key::from_base58("BTS6zCRQ1aRJ6WaNYmywJdM7SvrXPap4uU3aG79g3PNh92UvtGWFL"),
-                               public_key::from_base58("BTS8PXvwPyP1U38F7dTXRR7ExtsxQDy9gh694TwCvgaoEMSYEH4sm")};
+                               utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
+                               utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()
+                              };
 
       return initial_state;
    }
