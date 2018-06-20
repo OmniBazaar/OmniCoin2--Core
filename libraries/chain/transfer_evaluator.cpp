@@ -87,22 +87,43 @@ void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
 }  FC_CAPTURE_AND_RETHROW( (op) ) }
 
 void_result transfer_evaluator::do_apply( const transfer_operation& o )
-{ try {
-   db().adjust_balance( o.from, -o.amount );
-   db().adjust_balance( o.to, o.amount );
-   // Update reputation vote for receiving account.
-   account_object::update_reputation(db(), o.to, o.from, o.reputation_vote, o.amount);
+{
+    try
+    {
+        database &d = db();
 
-   if(o.listing.valid() && o.listing_count.valid())
-   {
-       db().modify((*o.listing)(db()), [&](omnibazaar::listing_object& listing){
-           // Quantity was already checked in do_evaluate so it's safe to just reduce it.
-           listing.quantity -= *o.listing_count;
-       });
-   }
+        // Remove funds from 'from' account.
+        d.adjust_balance( o.from, -o.amount );
 
-   return void_result();
-} FC_CAPTURE_AND_RETHROW( (o) ) }
+        // Update reputation vote for receiving account.
+        account_object::update_reputation(d, o.to, o.from, o.reputation_vote, o.amount);
+
+        asset transfer_amount = o.amount;
+
+        // If this is a sale transfer.
+        if(o.listing.valid() && o.listing_count.valid())
+        {
+            d.modify((*o.listing)(d), [&](omnibazaar::listing_object& listing){
+                // Quantity was already checked in do_evaluate so it's safe to just reduce it.
+                listing.quantity -= *o.listing_count;
+            });
+
+            // Pay fee to referrers and OmniBazaar.
+            const share_type omnibazaar_fee = cut_fee(o.amount.amount, GRAPHENE_1_PERCENT / 2);
+            const share_type referrer_fee = cut_fee(o.amount.amount, GRAPHENE_1_PERCENT / 4);
+            d.adjust_balance(OMNIBAZAAR_FOUNDER_ACCOUNT, omnibazaar_fee);
+            d.adjust_balance(o.from(d).referrer, referrer_fee);
+            d.adjust_balance(o.to(d).referrer, referrer_fee);
+            transfer_amount.amount -= omnibazaar_fee + referrer_fee * 2;
+        }
+
+        // Add remaining funds to 'to' account.
+        d.adjust_balance( o.to, transfer_amount );
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW( (o) )
+}
 
 
 

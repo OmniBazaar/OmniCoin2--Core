@@ -177,9 +177,22 @@ namespace omnibazaar {
                 d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
             }
 
+            graphene::chain::asset transfer_amount = escrow_obj.amount;
+            if(op.is_sale)
+            {
+                // Pay fee to referrers and OmniBazaar.
+                const graphene::chain::share_type initial_amount = escrow_obj.amount.amount + escrow_obj.escrow_fee.amount;
+                const graphene::chain::share_type omnibazaar_fee = graphene::chain::cut_fee(initial_amount, GRAPHENE_1_PERCENT / 2);
+                const graphene::chain::share_type referrer_fee = graphene::chain::cut_fee(initial_amount, GRAPHENE_1_PERCENT / 4);
+                d.adjust_balance(OMNIBAZAAR_FOUNDER_ACCOUNT, omnibazaar_fee);
+                d.adjust_balance(escrow_obj.buyer(d).referrer, referrer_fee);
+                d.adjust_balance(escrow_obj.seller(d).referrer, referrer_fee);
+                transfer_amount.amount -= omnibazaar_fee + referrer_fee * 2;
+            }
+
             // Send remaining funds to seller.
             escrow_dlog("Adjusting seller balance.");
-            d.adjust_balance(escrow_obj.seller, escrow_obj.amount);
+            d.adjust_balance(escrow_obj.seller, transfer_amount);
 
             // Update reputation votes.
             const std::vector<std::pair<graphene::chain::account_id_type, uint16_t>> reputations = {
