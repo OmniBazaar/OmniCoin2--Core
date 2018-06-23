@@ -18,6 +18,7 @@ namespace omnibazaar {
             FC_ASSERT( (*listing_count) > 0 );
             FC_ASSERT( listing.valid(), "Listing count is specified but listing ID is not." );
         }
+        FC_ASSERT( amount.asset_id == graphene::chain::asset_id_type(), "Escrow supports only ${c} currency.", ("c", GRAPHENE_SYMBOL) );
     }
 
     graphene::chain::share_type escrow_create_operation::calculate_fee(const fee_parameters_type& k)const
@@ -51,6 +52,7 @@ namespace omnibazaar {
         FC_ASSERT( buyer_account != seller_account );
         FC_ASSERT( buyer_account != escrow_account );
         FC_ASSERT( seller_account != escrow_account );
+        FC_ASSERT( (fee_paying_account == buyer_account) || (fee_paying_account == seller_account) || (fee_paying_account == escrow_account) );
         FC_ASSERT( (reputation_vote_for_buyer >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_buyer <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_escrow >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_escrow <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_seller >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_seller <= OMNIBAZAAR_REPUTATION_MAX) );
@@ -94,6 +96,7 @@ namespace omnibazaar {
         FC_ASSERT( buyer_account != seller_account );
         FC_ASSERT( buyer_account != escrow_account );
         FC_ASSERT( seller_account != escrow_account );
+        FC_ASSERT( (fee_paying_account == buyer_account) || (fee_paying_account == seller_account) || (fee_paying_account == escrow_account) );
         FC_ASSERT( (reputation_vote_for_seller >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_seller <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_buyer >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_buyer <= OMNIBAZAAR_REPUTATION_MAX) );
         FC_ASSERT( (reputation_vote_for_escrow >= OMNIBAZAAR_REPUTATION_MIN) && (reputation_vote_for_escrow <= OMNIBAZAAR_REPUTATION_MAX) );

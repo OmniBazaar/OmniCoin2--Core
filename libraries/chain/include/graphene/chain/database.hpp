@@ -319,14 +319,14 @@ namespace graphene { namespace chain {
           * @return ID of newly created VBO, but only if VBO was created.
           */
          optional< vesting_balance_id_type > deposit_lazy_vesting(const optional< vesting_balance_id_type >& ovbid,
-            share_type amount,
+            const share_type amount,
             uint32_t req_vesting_seconds,
             account_id_type req_owner,
             bool require_vesting,
             const vesting_balance_object::balance_type balance_type);
 
          // helper to handle cashback rewards
-         void deposit_cashback(const account_object& acct, share_type amount, bool require_vesting = true,
+         void deposit_cashback(const account_object& acct, const share_type amount, bool require_vesting = true,
                                const vesting_balance_object::balance_type balance_type = vesting_balance_object::no_type);
          // helper to handle witness pay
          void deposit_witness_pay(const witness_object& wit, share_type amount);

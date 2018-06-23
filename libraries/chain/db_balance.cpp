@@ -79,7 +79,7 @@ void database::adjust_balance(account_id_type account, asset delta )
 } FC_CAPTURE_AND_RETHROW( (account)(delta) ) }
 
 optional< vesting_balance_id_type > database::deposit_lazy_vesting(const optional< vesting_balance_id_type >& ovbid,
-   share_type amount, uint32_t req_vesting_seconds,
+   const share_type amount, uint32_t req_vesting_seconds,
    account_id_type req_owner,
    bool require_vesting,
    const vesting_balance_object::balance_type balance_type)
@@ -129,7 +129,7 @@ optional< vesting_balance_id_type > database::deposit_lazy_vesting(const optiona
    return vbo.id;
 }
 
-void database::deposit_cashback(const account_object& acct, share_type amount, bool require_vesting,
+void database::deposit_cashback(const account_object& acct, const share_type amount, bool require_vesting,
                                 const vesting_balance_object::balance_type balance_type)
 {
    // If we don't have a VBO, or if it has the wrong maturity
