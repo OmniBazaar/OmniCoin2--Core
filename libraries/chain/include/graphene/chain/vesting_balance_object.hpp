@@ -133,6 +133,15 @@ namespace graphene { namespace chain {
          static const uint8_t space_id = protocol_ids;
          static const uint8_t type_id = vesting_balance_object_type;
 
+         enum balance_type
+         {
+             no_type            = 0,
+             founder_bonus_type = 1,
+             witness_bonus_type = 2,
+             escrow_fee_type    = 3,
+             publisher_fee_type = 4
+         };
+
          /// Account which owns and may withdraw from this vesting balance
          account_id_type owner;
          /// Total amount remaining in this vesting balance
@@ -140,6 +149,9 @@ namespace graphene { namespace chain {
          asset balance;
          /// The vesting policy stores details on when funds vest, and controls when they may be withdrawn
          vesting_policy policy;
+         /// Indicates the type of this balance. Default is 'no_type' which was the only type in BTS2.0.
+         /// Other types have meaning specific to OmniCoin2.
+         balance_type type = no_type;
 
          vesting_balance_object() {}
 
@@ -207,4 +219,13 @@ FC_REFLECT_DERIVED(graphene::chain::vesting_balance_object, (graphene::db::objec
                    (owner)
                    (balance)
                    (policy)
+                   (type)
                   )
+
+FC_REFLECT_ENUM(graphene::chain::vesting_balance_object::balance_type,
+                (no_type)
+                (founder_bonus_type)
+                (witness_bonus_type)
+                (escrow_fee_type)
+                (publisher_fee_type)
+                )

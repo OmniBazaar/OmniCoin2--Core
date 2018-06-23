@@ -670,6 +670,22 @@ std::map<std::string, full_account> database_api_impl::get_full_accounts( const 
       {
          acnt.cashback_balance = account->cashback_balance(_db);
       }
+      if (account->founder_vb)
+      {
+         acnt.founder_bonus_balance = (*account->founder_vb)(_db);
+      }
+      if(account->witness_vb)
+      {
+          acnt.witness_bonus_balance = (*account->witness_vb)(_db);
+      }
+      if (account->escrow_vb)
+      {
+         acnt.escrow_fee_balance = (*account->escrow_vb)(_db);
+      }
+      if (account->publisher_vb)
+      {
+         acnt.publisher_fee_balance = (*account->publisher_vb)(_db);
+      }
       // Add the account's proposals
       const auto& proposal_idx = _db.get_index_type<proposal_index>();
       const auto& pidx = dynamic_cast<const primary_index<proposal_index>&>(proposal_idx);
