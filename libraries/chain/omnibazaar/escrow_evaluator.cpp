@@ -144,11 +144,6 @@ namespace omnibazaar {
                            ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
             }
 
-            if(op.is_sale)
-            {
-                FC_ASSERT( escrow_obj.listing.valid(), "Operation is specified as sale but escrow object does not contain listing ID." );
-            }
-
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -178,7 +173,7 @@ namespace omnibazaar {
             }
 
             graphene::chain::asset transfer_amount = escrow_obj.amount;
-            if(op.is_sale)
+            if(escrow_obj.listing.valid())
             {
                 // Pay fee to referrers and OmniBazaar.
                 const graphene::chain::share_type initial_amount = escrow_obj.amount.amount + escrow_obj.escrow_fee.amount;
@@ -242,11 +237,6 @@ namespace omnibazaar {
                            ("e", op.escrow_account(d).name)
                            ("total_transfer", d.to_pretty_string(escrow_obj.amount))
                            ("balance", d.to_pretty_string(d.get_balance(op.escrow_account, escrow_obj.amount.asset_id))) );
-            }
-
-            if(op.is_sale)
-            {
-                FC_ASSERT( escrow_obj.listing.valid(), "Operation is specified as sale but escrow object does not contain listing ID." );
             }
 
             return graphene::chain::void_result();
