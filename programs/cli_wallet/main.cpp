@@ -44,6 +44,7 @@
 
 #include <fc/interprocess/signals.hpp>
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include <fc/log/console_appender.hpp>
 #include <fc/log/file_appender.hpp>
@@ -68,6 +69,9 @@ namespace bpo = boost::program_options;
 int main( int argc, char** argv )
 {
    try {
+      // Set current directory to path where executable is located,
+      // so that app loads configs from its own dir even if launched from elsewhere.
+      boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 
       boost::program_options::options_description opts;
          opts.add_options()
