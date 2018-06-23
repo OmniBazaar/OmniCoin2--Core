@@ -62,8 +62,9 @@ namespace omnibazaar {
     // Operation for removing marketplace listing from blockchain.
     struct listing_delete_operation : public graphene::chain::base_operation
     {
+        // Delete has 0 basic fee to make it possible to issue this operation on listings cleanup during maintenance.
         struct fee_parameters_type {
-           uint64_t fee = 20 * GRAPHENE_BLOCKCHAIN_PRECISION;
+           uint64_t fee = 0;
         };
 
         // Operation fee.

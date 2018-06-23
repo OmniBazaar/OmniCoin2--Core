@@ -48,8 +48,9 @@ namespace omnibazaar {
     // Operation for finishing Escrow process by releasing funds to Seller.
     struct escrow_release_operation : public graphene::chain::base_operation
     {
+        // Release has 0 basic fee to make it possible to issue this operation on escrow cleanup during maintenance.
         struct fee_parameters_type {
-           uint64_t fee            = 20 * GRAPHENE_BLOCKCHAIN_PRECISION;
+           uint64_t fee             = 0;
            uint32_t price_per_kbyte = 10;
         };
 
@@ -75,9 +76,6 @@ namespace omnibazaar {
         // Rating provided by buyer for escrow.
         uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
 
-        // True if this operation closes escrow process that corresponds to a purchase.
-        bool is_sale = false;
-
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
         void validate()const;
@@ -88,8 +86,9 @@ namespace omnibazaar {
     // Operation for finishing Escrow process by returning funds to Buyer.
     struct escrow_return_operation : public graphene::chain::base_operation
     {
+        // Return has 0 basic fee to make it possible to issue this operation on escrow cleanup during maintenance.
         struct fee_parameters_type {
-           uint64_t fee            = 20 * GRAPHENE_BLOCKCHAIN_PRECISION;
+           uint64_t fee             = 0;
            uint32_t price_per_kbyte = 10;
         };
 
@@ -114,9 +113,6 @@ namespace omnibazaar {
         uint16_t reputation_vote_for_buyer = OMNIBAZAAR_REPUTATION_DEFAULT;
         // Rating provided by seller for escrow.
         uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
-
-        // True if this operation closes escrow process that corresponds to a purchase.
-        bool is_sale = false;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
@@ -151,8 +147,7 @@ FC_REFLECT( omnibazaar::escrow_release_operation,
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
-            (reputation_vote_for_escrow)
-            (is_sale))
+            (reputation_vote_for_escrow))
 
 FC_REFLECT( omnibazaar::escrow_return_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_return_operation,
@@ -165,5 +160,4 @@ FC_REFLECT( omnibazaar::escrow_return_operation,
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
-            (reputation_vote_for_escrow)
-            (is_sale))
+            (reputation_vote_for_escrow))
