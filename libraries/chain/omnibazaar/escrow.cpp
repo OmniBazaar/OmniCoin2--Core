@@ -18,7 +18,8 @@ namespace omnibazaar {
             FC_ASSERT( (*listing_count) > 0 );
             FC_ASSERT( listing.valid(), "Listing count is specified but listing ID is not." );
         }
-        FC_ASSERT( amount.asset_id == graphene::chain::asset_id_type(), "Escrow supports only ${c} currency.", ("c", GRAPHENE_SYMBOL) );
+        // Vested balances work only with core asset, so for now implement support only for core asset in escrow operations.
+        FC_ASSERT( amount.asset_id == graphene::chain::asset_id_type(), "Escrows support only ${c} currency.", ("c", GRAPHENE_SYMBOL) );
     }
 
     graphene::chain::share_type escrow_create_operation::calculate_fee(const fee_parameters_type& k)const
