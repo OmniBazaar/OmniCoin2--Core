@@ -490,6 +490,7 @@ namespace graphene { namespace chain {
          void update_maintenance_flag( bool new_maintenance_flag );
          void update_withdraw_permissions();
          bool check_for_blackswan( const asset_object& mia, bool enable_black_swan = true );
+         void update_vested_balances();
 
          ///Steps performed only at maintenance intervals
          ///@{

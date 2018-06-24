@@ -92,7 +92,8 @@ namespace graphene { namespace chain {
     */
    struct vesting_balance_withdraw_operation : public base_operation
    {
-      struct fee_parameters_type { uint64_t fee = 20*GRAPHENE_BLOCKCHAIN_PRECISION; };
+      // Fee is 0 to allow automatic withdrawals.
+      struct fee_parameters_type { uint64_t fee = 0; };
 
       asset                   fee;
       vesting_balance_id_type vesting_balance;

@@ -285,7 +285,6 @@ void database::clear_expired_listings()
                 _applied_ops.resize( old_applied_ops_size );
             }
             elog( "e", ("e",e.to_detail_string() ) );
-            throw;
         }
     }
 }
@@ -574,6 +573,69 @@ void database::update_withdraw_permissions()
    auto& permit_index = get_index_type<withdraw_permission_index>().indices().get<by_expiration>();
    while( !permit_index.empty() && permit_index.begin()->expiration <= head_block_time() )
       remove(*permit_index.begin());
+}
+
+void database::update_vested_balances()
+{
+    auto& balance_index = get_index_type<vesting_balance_index>().indices();
+    const fc::time_point_sec now = head_block_time();
+    for(auto iter = balance_index.begin(); iter != balance_index.end(); ++iter)
+    {
+        try
+        {
+            // Automatically withdraw vested funds.
+            const asset allowed = iter->get_allowed_withdraw(now);
+            if(allowed.amount > 0)
+            {
+                transaction_evaluation_state eval_state(this);
+
+                vesting_balance_withdraw_operation op;
+                op.vesting_balance = iter->id;
+                op.owner = iter->owner;
+                op.amount = allowed;
+
+                processed_transaction ptrx;
+                ptrx.expiration = now + 30;
+                ptrx.operations.push_back(op);
+                ptrx.validate();
+                eval_state._trx = &ptrx;
+
+                size_t old_applied_ops_size = _applied_ops.size();
+
+                // Apply transaction to the database.
+                try
+                {
+                    auto session = _undo_db.start_undo_session(true);
+                    for(const auto& op : ptrx.operations)
+                    {
+                        eval_state.operation_results.emplace_back(apply_operation(eval_state, op));
+                    }
+                    session.merge();
+                }
+                catch ( const fc::exception& e )
+                {
+                    if( head_block_time() <= HARDFORK_483_TIME )
+                    {
+                        for( size_t i = old_applied_ops_size, n = _applied_ops.size(); i < n; i++ )
+                        {
+                            ilog( "removing failed operation from applied_ops: ${op}", ("op", *(_applied_ops[i])) );
+                            _applied_ops[i].reset();
+                        }
+                    }
+                    else
+                    {
+                        _applied_ops.resize( old_applied_ops_size );
+                    }
+                    elog( "e", ("e",e.to_detail_string() ) );
+                    throw;
+                }
+            }
+        }
+        catch ( const fc::exception& e )
+        {
+            elog("Failed to automatically withdraw vested funds ${n} ${e} ${v}.", ("n", now)("e", e.to_detail_string())("v", *iter));
+        }
+    }
 }
 
 } }
