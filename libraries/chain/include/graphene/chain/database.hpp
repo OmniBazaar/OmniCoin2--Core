@@ -30,6 +30,7 @@
 #include <graphene/chain/block_database.hpp>
 #include <graphene/chain/genesis_state.hpp>
 #include <graphene/chain/evaluator.hpp>
+#include <graphene/chain/vesting_balance_object.hpp>
 
 #include <graphene/db/object_database.hpp>
 #include <graphene/db/object.hpp>
@@ -317,15 +318,16 @@ namespace graphene { namespace chain {
           * 
           * @return ID of newly created VBO, but only if VBO was created.
           */
-         optional< vesting_balance_id_type > deposit_lazy_vesting(
-            const optional< vesting_balance_id_type >& ovbid,
-            share_type amount,
+         optional< vesting_balance_id_type > deposit_lazy_vesting(const optional< vesting_balance_id_type >& ovbid,
+            const share_type amount,
             uint32_t req_vesting_seconds,
             account_id_type req_owner,
-            bool require_vesting );
+            bool require_vesting,
+            const vesting_balance_object::balance_type balance_type);
 
          // helper to handle cashback rewards
-         void deposit_cashback(const account_object& acct, share_type amount, bool require_vesting = true);
+         void deposit_cashback(const account_object& acct, const share_type amount, bool require_vesting = true,
+                               const vesting_balance_object::balance_type balance_type = vesting_balance_object::no_type);
          // helper to handle witness pay
          void deposit_witness_pay(const witness_object& wit, share_type amount);
 
@@ -488,6 +490,7 @@ namespace graphene { namespace chain {
          void update_maintenance_flag( bool new_maintenance_flag );
          void update_withdraw_permissions();
          bool check_for_blackswan( const asset_object& mia, bool enable_black_swan = true );
+         void update_vested_balances();
 
          ///Steps performed only at maintenance intervals
          ///@{

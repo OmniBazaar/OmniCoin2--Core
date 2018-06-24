@@ -22,10 +22,8 @@ namespace omnibazaar {
         graphene::chain::account_id_type seller;
         // Escrow agent account.
         graphene::chain::account_id_type escrow;
-        // Funds amount reserved in escrow (excluding escrow fee).
+        // Funds amount reserved in escrow.
         graphene::chain::asset amount;
-        // Reserved escrow fee.
-        graphene::chain::asset escrow_fee;
         // Flag indicating that all funds should be kept in escrow account instead of blockchain.
         bool transfer_to_escrow;
         // Specify listing ID if this is a Sale operation.
@@ -64,7 +62,6 @@ FC_REFLECT_DERIVED(omnibazaar::escrow_object, (graphene::chain::object),
                    (seller)
                    (escrow)
                    (amount)
-                   (escrow_fee)
                    (transfer_to_escrow)
                    (listing)
                    (listing_count))

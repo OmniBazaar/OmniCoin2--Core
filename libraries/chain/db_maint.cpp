@@ -1066,6 +1066,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    update_active_witnesses();
    update_active_committee_members();
    update_worker_votes();
+   update_vested_balances();
 
    modify(gpo, [this](global_property_object& p) {
       // Remove scaling of account registration fee

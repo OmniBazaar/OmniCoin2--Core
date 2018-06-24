@@ -78,11 +78,11 @@ void database::adjust_balance(account_id_type account, asset delta )
 
 } FC_CAPTURE_AND_RETHROW( (account)(delta) ) }
 
-optional< vesting_balance_id_type > database::deposit_lazy_vesting(
-   const optional< vesting_balance_id_type >& ovbid,
-   share_type amount, uint32_t req_vesting_seconds,
+optional< vesting_balance_id_type > database::deposit_lazy_vesting(const optional< vesting_balance_id_type >& ovbid,
+   const share_type amount, uint32_t req_vesting_seconds,
    account_id_type req_owner,
-   bool require_vesting )
+   bool require_vesting,
+   const vesting_balance_object::balance_type balance_type)
 {
    if( amount == 0 )
       return optional< vesting_balance_id_type >();
@@ -100,6 +100,8 @@ optional< vesting_balance_id_type > database::deposit_lazy_vesting(
          break;
       if( vbo.policy.get< cdd_vesting_policy >().vesting_seconds != req_vesting_seconds )
          break;
+      if( vbo.type != balance_type )
+          break;
       modify( vbo, [&]( vesting_balance_object& _vbo )
       {
          if( require_vesting )
@@ -114,6 +116,7 @@ optional< vesting_balance_id_type > database::deposit_lazy_vesting(
    {
       _vbo.owner = req_owner;
       _vbo.balance = amount;
+      _vbo.type = balance_type;
 
       cdd_vesting_policy policy;
       policy.vesting_seconds = req_vesting_seconds;
@@ -126,7 +129,8 @@ optional< vesting_balance_id_type > database::deposit_lazy_vesting(
    return vbo.id;
 }
 
-void database::deposit_cashback(const account_object& acct, share_type amount, bool require_vesting)
+void database::deposit_cashback(const account_object& acct, const share_type amount, bool require_vesting,
+                                const vesting_balance_object::balance_type balance_type)
 {
    // If we don't have a VBO, or if it has the wrong maturity
    // due to a policy change, cut it loose.
@@ -145,18 +149,36 @@ void database::deposit_cashback(const account_object& acct, share_type amount, b
       return;
    }
 
+   optional<vesting_balance_id_type> current_balance;
+   switch(balance_type)
+   {
+   case vesting_balance_object::no_type:            current_balance = acct.cashback_vb;     break;
+   case vesting_balance_object::escrow_fee_type:    current_balance = acct.escrow_vb;       break;
+   case vesting_balance_object::publisher_fee_type: current_balance = acct.publisher_vb;    break;
+   case vesting_balance_object::founder_sale_fee:   current_balance = acct.founder_sale_vb; break;
+   case vesting_balance_object::referrer_sale_fee:  current_balance = acct.referrer_sale_vb;break;
+   }
+
    optional< vesting_balance_id_type > new_vbid = deposit_lazy_vesting(
-      acct.cashback_vb,
+      current_balance,
       amount,
       get_global_properties().parameters.cashback_vesting_period_seconds,
       acct.id,
-      require_vesting );
+      require_vesting,
+      balance_type);
 
    if( new_vbid.valid() )
    {
       modify( acct, [&]( account_object& _acct )
       {
-         _acct.cashback_vb = *new_vbid;
+          switch(balance_type)
+          {
+          case vesting_balance_object::no_type:            _acct.cashback_vb = *new_vbid;     break;
+          case vesting_balance_object::escrow_fee_type:    _acct.escrow_vb = *new_vbid;       break;
+          case vesting_balance_object::publisher_fee_type: _acct.publisher_vb = *new_vbid;    break;
+          case vesting_balance_object::founder_sale_fee:   _acct.founder_sale_vb = *new_vbid; break;
+          case vesting_balance_object::referrer_sale_fee:  _acct.referrer_sale_vb = *new_vbid;break;
+          }
       } );
    }
 
@@ -173,7 +195,8 @@ void database::deposit_witness_pay(const witness_object& wit, share_type amount)
       amount,
       get_global_properties().parameters.witness_pay_vesting_seconds,
       wit.witness_account,
-      true );
+      true,
+      vesting_balance_object::no_type);
 
    if( new_vbid.valid() )
    {

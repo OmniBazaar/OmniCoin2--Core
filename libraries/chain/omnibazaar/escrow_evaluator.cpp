@@ -84,16 +84,12 @@ namespace omnibazaar {
                 e.seller = op.seller;
                 e.escrow = op.escrow;
                 e.transfer_to_escrow = op.transfer_to_escrow;
-                // Calculate fee and store it separately.
-                const graphene::chain::share_type fee = graphene::chain::cut_fee(op.amount.amount, op.escrow(d).escrow_fee);
-                e.escrow_fee = graphene::chain::asset(fee, op.amount.asset_id);
-                // Store amount excluding the fee.
-                e.amount = op.amount - e.escrow_fee;
+                e.amount = op.amount;
                 e.listing = op.listing;
                 e.listing_count = op.listing_count;
             });
 
-            // Lock buyer funds. Deduct entire amount (including escrow fee).
+            // Lock buyer funds.
             escrow_dlog("Adjusting buyer balance.");
             d.adjust_balance(op.buyer, -op.amount);
 
@@ -161,28 +157,41 @@ namespace omnibazaar {
 
             if(escrow_obj.transfer_to_escrow)
             {
-                // Funds were initially stored in escrow account, so remove base amount, but keep escrow fee.
+                // Funds were initially stored in escrow account, so remove them.
                 escrow_dlog("Removing funds from escrow account.");
                 d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
             }
-            else
-            {
-                // Funds were locked in blockchain, so just pay escrow fee.
-                escrow_dlog("Sending escrow fee.");
-                d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
-            }
 
-            graphene::chain::asset transfer_amount = escrow_obj.amount;
+            const graphene::chain::share_type cashback_vesting_threshold = d.get_global_properties().parameters.cashback_vesting_threshold;
+
+            // Pay escrow fee.
+            escrow_dlog("Sending escrow fee.");
+            const graphene::chain::share_type escrow_fee = graphene::chain::cut_fee(escrow_obj.amount.amount, escrow_obj.escrow(d).escrow_fee);
+            d.deposit_cashback(escrow_obj.escrow(d),
+                               escrow_fee,
+                               escrow_fee > cashback_vesting_threshold,
+                               graphene::chain::vesting_balance_object::escrow_fee_type);
+
+            graphene::chain::share_type transfer_amount = escrow_obj.amount.amount - escrow_fee;
             if(escrow_obj.listing.valid())
             {
                 // Pay fee to referrers and OmniBazaar.
-                const graphene::chain::share_type initial_amount = escrow_obj.amount.amount + escrow_obj.escrow_fee.amount;
+                const graphene::chain::share_type initial_amount = escrow_obj.amount.amount;
                 const graphene::chain::share_type omnibazaar_fee = graphene::chain::cut_fee(initial_amount, GRAPHENE_1_PERCENT / 2);
                 const graphene::chain::share_type referrer_fee = graphene::chain::cut_fee(initial_amount, GRAPHENE_1_PERCENT / 4);
-                d.adjust_balance(OMNIBAZAAR_FOUNDER_ACCOUNT, omnibazaar_fee);
-                d.adjust_balance(escrow_obj.buyer(d).referrer, referrer_fee);
-                d.adjust_balance(escrow_obj.seller(d).referrer, referrer_fee);
-                transfer_amount.amount -= omnibazaar_fee + referrer_fee * 2;
+                d.deposit_cashback(OMNIBAZAAR_FOUNDER_ACCOUNT(d),
+                                   omnibazaar_fee,
+                                   omnibazaar_fee > cashback_vesting_threshold,
+                                   graphene::chain::vesting_balance_object::founder_sale_fee);
+                d.deposit_cashback(escrow_obj.buyer(d).referrer(d),
+                                   referrer_fee,
+                                   referrer_fee > cashback_vesting_threshold,
+                                   graphene::chain::vesting_balance_object::referrer_sale_fee);
+                d.deposit_cashback(escrow_obj.seller(d).referrer(d),
+                                   referrer_fee,
+                                   referrer_fee > cashback_vesting_threshold,
+                                   graphene::chain::vesting_balance_object::referrer_sale_fee);
+                transfer_amount -= omnibazaar_fee + referrer_fee * 2;
             }
 
             // Send remaining funds to seller.
@@ -256,20 +265,23 @@ namespace omnibazaar {
 
             if(escrow_obj.transfer_to_escrow)
             {
-                // Funds were initially stored in escrow account, so remove base amount, but keep escrow fee.
+                // Funds were initially stored in escrow account, so remove them.
                 escrow_dlog("Removing funds from escrow account.");
                 d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
             }
-            else
-            {
-                // Funds were locked in blockchain, so just pay escrow fee.
-                escrow_dlog("Sending escrow fee.");
-                d.adjust_balance(escrow_obj.escrow, escrow_obj.escrow_fee);
-            }
+
+            // Pay escrow fee.
+            escrow_dlog("Sending escrow fee.");
+            const graphene::chain::share_type escrow_fee = graphene::chain::cut_fee(escrow_obj.amount.amount, escrow_obj.escrow(d).escrow_fee);
+            d.deposit_cashback(escrow_obj.escrow(d),
+                               escrow_fee,
+                               escrow_fee > d.get_global_properties().parameters.cashback_vesting_threshold,
+                               graphene::chain::vesting_balance_object::escrow_fee_type
+                               );
 
             // Return remaining funds to buyer.
             escrow_dlog("Adjusting buyer balance.");
-            d.adjust_balance(escrow_obj.buyer, escrow_obj.amount);
+            d.adjust_balance(escrow_obj.buyer, escrow_obj.amount.amount - escrow_fee);
 
             // Update reputation votes.
             const std::vector<std::pair<graphene::chain::account_id_type, uint16_t>> reputations = {

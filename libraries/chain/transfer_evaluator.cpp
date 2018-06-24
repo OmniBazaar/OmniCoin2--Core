@@ -108,12 +108,23 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
                 listing.quantity -= *o.listing_count;
             });
 
+            const graphene::chain::share_type cashback_vesting_threshold = d.get_global_properties().parameters.cashback_vesting_threshold;
+
             // Pay fee to referrers and OmniBazaar.
             const share_type omnibazaar_fee = cut_fee(o.amount.amount, GRAPHENE_1_PERCENT / 2);
             const share_type referrer_fee = cut_fee(o.amount.amount, GRAPHENE_1_PERCENT / 4);
-            d.adjust_balance(OMNIBAZAAR_FOUNDER_ACCOUNT, omnibazaar_fee);
-            d.adjust_balance(o.from(d).referrer, referrer_fee);
-            d.adjust_balance(o.to(d).referrer, referrer_fee);
+            d.deposit_cashback(OMNIBAZAAR_FOUNDER_ACCOUNT(d),
+                               omnibazaar_fee,
+                               omnibazaar_fee > cashback_vesting_threshold,
+                               graphene::chain::vesting_balance_object::founder_sale_fee);
+            d.deposit_cashback(o.from(d).referrer(d),
+                               referrer_fee,
+                               referrer_fee > cashback_vesting_threshold,
+                               graphene::chain::vesting_balance_object::referrer_sale_fee);
+            d.deposit_cashback(o.to(d).referrer(d),
+                               referrer_fee,
+                               referrer_fee > cashback_vesting_threshold,
+                               graphene::chain::vesting_balance_object::referrer_sale_fee);
             transfer_amount.amount -= omnibazaar_fee + referrer_fee * 2;
         }
 
