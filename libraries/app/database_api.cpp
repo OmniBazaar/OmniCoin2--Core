@@ -686,6 +686,14 @@ std::map<std::string, full_account> database_api_impl::get_full_accounts( const 
       {
          acnt.publisher_fee_balance = (*account->publisher_vb)(_db);
       }
+      if (account->founder_sale_vb)
+      {
+         acnt.founder_sale_fee_balance = (*account->founder_sale_vb)(_db);
+      }
+      if (account->referrer_sale_vb)
+      {
+         acnt.referrer_sale_fee_balance = (*account->referrer_sale_vb)(_db);
+      }
       // Add the account's proposals
       const auto& proposal_idx = _db.get_index_type<proposal_index>();
       const auto& pidx = dynamic_cast<const primary_index<proposal_index>&>(proposal_idx);

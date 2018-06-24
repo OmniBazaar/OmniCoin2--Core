@@ -213,6 +213,10 @@ namespace graphene { namespace chain {
          optional<vesting_balance_id_type> publisher_vb;
          // Vesting balance which receives Witness Bonus.
          optional<vesting_balance_id_type> witness_vb;
+         // Vesting balance which receives Founder fee from sales.
+         optional<vesting_balance_id_type> founder_sale_vb;
+         // Vesting balance which receives Referrer fee from sales.
+         optional<vesting_balance_id_type> referrer_sale_vb;
 
          special_authority owner_special_authority = no_special_authority();
          special_authority active_special_authority = no_special_authority();
@@ -511,6 +515,8 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (witness_vb)
                     (escrow_vb)
                     (publisher_vb)
+                    (founder_sale_vb)
+                    (referrer_sale_vb)
                     (owner_special_authority)(active_special_authority)
                     (top_n_control_flags)
                     (allowed_assets)

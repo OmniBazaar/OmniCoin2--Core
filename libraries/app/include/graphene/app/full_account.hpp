@@ -43,6 +43,8 @@ namespace graphene { namespace app {
       optional<vesting_balance_object> witness_bonus_balance;
       optional<vesting_balance_object> escrow_fee_balance;
       optional<vesting_balance_object> publisher_fee_balance;
+      optional<vesting_balance_object> founder_sale_fee_balance;
+      optional<vesting_balance_object> referrer_sale_fee_balance;
       vector<account_balance_object>   balances;
       vector<vesting_balance_object>   vesting_balances;
       vector<limit_order_object>       limit_orders;
@@ -67,6 +69,8 @@ FC_REFLECT( graphene::app::full_account,
             (witness_bonus_balance)
             (escrow_fee_balance)
             (publisher_fee_balance)
+            (founder_sale_fee_balance)
+            (referrer_sale_fee_balance)
             (balances)
             (vesting_balances)
             (limit_orders)

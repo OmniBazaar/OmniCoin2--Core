@@ -157,6 +157,8 @@ void database::deposit_cashback(const account_object& acct, const share_type amo
    case vesting_balance_object::witness_bonus_type: current_balance = acct.witness_vb;      break;
    case vesting_balance_object::escrow_fee_type:    current_balance = acct.escrow_vb;       break;
    case vesting_balance_object::publisher_fee_type: current_balance = acct.publisher_vb;    break;
+   case vesting_balance_object::founder_sale_fee:   current_balance = acct.founder_sale_vb; break;
+   case vesting_balance_object::referrer_sale_fee:  current_balance = acct.referrer_sale_vb;break;
    }
 
    optional< vesting_balance_id_type > new_vbid = deposit_lazy_vesting(
@@ -178,6 +180,8 @@ void database::deposit_cashback(const account_object& acct, const share_type amo
           case vesting_balance_object::witness_bonus_type: _acct.witness_vb = *new_vbid;      break;
           case vesting_balance_object::escrow_fee_type:    _acct.escrow_vb = *new_vbid;       break;
           case vesting_balance_object::publisher_fee_type: _acct.publisher_vb = *new_vbid;    break;
+          case vesting_balance_object::founder_sale_fee:   _acct.founder_sale_vb = *new_vbid; break;
+          case vesting_balance_object::referrer_sale_fee:  _acct.referrer_sale_vb = *new_vbid;break;
           }
       } );
    }
