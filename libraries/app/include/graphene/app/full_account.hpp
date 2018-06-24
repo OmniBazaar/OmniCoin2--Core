@@ -39,8 +39,6 @@ namespace graphene { namespace app {
       string                           referrer_name;
       vector<variant>                  votes;
       optional<vesting_balance_object> cashback_balance;
-      optional<vesting_balance_object> founder_bonus_balance;
-      optional<vesting_balance_object> witness_bonus_balance;
       optional<vesting_balance_object> escrow_fee_balance;
       optional<vesting_balance_object> publisher_fee_balance;
       optional<vesting_balance_object> founder_sale_fee_balance;
@@ -65,8 +63,6 @@ FC_REFLECT( graphene::app::full_account,
             (referrer_name)
             (votes)
             (cashback_balance)
-            (founder_bonus_balance)
-            (witness_bonus_balance)
             (escrow_fee_balance)
             (publisher_fee_balance)
             (founder_sale_fee_balance)

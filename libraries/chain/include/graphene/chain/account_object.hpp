@@ -205,14 +205,10 @@ namespace graphene { namespace chain {
           * Vesting balance which receives cashback_reward deposits.
           */
          optional<vesting_balance_id_type> cashback_vb;
-         // Vesting balance which receives Founder Bonus.
-         optional<vesting_balance_id_type> founder_vb;
          // Vesting balance which receives Escrow fees.
          optional<vesting_balance_id_type> escrow_vb;
          // Vesting balance which receives Publisher fees.
          optional<vesting_balance_id_type> publisher_vb;
-         // Vesting balance which receives Witness Bonus.
-         optional<vesting_balance_id_type> witness_vb;
          // Vesting balance which receives Founder fee from sales.
          optional<vesting_balance_id_type> founder_sale_vb;
          // Vesting balance which receives Referrer fee from sales.
@@ -511,8 +507,6 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (name)(owner)(active)(options)(statistics)(whitelisting_accounts)(blacklisting_accounts)
                     (whitelisted_accounts)(blacklisted_accounts)
                     (cashback_vb)
-                    (founder_vb)
-                    (witness_vb)
                     (escrow_vb)
                     (publisher_vb)
                     (founder_sale_vb)

@@ -153,8 +153,6 @@ void database::deposit_cashback(const account_object& acct, const share_type amo
    switch(balance_type)
    {
    case vesting_balance_object::no_type:            current_balance = acct.cashback_vb;     break;
-   case vesting_balance_object::founder_bonus_type: current_balance = acct.founder_vb;      break;
-   case vesting_balance_object::witness_bonus_type: current_balance = acct.witness_vb;      break;
    case vesting_balance_object::escrow_fee_type:    current_balance = acct.escrow_vb;       break;
    case vesting_balance_object::publisher_fee_type: current_balance = acct.publisher_vb;    break;
    case vesting_balance_object::founder_sale_fee:   current_balance = acct.founder_sale_vb; break;
@@ -176,8 +174,6 @@ void database::deposit_cashback(const account_object& acct, const share_type amo
           switch(balance_type)
           {
           case vesting_balance_object::no_type:            _acct.cashback_vb = *new_vbid;     break;
-          case vesting_balance_object::founder_bonus_type: _acct.founder_vb = *new_vbid;      break;
-          case vesting_balance_object::witness_bonus_type: _acct.witness_vb = *new_vbid;      break;
           case vesting_balance_object::escrow_fee_type:    _acct.escrow_vb = *new_vbid;       break;
           case vesting_balance_object::publisher_fee_type: _acct.publisher_vb = *new_vbid;    break;
           case vesting_balance_object::founder_sale_fee:   _acct.founder_sale_vb = *new_vbid; break;

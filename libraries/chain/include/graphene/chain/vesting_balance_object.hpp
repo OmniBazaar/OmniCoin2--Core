@@ -136,12 +136,10 @@ namespace graphene { namespace chain {
          enum balance_type
          {
              no_type            = 0,
-             founder_bonus_type = 1,
-             witness_bonus_type = 2,
-             escrow_fee_type    = 3,
-             publisher_fee_type = 4,
-             founder_sale_fee   = 5,
-             referrer_sale_fee  = 6
+             escrow_fee_type    = 1,
+             publisher_fee_type = 2,
+             founder_sale_fee   = 3,
+             referrer_sale_fee  = 4
          };
 
          /// Account which owns and may withdraw from this vesting balance
@@ -226,8 +224,6 @@ FC_REFLECT_DERIVED(graphene::chain::vesting_balance_object, (graphene::db::objec
 
 FC_REFLECT_ENUM(graphene::chain::vesting_balance_object::balance_type,
                 (no_type)
-                (founder_bonus_type)
-                (witness_bonus_type)
                 (escrow_fee_type)
                 (publisher_fee_type)
                 (founder_sale_fee)
