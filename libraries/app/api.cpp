@@ -473,6 +473,23 @@ namespace graphene { namespace app {
                                                                        operation_history_id_type stop,
                                                                        unsigned limit)
     {
+        return get_marketplace_history(account_id, true, start, stop, limit);
+    }
+
+    vector<operation_history_object> history_api::get_sale_history(const account_id_type account_id,
+                                                                   operation_history_id_type start,
+                                                                   operation_history_id_type stop,
+                                                                   unsigned limit)
+    {
+        return get_marketplace_history(account_id, false, start, stop, limit);
+    }
+
+    vector<operation_history_object> history_api::get_marketplace_history(const account_id_type account_id,
+                                                                          const bool is_buyer,
+                                                                          operation_history_id_type start,
+                                                                          operation_history_id_type stop,
+                                                                          unsigned limit)
+    {
         try
         {
             FC_ASSERT( _app.chain_database() );
@@ -483,33 +500,44 @@ namespace graphene { namespace app {
             const auto& db = *_app.chain_database();
             const auto& stats = account_id(db).statistics(db);
 
+            // Most recent operation is null, nothing to return.
             if( stats.most_recent_op == account_transaction_history_id_type() )
             {
                 return result;
             }
 
             const account_transaction_history_object* node = &stats.most_recent_op(db);
+            // If start is not specified, set it to most recent operation.
             if( start == operation_history_id_type() )
             {
                 start = node->operation_id;
             }
 
-            const auto is_purchase = [&](){
+            // Check if current node represents a sale operation.
+            const auto is_purchase = [&node, &db, account_id, is_buyer]{
                 const operation_history_object op_history = node->operation_id(db);
                 const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
                         && op_history.op.get<transfer_operation>().listing.valid()
-                        && (op_history.op.get<transfer_operation>().from == account_id);
+                        && (
+                            (is_buyer && (op_history.op.get<transfer_operation>().from == account_id))
+                            || (!is_buyer && (op_history.op.get<transfer_operation>().to == account_id))
+                            );
                 const bool is_escrow_sale = (op_history.op.which() == operation::tag<omnibazaar::escrow_create_operation>::value)
                         && op_history.op.get<omnibazaar::escrow_create_operation>().listing.valid()
-                        && (op_history.op.get<omnibazaar::escrow_create_operation>().buyer == account_id);
+                        && (
+                            (is_buyer && (op_history.op.get<omnibazaar::escrow_create_operation>().buyer == account_id))
+                            || (!is_buyer && (op_history.op.get<omnibazaar::escrow_create_operation>().seller == account_id))
+                            );
+                        ;
                 return is_transfer_sale || is_escrow_sale;
             };
 
-            while(node && node->operation_id.instance.value > stop.instance.value && result.size() < limit)
+            // Traverse the list of operations starting from most recent and back.
+            while( node && node->operation_id.instance.value > stop.instance.value && result.size() < limit )
             {
                 if( node->operation_id.instance.value <= start.instance.value )
                 {
-                    if(is_purchase())
+                    if( is_purchase() )
                     {
                         result.push_back( node->operation_id(db) );
                     }
@@ -527,12 +555,9 @@ namespace graphene { namespace app {
             if( stop.instance.value == 0 && result.size() < limit )
             {
                 node = db.find(account_transaction_history_id_type());
-                if(node && (node->account == account_id))
+                if( node && (node->account == account_id) && is_purchase() )
                 {
-                    if(is_purchase())
-                    {
-                        result.push_back( node->operation_id(db) );
-                    }
+                    result.push_back( node->operation_id(db) );
                 }
             }
 
