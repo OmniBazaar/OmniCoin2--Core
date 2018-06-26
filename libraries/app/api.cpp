@@ -586,11 +586,11 @@ namespace graphene { namespace app {
             };
 
             // Traverse the list of operations starting from most recent and back.
-            while(node && node->operation_id.instance.value > stop.instance.value && result.size() < limit)
+            while( node && node->operation_id.instance.value > stop.instance.value && result.size() < limit )
             {
                 if( node->operation_id.instance.value <= start.instance.value )
                 {
-                    if(is_purchase())
+                    if( is_purchase() )
                     {
                         result.push_back( node->operation_id(db) );
                     }
@@ -608,7 +608,7 @@ namespace graphene { namespace app {
             if( stop.instance.value == 0 && result.size() < limit )
             {
                 node = db.find(account_transaction_history_id_type());
-                if(node && (node->account == account_id) && is_purchase())
+                if( node && (node->account == account_id) && is_purchase() )
                 {
                     result.push_back( node->operation_id(db) );
                 }
