@@ -497,7 +497,7 @@ namespace graphene { namespace app {
             }
 
             // Check if current node represents a purchase operation.
-            const auto is_purchase = [&](){
+            const auto is_purchase = [&node, &db, account_id]{
                 const operation_history_object op_history = node->operation_id(db);
                 const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
                         && op_history.op.get<transfer_operation>().listing.valid()
@@ -574,7 +574,7 @@ namespace graphene { namespace app {
             }
 
             // Check if current node represents a sale operation.
-            const auto is_purchase = [&](){
+            const auto is_purchase = [&node, &db, account_id]{
                 const operation_history_object op_history = node->operation_id(db);
                 const bool is_transfer_sale = (op_history.op.which() == operation::tag<transfer_operation>::value)
                         && op_history.op.get<transfer_operation>().listing.valid()
