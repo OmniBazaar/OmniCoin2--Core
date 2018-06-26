@@ -175,6 +175,12 @@ namespace graphene { namespace app {
 
       private:
            application& _app;
+
+           vector<operation_history_object> get_marketplace_history(const account_id_type account_id,
+                                                                    const bool is_buyer = true,
+                                                                    operation_history_id_type start = operation_history_id_type(),
+                                                                    operation_history_id_type stop = operation_history_id_type(),
+                                                                    unsigned limit = 100);
    };
 
    /**
