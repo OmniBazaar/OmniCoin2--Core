@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE( cashback_test )
       CustomAuditActor( pleb );                      \
    }
 
-   int64_t reg_fee    = fees->get< account_create_operation >().premium_fee;
+   int64_t reg_fee    = fees->get< account_create_operation >().basic_fee;
    int64_t xfer_fee   = fees->get< transfer_operation >().fee;
    // all percentages here are cut from whole pie!
    uint64_t network_pct = 20 * P1;

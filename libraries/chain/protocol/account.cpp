@@ -132,29 +132,6 @@ bool is_valid_name( const string& name )
     return true;
 } FC_CAPTURE_AND_RETHROW( (name) ) }
 
-bool is_cheap_name( const string& n )
-{
-   bool v = false;
-   for( auto c : n )
-   {
-      if( c >= '0' && c <= '9' ) return true;
-      if( c == '.' || c == '-' || c == '/' ) return true;
-      switch( c )
-      {
-         case 'a':
-         case 'e':
-         case 'i':
-         case 'o':
-         case 'u':
-         case 'y':
-            v = true;
-      }
-   }
-   if( !v )
-      return true;
-   return false;
-}
-
 void account_options::validate() const
 {
    auto needed_witnesses = num_witness;
@@ -173,9 +150,6 @@ void account_options::validate() const
 share_type account_create_operation::calculate_fee( const fee_parameters_type& k )const
 {
    auto core_fee_required = k.basic_fee;
-
-   if( !is_cheap_name(name) )
-      core_fee_required = k.premium_fee;
 
    // Authorities and vote lists can be arbitrarily large, so charge a data fee for big ones
    auto data_fee =  calculate_data_fee( fc::raw::pack_size(*this), k.price_per_kbyte ); 
