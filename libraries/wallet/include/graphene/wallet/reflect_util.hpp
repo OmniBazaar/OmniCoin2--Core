@@ -40,14 +40,20 @@ namespace impl {
 std::string clean_name( const std::string& name )
 {
    std::string result;
-   const static std::string prefix = "graphene::chain::";
+   const static std::string prefixes[] = {"graphene::chain::", "omnibazaar::"};
    const static std::string suffix = "_operation";
    // graphene::chain::.*_operation
-   if(    (name.size() >= prefix.size() + suffix.size())
-       && (name.substr( 0, prefix.size() ) == prefix)
-       && (name.substr( name.size()-suffix.size(), suffix.size() ) == suffix )
-     )
-        return name.substr( prefix.size(), name.size() - prefix.size() - suffix.size() );
+   // omnibazaar::.*_operation
+   for(const auto& prefix : prefixes)
+   {
+       if(    (name.size() >= prefix.size() + suffix.size())
+           && (name.substr( 0, prefix.size() ) == prefix)
+           && (name.substr( name.size()-suffix.size(), suffix.size() ) == suffix )
+         )
+       {
+           return name.substr( prefix.size(), name.size() - prefix.size() - suffix.size() );
+       }
+   }
 
    wlog( "don't know how to clean name: ${name}", ("name", name) );
    return name;
