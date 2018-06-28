@@ -97,6 +97,20 @@ namespace graphene { namespace chain {
       }
    };
 
+   struct calc_omnibazaar_fee_visitor
+   {
+       typedef omnibazaar::omnibazaar_fee_type result_type;
+
+       const database& db;
+       calc_omnibazaar_fee_visitor( const database& d ) : db(d){}
+
+       template<typename OpType>
+       result_type operator()( const OpType& op )const
+       {
+            return op.calculate_omnibazaar_fee(db);
+       }
+   };
+
    struct set_fee_visitor
    {
       typedef void result_type;
@@ -145,6 +159,11 @@ namespace graphene { namespace chain {
 
       FC_ASSERT( result.amount <= GRAPHENE_MAX_SHARE_SUPPLY );
       return result;
+   }
+
+   omnibazaar::omnibazaar_fee_type fee_schedule::calculate_omnibazaar_fee(const operation& op , const database &db)
+   {
+       return op.visit(calc_omnibazaar_fee_visitor(db));
    }
 
    asset fee_schedule::set_fee( operation& op, const price& core_exchange_rate )const

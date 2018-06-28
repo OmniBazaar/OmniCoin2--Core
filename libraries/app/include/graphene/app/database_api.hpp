@@ -620,6 +620,11 @@ class database_api
        */
       vector< fc::variant > get_required_fees( const vector<operation>& ops, asset_id_type id )const;
 
+      /**
+       *  Calculate OmniBazaar-specific fees.
+       */
+      vector< fc::variant > get_required_omnibazaar_fees( const vector<operation>& ops )const;
+
       ///////////////////////////
       // Proposed transactions //
       ///////////////////////////
@@ -801,6 +806,7 @@ FC_API(graphene::app::database_api,
    (verify_account_authority)
    (validate_transaction)
    (get_required_fees)
+   (get_required_omnibazaar_fees)
 
    // Proposed transactions
    (get_proposed_transactions)

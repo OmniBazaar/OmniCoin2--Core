@@ -16,6 +16,8 @@ namespace omnibazaar {
 
         // Operation fee.
         graphene::chain::asset fee;
+        // OmniBazaar-related fees for this operation.
+        omnibazaar_fee_type ob_fee;
         // Escrow expiration time after which funds are automatically released to seller.
         fc::time_point_sec expiration_time;
         // Buyer account.
@@ -43,6 +45,7 @@ namespace omnibazaar {
         graphene::chain::share_type calculate_fee(const fee_parameters_type& k)const;
         void get_required_authorities( std::vector<graphene::chain::authority>& auths)const;
         void get_required_active_authorities(fc::flat_set<graphene::chain::account_id_type>& auths)const;
+        omnibazaar_fee_type calculate_omnibazaar_fee(const graphene::chain::database& db)const;
     };
 
     // Operation for finishing Escrow process by releasing funds to Seller.
@@ -126,6 +129,7 @@ namespace omnibazaar {
 FC_REFLECT( omnibazaar::escrow_create_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_create_operation,
             (fee)
+            (ob_fee)
             (expiration_time)
             (buyer)
             (seller)

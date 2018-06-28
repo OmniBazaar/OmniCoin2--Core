@@ -63,6 +63,10 @@ namespace omnibazaar {
                 FC_ASSERT( op.seller == listing.seller, "Transfer destination is not listing seller." );
             }
 
+            // Check fees.
+            const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
+            FC_ASSERT( op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees." );
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -87,6 +91,7 @@ namespace omnibazaar {
                 e.amount = op.amount;
                 e.listing = op.listing;
                 e.listing_count = op.listing_count;
+                e.ob_fee = op.ob_fee;
             });
 
             // Lock buyer funds.
@@ -166,32 +171,36 @@ namespace omnibazaar {
 
             // Pay escrow fee.
             escrow_dlog("Sending escrow fee.");
-            const graphene::chain::share_type escrow_fee = graphene::chain::cut_fee(escrow_obj.amount.amount, escrow_obj.escrow(d).escrow_fee);
-            d.deposit_cashback(escrow_obj.escrow(d),
-                               escrow_fee,
-                               escrow_fee > cashback_vesting_threshold,
-                               graphene::chain::vesting_balance_object::escrow_fee_type);
+            if(escrow_obj.ob_fee.escrow_fee.valid())
+            {
+                d.deposit_cashback(escrow_obj.escrow(d),
+                                   escrow_obj.ob_fee.escrow_fee->amount,
+                                   escrow_obj.ob_fee.escrow_fee->amount > cashback_vesting_threshold,
+                                   graphene::chain::vesting_balance_object::escrow_fee_type);
+            }
 
-            graphene::chain::share_type transfer_amount = escrow_obj.amount.amount - escrow_fee;
+            graphene::chain::share_type transfer_amount = escrow_obj.amount.amount -
+                    (escrow_obj.ob_fee.escrow_fee.valid() ? escrow_obj.ob_fee.escrow_fee->amount : 0);
             if(escrow_obj.listing.valid())
             {
                 // Pay fee to referrers and OmniBazaar.
-                const graphene::chain::share_type initial_amount = escrow_obj.amount.amount;
-                const graphene::chain::share_type omnibazaar_fee = graphene::chain::cut_fee(initial_amount, GRAPHENE_1_PERCENT / 2);
-                const graphene::chain::share_type referrer_fee = graphene::chain::cut_fee(initial_amount, GRAPHENE_1_PERCENT / 4);
-                d.deposit_cashback(OMNIBAZAAR_FOUNDER_ACCOUNT(d),
-                                   omnibazaar_fee,
-                                   omnibazaar_fee > cashback_vesting_threshold,
-                                   graphene::chain::vesting_balance_object::founder_sale_fee);
-                d.deposit_cashback(escrow_obj.buyer(d).referrer(d),
-                                   referrer_fee,
-                                   referrer_fee > cashback_vesting_threshold,
-                                   graphene::chain::vesting_balance_object::referrer_sale_fee);
-                d.deposit_cashback(escrow_obj.seller(d).referrer(d),
-                                   referrer_fee,
-                                   referrer_fee > cashback_vesting_threshold,
-                                   graphene::chain::vesting_balance_object::referrer_sale_fee);
-                transfer_amount -= omnibazaar_fee + referrer_fee * 2;
+                using namespace graphene::chain;
+                const std::tuple<account_id_type, fc::optional<asset>, vesting_balance_object::balance_type> fees[] = {
+                    std::make_tuple(OMNIBAZAAR_FOUNDER_ACCOUNT,    escrow_obj.ob_fee.omnibazaar_fee,      vesting_balance_object::founder_sale_fee),
+                    std::make_tuple(escrow_obj.buyer(d).referrer,  escrow_obj.ob_fee.referrer_buyer_fee,  vesting_balance_object::referrer_sale_fee),
+                    std::make_tuple(escrow_obj.seller(d).referrer, escrow_obj.ob_fee.referrer_seller_fee, vesting_balance_object::referrer_sale_fee)
+                };
+                for(const auto& fee : fees)
+                {
+                    if(std::get<1>(fee).valid())
+                    {
+                        d.deposit_cashback(std::get<0>(fee)(d),
+                                           std::get<1>(fee)->amount,
+                                           std::get<1>(fee)->amount > cashback_vesting_threshold,
+                                           std::get<2>(fee));
+                        transfer_amount -= std::get<1>(fee)->amount;
+                    }
+                }
             }
 
             // Send remaining funds to seller.
@@ -272,16 +281,17 @@ namespace omnibazaar {
 
             // Pay escrow fee.
             escrow_dlog("Sending escrow fee.");
-            const graphene::chain::share_type escrow_fee = graphene::chain::cut_fee(escrow_obj.amount.amount, escrow_obj.escrow(d).escrow_fee);
-            d.deposit_cashback(escrow_obj.escrow(d),
-                               escrow_fee,
-                               escrow_fee > d.get_global_properties().parameters.cashback_vesting_threshold,
-                               graphene::chain::vesting_balance_object::escrow_fee_type
-                               );
+            if(escrow_obj.ob_fee.escrow_fee.valid())
+            {
+                d.deposit_cashback(escrow_obj.escrow(d),
+                                   escrow_obj.ob_fee.escrow_fee->amount,
+                                   escrow_obj.ob_fee.escrow_fee->amount > d.get_global_properties().parameters.cashback_vesting_threshold,
+                                   graphene::chain::vesting_balance_object::escrow_fee_type);
+            }
 
             // Return remaining funds to buyer.
             escrow_dlog("Adjusting buyer balance.");
-            d.adjust_balance(escrow_obj.buyer, escrow_obj.amount.amount - escrow_fee);
+            d.adjust_balance(escrow_obj.buyer, escrow_obj.amount.amount - (escrow_obj.ob_fee.escrow_fee.valid() ? escrow_obj.ob_fee.escrow_fee->amount : 0));
 
             // Update reputation votes.
             const std::vector<std::pair<graphene::chain::account_id_type, uint16_t>> reputations = {
