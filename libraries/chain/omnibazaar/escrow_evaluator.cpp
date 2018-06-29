@@ -66,6 +66,7 @@ namespace omnibazaar {
             // Check fees.
             const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
             FC_ASSERT( op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees." );
+            FC_ASSERT( !op.ob_fee.publisher_fee.valid(), "Escrow does not require publisher fee." );
 
             return graphene::chain::void_result();
         }

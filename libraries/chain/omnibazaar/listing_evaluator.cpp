@@ -27,6 +27,10 @@ namespace omnibazaar {
             // Check fees.
             const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
             FC_ASSERT(op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees.");
+            FC_ASSERT(!op.ob_fee.escrow_fee.valid(), "Listing does not require escrow fee.");
+            FC_ASSERT(!op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee.");
+            FC_ASSERT(!op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee.");
+            FC_ASSERT(!op.ob_fee.referrer_seller_fee.valid(), "Listing does not require seller referrer fee.");
 
             // Check that Seller has enough funds to pay fee to Publisher.
             market_dlog("Checking fees.");
@@ -115,6 +119,10 @@ namespace omnibazaar {
             // Check fees.
             const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
             FC_ASSERT( op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees." );
+            FC_ASSERT( !op.ob_fee.escrow_fee.valid(), "Listing does not require escrow fee." );
+            FC_ASSERT( !op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee." );
+            FC_ASSERT( !op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee." );
+            FC_ASSERT( !op.ob_fee.referrer_seller_fee.valid(), "Listing does not require seller referrer fee." );
 
             // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
             // Check that Seller has enough funds to pay fee to Publisher.
