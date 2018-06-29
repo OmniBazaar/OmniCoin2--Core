@@ -81,6 +81,10 @@ void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
           FC_ASSERT( op.to == listing.seller, "Transfer destination is not listing seller." );
       }
 
+      // Check fees.
+      const omnibazaar::omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
+      FC_ASSERT( op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees." );
+
       return void_result();
    } FC_RETHROW_EXCEPTIONS( error, "Unable to transfer ${a} from ${f} to ${t}", ("a",d.to_pretty_string(op.amount))("f",op.from(d).name)("t",op.to(d).name) );
 
@@ -111,21 +115,23 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
             const graphene::chain::share_type cashback_vesting_threshold = d.get_global_properties().parameters.cashback_vesting_threshold;
 
             // Pay fee to referrers and OmniBazaar.
-            const share_type omnibazaar_fee = cut_fee(o.amount.amount, GRAPHENE_1_PERCENT / 2);
-            const share_type referrer_fee = cut_fee(o.amount.amount, GRAPHENE_1_PERCENT / 4);
-            d.deposit_cashback(OMNIBAZAAR_FOUNDER_ACCOUNT(d),
-                               omnibazaar_fee,
-                               omnibazaar_fee > cashback_vesting_threshold,
-                               graphene::chain::vesting_balance_object::founder_sale_fee);
-            d.deposit_cashback(o.from(d).referrer(d),
-                               referrer_fee,
-                               referrer_fee > cashback_vesting_threshold,
-                               graphene::chain::vesting_balance_object::referrer_sale_fee);
-            d.deposit_cashback(o.to(d).referrer(d),
-                               referrer_fee,
-                               referrer_fee > cashback_vesting_threshold,
-                               graphene::chain::vesting_balance_object::referrer_sale_fee);
-            transfer_amount.amount -= omnibazaar_fee + referrer_fee * 2;
+            using namespace graphene::chain;
+            const std::tuple<account_id_type, fc::optional<asset>, vesting_balance_object::balance_type> fees[] = {
+                std::make_tuple(OMNIBAZAAR_FOUNDER_ACCOUNT, o.ob_fee.omnibazaar_fee,      vesting_balance_object::founder_sale_fee),
+                std::make_tuple(o.from(d).referrer,         o.ob_fee.referrer_buyer_fee,  vesting_balance_object::referrer_sale_fee),
+                std::make_tuple(o.to(d).referrer,           o.ob_fee.referrer_seller_fee, vesting_balance_object::referrer_sale_fee)
+            };
+            for(const auto& fee : fees)
+            {
+                if(std::get<1>(fee).valid())
+                {
+                    d.deposit_cashback(std::get<0>(fee)(d),
+                                       std::get<1>(fee)->amount,
+                                       std::get<1>(fee)->amount > cashback_vesting_threshold,
+                                       std::get<2>(fee));
+                    transfer_amount -= std::get<1>(fee)->amount;
+                }
+            }
         }
 
         // Add remaining funds to 'to' account.
