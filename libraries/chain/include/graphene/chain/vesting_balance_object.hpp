@@ -151,7 +151,8 @@ namespace graphene { namespace chain {
          vesting_policy policy;
          /// Indicates the type of this balance. Default is 'no_type' which was the only type in BTS2.0.
          /// Other types have meaning specific to OmniCoin2.
-         balance_type type = no_type;
+         /// Available values are defined in "balance_type" enum.
+         uint8_t type = no_type;
 
          vesting_balance_object() {}
 
