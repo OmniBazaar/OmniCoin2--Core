@@ -5,8 +5,6 @@
 
 namespace omnibazaar {
 
-    static const uint16_t DEFAULT_PUBLISHER_FEE = GRAPHENE_1_PERCENT / 4; // 0.25%
-
     graphene::chain::void_result listing_create_evaluator::do_evaluate( const listing_create_operation& op )
     {
         try
@@ -26,12 +24,18 @@ namespace omnibazaar {
             const auto& listings_idx = d.get_index_type<listing_index>().indices().get<by_hash>();
             FC_ASSERT(listings_idx.find(op.listing_hash) == listings_idx.cend(), "Listing hash already exists.");
 
+            // Check fees.
+            const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
+            FC_ASSERT(op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees.");
+
             // Check that Seller has enough funds to pay fee to Publisher.
             market_dlog("Checking fees.");
-            const graphene::chain::share_type fee = graphene::chain::cut_fee(op.price.amount, DEFAULT_PUBLISHER_FEE);
-            const graphene::chain::share_type seller_balance = d.get_balance(op.seller, op.price.asset_id).amount;
-            market_ddump((fee)(seller_balance));
-            FC_ASSERT(seller_balance >= fee, "Insufficient funds to pay fee to publisher.");
+            if(op.ob_fee.publisher_fee.valid())
+            {
+                const graphene::chain::share_type seller_balance = d.get_balance(op.seller, op.price.asset_id).amount;
+                market_ddump((*op.ob_fee.publisher_fee)(seller_balance));
+                FC_ASSERT(seller_balance >= (op.ob_fee.publisher_fee->amount + op.fee.amount), "Insufficient funds to pay fee to publisher.");
+            }
 
             return graphene::chain::void_result();
         }
@@ -59,14 +63,16 @@ namespace omnibazaar {
             });
 
             // Pay fee to publisher.
-            const graphene::chain::share_type fee = graphene::chain::cut_fee(op.price.amount, DEFAULT_PUBLISHER_FEE);
-            market_dlog("Paying publisher fee ${fee}", ("fee", fee));
-            d.adjust_balance(op.seller, -fee);
-            d.deposit_cashback(op.publisher(d),
-                               fee,
-                               fee > d.get_global_properties().parameters.cashback_vesting_threshold,
-                               graphene::chain::vesting_balance_object::publisher_fee_type
-                               );
+            if(op.ob_fee.publisher_fee.valid())
+            {
+                market_dlog("Paying publisher fee ${fee}", ("fee", *op.ob_fee.publisher_fee));
+                d.adjust_balance(op.seller, -(*op.ob_fee.publisher_fee));
+                d.deposit_cashback(op.publisher(d),
+                                   op.ob_fee.publisher_fee->amount,
+                                   op.ob_fee.publisher_fee->amount > d.get_global_properties().parameters.cashback_vesting_threshold,
+                                   graphene::chain::vesting_balance_object::publisher_fee_type
+                                   );
+            }
 
             d.modify(op.publisher(d), [](graphene::chain::account_object& a){
                 ++a.listings_count;
@@ -106,16 +112,18 @@ namespace omnibazaar {
                 FC_ASSERT(listings_idx.find(*op.listing_hash) == listings_idx.cend(), "Listing already exists.");
             }
 
+            // Check fees.
+            const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
+            FC_ASSERT( op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees." );
+
             // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
             // Check that Seller has enough funds to pay fee to Publisher.
-            if(op.update_expiration_time || op.publisher.valid())
+            if(op.ob_fee.publisher_fee.valid())
             {
                 market_dlog("Checking fees.");
-                const graphene::chain::asset price = op.price.valid() ? *op.price : listing.price;
-                const graphene::chain::share_type fee = graphene::chain::cut_fee((price).amount, DEFAULT_PUBLISHER_FEE);
-                const graphene::chain::share_type seller_balance = d.get_balance(op.seller, (price).asset_id).amount;
-                market_ddump((fee)(seller_balance));
-                FC_ASSERT(seller_balance >= (fee + op.fee.amount), "Insufficient funds to pay fee to publisher.");
+                const graphene::chain::share_type seller_balance = d.get_balance(op.seller, op.ob_fee.publisher_fee->asset_id).amount;
+                market_ddump((*op.ob_fee.publisher_fee)(seller_balance));
+                FC_ASSERT(seller_balance >= (op.ob_fee.publisher_fee->amount + op.fee.amount), "Insufficient funds to pay fee to publisher.");
             }
 
             return graphene::chain::void_result();
@@ -172,16 +180,15 @@ namespace omnibazaar {
             });
 
             // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
-            if(op.update_expiration_time || op.publisher.valid())
+            if(op.ob_fee.publisher_fee.valid())
             {
                 const listing_object& listing = op.listing_id(d);
                 market_ddump((listing));
-                const graphene::chain::share_type fee = graphene::chain::cut_fee(listing.price.amount, DEFAULT_PUBLISHER_FEE);
-                market_dlog("Paying publisher fee ${fee}", ("fee", fee));
-                d.adjust_balance(listing.seller, -fee);
+                market_dlog("Paying publisher fee ${fee}", ("fee", op.ob_fee));
+                d.adjust_balance(listing.seller, -(*op.ob_fee.publisher_fee));
                 d.deposit_cashback(listing.publisher(d),
-                                   fee,
-                                   fee > d.get_global_properties().parameters.cashback_vesting_threshold,
+                                   op.ob_fee.publisher_fee->amount,
+                                   op.ob_fee.publisher_fee->amount > d.get_global_properties().parameters.cashback_vesting_threshold,
                                    graphene::chain::vesting_balance_object::publisher_fee_type
                                    );
             }

@@ -14,6 +14,8 @@ namespace omnibazaar {
 
         // Operation fee.
         graphene::chain::asset fee;
+        // OmniBazaar-related fees for this operation.
+        omnibazaar_fee_type ob_fee;
         // User that creates and sells a product.
         graphene::chain::account_id_type seller;
         // User that hosts this product listing on his server.
@@ -28,6 +30,7 @@ namespace omnibazaar {
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
+        omnibazaar_fee_type calculate_omnibazaar_fee(const graphene::chain::database &db)const;
     };
 
     // Operation for updating marketplace listing data.
@@ -39,6 +42,8 @@ namespace omnibazaar {
 
         // Operation fee.
         graphene::chain::asset fee;
+        // OmniBazaar-related fees for this operation.
+        omnibazaar_fee_type ob_fee;
         // User that creates and sells a product.
         graphene::chain::account_id_type seller;
         // ID of listing object that will be updated.
@@ -57,6 +62,7 @@ namespace omnibazaar {
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
+        omnibazaar_fee_type calculate_omnibazaar_fee(const graphene::chain::database &db)const;
     };
 
     // Operation for removing marketplace listing from blockchain.
@@ -102,6 +108,7 @@ namespace omnibazaar {
 FC_REFLECT(omnibazaar::listing_create_operation::fee_parameters_type, (fee))
 FC_REFLECT(omnibazaar::listing_create_operation,
            (fee)
+           (ob_fee)
            (seller)
            (publisher)
            (price)
@@ -111,6 +118,7 @@ FC_REFLECT(omnibazaar::listing_create_operation,
 FC_REFLECT(omnibazaar::listing_update_operation::fee_parameters_type, (fee))
 FC_REFLECT(omnibazaar::listing_update_operation,
            (fee)
+           (ob_fee)
            (seller)
            (listing_id)
            (publisher)
