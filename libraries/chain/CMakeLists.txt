@@ -62,6 +62,8 @@ add_library( graphene_chain
              omnibazaar/listing.cpp
              omnibazaar/listing_evaluator.cpp
 
+             omnibazaar/omnibazaar_fee_type.cpp
+
              protocol/types.cpp
              protocol/address.cpp
              protocol/authority.cpp

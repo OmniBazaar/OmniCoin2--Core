@@ -151,6 +151,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       bool verify_account_authority( const string& name_or_id, const flat_set<public_key_type>& signers )const;
       processed_transaction validate_transaction( const signed_transaction& trx )const;
       vector< fc::variant > get_required_fees( const vector<operation>& ops, asset_id_type id )const;
+      vector< fc::variant > get_required_omnibazaar_fees( const vector<operation>& ops )const;
 
       // Proposed transactions
       vector<proposal_object> get_proposed_transactions( account_id_type id )const;
@@ -2030,6 +2031,11 @@ vector< fc::variant > database_api::get_required_fees( const vector<operation>& 
    return my->get_required_fees( ops, id );
 }
 
+vector< fc::variant > database_api::get_required_omnibazaar_fees( const vector<operation>& ops )const
+{
+    return my->get_required_omnibazaar_fees( ops );
+}
+
 /**
  * Container method for mutually recursive functions used to
  * implement get_required_fees() with potentially nested proposals.
@@ -2106,6 +2112,19 @@ vector< fc::variant > database_api_impl::get_required_fees( const vector<operati
       result.push_back( helper.set_op_fees( op ) );
    }
    return result;
+}
+
+vector< fc::variant > database_api_impl::get_required_omnibazaar_fees( const vector<operation>& ops )const
+{
+    vector< fc::variant > result;
+    result.reserve( ops.size() );
+    for( const operation& op : ops )
+    {
+        fc::variant res;
+        fc::to_variant( fee_schedule::calculate_omnibazaar_fee( op, _db ), res );
+        result.push_back(res);
+    }
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////

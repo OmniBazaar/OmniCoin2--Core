@@ -24,6 +24,7 @@
 #pragma once
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/memo.hpp>
+#include <../omnibazaar/omnibazaar_fee_type.hpp>
 
 namespace graphene { namespace chain {
 
@@ -49,6 +50,8 @@ namespace graphene { namespace chain {
       };
 
       asset            fee;
+      /// OmniBazaar-related fees for this operation.
+      omnibazaar::omnibazaar_fee_type ob_fee;
       /// Account to transfer asset from
       account_id_type  from;
       /// Account to transfer asset to
@@ -71,6 +74,7 @@ namespace graphene { namespace chain {
       account_id_type fee_payer()const { return from; }
       void            validate()const;
       share_type      calculate_fee(const fee_parameters_type& k)const;
+      omnibazaar::omnibazaar_fee_type calculate_omnibazaar_fee(const database& db)const;
    };
 
    /**
@@ -112,4 +116,4 @@ FC_REFLECT( graphene::chain::transfer_operation::fee_parameters_type, (fee)(pric
 FC_REFLECT( graphene::chain::override_transfer_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 
 FC_REFLECT( graphene::chain::override_transfer_operation, (fee)(issuer)(from)(to)(amount)(memo)(extensions) )
-FC_REFLECT( graphene::chain::transfer_operation, (fee)(from)(to)(amount)(memo)(extensions)(reputation_vote)(listing)(listing_count) )
+FC_REFLECT( graphene::chain::transfer_operation, (fee)(ob_fee)(from)(to)(amount)(memo)(extensions)(reputation_vote)(listing)(listing_count) )

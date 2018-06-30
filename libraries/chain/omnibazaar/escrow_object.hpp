@@ -30,6 +30,8 @@ namespace omnibazaar {
         fc::optional<graphene::chain::listing_id_type> listing;
         // Amount of items to buy.
         fc::optional<uint32_t> listing_count;
+        // OmniBazaar-related fees for this escrow process.
+        omnibazaar_fee_type ob_fee;
     };
 
     // Tracks all of the escrow objects that are relevant for an individual account.
@@ -64,4 +66,5 @@ FC_REFLECT_DERIVED(omnibazaar::escrow_object, (graphene::chain::object),
                    (amount)
                    (transfer_to_escrow)
                    (listing)
-                   (listing_count))
+                   (listing_count)
+                   (ob_fee))

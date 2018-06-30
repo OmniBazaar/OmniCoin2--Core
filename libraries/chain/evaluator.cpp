@@ -128,4 +128,18 @@ database& generic_evaluator::db()const { return trx_state->db(); }
      db().adjust_balance(fee_payer, fee_from_account);
    }
 
+   share_type generic_evaluator::deposit_fee(const account_id_type& account, const fc::optional<asset>& amount, const vesting_balance_object::balance_type type)
+   {
+       if(amount.valid())
+       {
+           database& d = db();
+           d.deposit_cashback(account(d),
+                              amount->amount,
+                              amount->amount > d.get_global_properties().parameters.cashback_vesting_threshold,
+                              type);
+           return amount->amount;
+       }
+       return 0;
+   }
+
 } }

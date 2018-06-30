@@ -1,4 +1,7 @@
 #include <listing.hpp>
+#include <../omnibazaar/listing_object.hpp>
+#include <graphene/chain/account_object.hpp>
+#include <graphene/chain/database.hpp>
 
 namespace omnibazaar {
 
@@ -8,6 +11,17 @@ namespace omnibazaar {
         FC_ASSERT( price.amount > 0 );
         // Vested balances work only with core asset, so for now implement support only for core asset in listing operations.
         FC_ASSERT( price.asset_id == graphene::chain::asset_id_type(), "Listings support only ${c} currency.", ("c", GRAPHENE_SYMBOL) );
+    }
+
+    omnibazaar_fee_type listing_create_operation::calculate_omnibazaar_fee(const graphene::chain::database &db)const
+    {
+        omnibazaar_fee_type fees;
+        // Add publisher fee if seller is not hosting this listing himself.
+        if(seller != publisher)
+        {
+            fees.publisher_fee = graphene::chain::asset(graphene::chain::cut_fee(price.amount, GRAPHENE_1_PERCENT / 4), price.asset_id);
+        }
+        return fees;
     }
 
     void listing_update_operation::validate()const
@@ -25,6 +39,25 @@ namespace omnibazaar {
                 || quantity.valid()
                 || update_expiration_time;
         FC_ASSERT( has_action );
+    }
+
+    omnibazaar_fee_type listing_update_operation::calculate_omnibazaar_fee(const graphene::chain::database &db)const
+    {
+        omnibazaar_fee_type fees;
+        const graphene::chain::account_id_type final_publisher = publisher.valid() ? *publisher : listing_id(db).publisher;
+        // If listing will be moved to or will stay on seller's server, then no extra fees are applied.
+        if(final_publisher == seller)
+        {
+            // No fees.
+        }
+        // If listing will be moved to another publisher or stay on existing publisher but with extended expiration,
+        // then add publisher fee.
+        else if(publisher.valid() || update_expiration_time)
+        {
+            const graphene::chain::asset final_price = price.valid() ? *price : listing_id(db).price;
+            fees.publisher_fee = graphene::chain::asset(graphene::chain::cut_fee(final_price.amount, GRAPHENE_1_PERCENT / 4), final_price.asset_id);
+        }
+        return fees;
     }
 
     void listing_delete_operation::validate()const

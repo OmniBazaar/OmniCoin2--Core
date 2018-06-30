@@ -92,6 +92,8 @@ namespace graphene { namespace chain {
        */
       asset calculate_fee( const operation& op, const price& core_exchange_rate = price::unit_price() )const;
       asset set_fee( operation& op, const price& core_exchange_rate = price::unit_price() )const;
+      // Calculate OmniBazaar-specific fees for given operation.
+      static omnibazaar::omnibazaar_fee_type calculate_omnibazaar_fee( const operation& op, const database& db );
 
       void zero_all_fees();
 

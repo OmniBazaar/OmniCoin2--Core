@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 #include <graphene/chain/protocol/transfer.hpp>
+#include <graphene/chain/account_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -53,6 +54,18 @@ void transfer_operation::validate()const
 }
 
 
+omnibazaar::omnibazaar_fee_type transfer_operation::calculate_omnibazaar_fee(const database& db)const
+{
+    omnibazaar::omnibazaar_fee_type fees;
+    // Add sale fees.
+    if(listing.valid())
+    {
+        fees.omnibazaar_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 2), amount.asset_id);
+        fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+        fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+    }
+    return fees;
+}
 
 share_type override_transfer_operation::calculate_fee( const fee_parameters_type& schedule )const
 {
