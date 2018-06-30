@@ -26,7 +26,7 @@ namespace omnibazaar {
 
             // Check fees.
             const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
-            FC_ASSERT(op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees.");
+            FC_ASSERT(op.ob_fee.is_enough(required_ob_fees), "Invalid OmniBazaar fees.");
             FC_ASSERT(!op.ob_fee.escrow_fee.valid(), "Listing does not require escrow fee.");
             FC_ASSERT(!op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee.");
             FC_ASSERT(!op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee.");
@@ -117,7 +117,7 @@ namespace omnibazaar {
 
             // Check fees.
             const omnibazaar_fee_type required_ob_fees = op.calculate_omnibazaar_fee(d);
-            FC_ASSERT( op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees." );
+            FC_ASSERT( op.ob_fee.is_enough(required_ob_fees), "Invalid OmniBazaar fees." );
             FC_ASSERT( !op.ob_fee.escrow_fee.valid(), "Listing does not require escrow fee." );
             FC_ASSERT( !op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee." );
             FC_ASSERT( !op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee." );

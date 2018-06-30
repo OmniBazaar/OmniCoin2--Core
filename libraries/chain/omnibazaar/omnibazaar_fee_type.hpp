@@ -24,7 +24,7 @@ namespace omnibazaar
         graphene::chain::share_type sum()const;
 
         // Check if fees in this object are not less than in reference object.
-        bool operator >=(const omnibazaar_fee_type& other)const;
+        bool is_enough(const omnibazaar_fee_type& reference_fee)const;
     };
 }
 
