@@ -46,4 +46,13 @@ namespace omnibazaar
         }
         FC_CAPTURE_AND_RETHROW((*this)(other));
     }
+
+    graphene::chain::share_type omnibazaar_fee_type::sum()const
+    {
+        return    (omnibazaar_fee.valid()      ? omnibazaar_fee->amount      : 0)
+                + (escrow_fee.valid()          ? escrow_fee->amount          : 0)
+                + (referrer_buyer_fee.valid()  ? referrer_buyer_fee->amount  : 0)
+                + (referrer_seller_fee.valid() ? referrer_seller_fee->amount : 0)
+                + (publisher_fee.valid()       ? publisher_fee->amount       : 0);
+    }
 }

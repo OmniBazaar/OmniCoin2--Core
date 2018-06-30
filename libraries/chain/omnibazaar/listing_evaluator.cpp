@@ -31,6 +31,7 @@ namespace omnibazaar {
             FC_ASSERT(!op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee.");
             FC_ASSERT(!op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee.");
             FC_ASSERT(!op.ob_fee.referrer_seller_fee.valid(), "Listing does not require seller referrer fee.");
+            FC_ASSERT(op.ob_fee.sum() <= op.price.amount, "Fees are larger than listing price.");
 
             // Check that Seller has enough funds to pay fee to Publisher.
             market_dlog("Checking fees.");
@@ -121,6 +122,8 @@ namespace omnibazaar {
             FC_ASSERT( !op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee." );
             FC_ASSERT( !op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee." );
             FC_ASSERT( !op.ob_fee.referrer_seller_fee.valid(), "Listing does not require seller referrer fee." );
+            const graphene::chain::asset final_price = op.price.valid() ? *op.price : listing.price;
+            FC_ASSERT( op.ob_fee.sum() <= final_price.amount, "Fees are larger than listing price." );
 
             // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
             // Check that Seller has enough funds to pay fee to Publisher.

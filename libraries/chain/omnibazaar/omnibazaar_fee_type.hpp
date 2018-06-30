@@ -20,6 +20,9 @@ namespace omnibazaar
         // Fee paid to publisher hosting listings.
         fc::optional<graphene::chain::asset> publisher_fee;
 
+        // Calculate sum of all present fees.
+        graphene::chain::share_type sum()const;
+
         // Check if fees in this object are not less than in reference object.
         bool operator >=(const omnibazaar_fee_type& other)const;
     };

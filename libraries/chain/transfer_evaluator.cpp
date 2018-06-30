@@ -86,6 +86,7 @@ void_result transfer_evaluator::do_evaluate( const transfer_operation& op )
       FC_ASSERT( op.ob_fee >= required_ob_fees, "Invalid OmniBazaar fees." );
       FC_ASSERT( !op.ob_fee.publisher_fee.valid(), "Transfer does not require publsher fee." );
       FC_ASSERT( !op.ob_fee.escrow_fee.valid(), "Transfer does not require escrow fee." );
+      FC_ASSERT( op.ob_fee.sum() <= op.amount.amount, "Fees are larger than transfer amount." );
 
       return void_result();
    } FC_RETHROW_EXCEPTIONS( error, "Unable to transfer ${a} from ${f} to ${t}", ("a",d.to_pretty_string(op.amount))("f",op.from(d).name)("t",op.to(d).name) );
