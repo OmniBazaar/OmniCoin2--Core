@@ -71,11 +71,9 @@ namespace omnibazaar {
             {
                 market_dlog("Paying publisher fee ${fee}", ("fee", *op.ob_fee.publisher_fee));
                 d.adjust_balance(op.seller, -(*op.ob_fee.publisher_fee));
-                d.deposit_cashback(op.publisher(d),
-                                   op.ob_fee.publisher_fee->amount,
-                                   op.ob_fee.publisher_fee->amount > d.get_global_properties().parameters.cashback_vesting_threshold,
-                                   graphene::chain::vesting_balance_object::publisher_fee_type
-                                   );
+                deposit_fee(op.publisher,
+                            op.ob_fee.publisher_fee,
+                            graphene::chain::vesting_balance_object::publisher_fee_type);
             }
 
             d.modify(op.publisher(d), [](graphene::chain::account_object& a){
@@ -194,11 +192,9 @@ namespace omnibazaar {
                 market_ddump((listing));
                 market_dlog("Paying publisher fee ${fee}", ("fee", op.ob_fee));
                 d.adjust_balance(listing.seller, -(*op.ob_fee.publisher_fee));
-                d.deposit_cashback(listing.publisher(d),
-                                   op.ob_fee.publisher_fee->amount,
-                                   op.ob_fee.publisher_fee->amount > d.get_global_properties().parameters.cashback_vesting_threshold,
-                                   graphene::chain::vesting_balance_object::publisher_fee_type
-                                   );
+                deposit_fee(listing.publisher,
+                            op.ob_fee.publisher_fee,
+                            graphene::chain::vesting_balance_object::publisher_fee_type);
             }
 
             return graphene::chain::void_result();

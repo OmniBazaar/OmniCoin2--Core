@@ -114,26 +114,15 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
                 listing.quantity -= *o.listing_count;
             });
 
-            const graphene::chain::share_type cashback_vesting_threshold = d.get_global_properties().parameters.cashback_vesting_threshold;
-
-            // Pay fee to referrers and OmniBazaar.
-            using namespace graphene::chain;
-            const std::tuple<account_id_type, fc::optional<asset>, vesting_balance_object::balance_type> fees[] = {
-                std::make_tuple(OMNIBAZAAR_FOUNDER_ACCOUNT, o.ob_fee.omnibazaar_fee,      vesting_balance_object::founder_sale_fee),
-                std::make_tuple(o.from(d).referrer,         o.ob_fee.referrer_buyer_fee,  vesting_balance_object::referrer_sale_fee),
-                std::make_tuple(o.to(d).referrer,           o.ob_fee.referrer_seller_fee, vesting_balance_object::referrer_sale_fee)
-            };
-            for(const auto& fee : fees)
-            {
-                if(std::get<1>(fee).valid())
-                {
-                    d.deposit_cashback(std::get<0>(fee)(d),
-                                       std::get<1>(fee)->amount,
-                                       std::get<1>(fee)->amount > cashback_vesting_threshold,
-                                       std::get<2>(fee));
-                    transfer_amount -= std::get<1>(fee)->amount;
-                }
-            }
+            transfer_amount -= deposit_fee(OMNIBAZAAR_FOUNDER_ACCOUNT,
+                                           o.ob_fee.omnibazaar_fee,
+                                           vesting_balance_object::founder_sale_fee);
+            transfer_amount -= deposit_fee(o.from(d).referrer,
+                                           o.ob_fee.referrer_buyer_fee,
+                                           vesting_balance_object::referrer_sale_fee);
+            transfer_amount -= deposit_fee(o.to(d).referrer,
+                                           o.ob_fee.referrer_seller_fee,
+                                           vesting_balance_object::referrer_sale_fee);
         }
 
         // Add remaining funds to 'to' account.

@@ -25,6 +25,7 @@
 #include <graphene/chain/exceptions.hpp>
 #include <graphene/chain/transaction_evaluation_state.hpp>
 #include <graphene/chain/protocol/operations.hpp>
+#include <graphene/chain/vesting_balance_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -107,6 +108,14 @@ namespace graphene { namespace chain {
       // cause a circular dependency
       share_type calculate_fee_for_operation(const operation& op) const;
       void db_adjust_balance(const account_id_type& fee_payer, asset fee_from_account);
+      /**
+       * @brief Deposit specified amount to vested balance of specified account.
+       * @param account Account where funds are deposited.
+       * @param amount Deposited fee. Can be empty, the method checks for that.
+       * @param type Type of vesting balance to which fee is deposited.
+       * @return deposited amount, or 0 if amount was empty.
+       */
+      share_type deposit_fee(const account_id_type& account, const fc::optional<asset>& amount, const vesting_balance_object::balance_type type);
 
       asset                            fee_from_account;
       share_type                       core_fee_paid;

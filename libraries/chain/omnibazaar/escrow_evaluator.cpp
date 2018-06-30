@@ -168,40 +168,26 @@ namespace omnibazaar {
                 d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
             }
 
-            const graphene::chain::share_type cashback_vesting_threshold = d.get_global_properties().parameters.cashback_vesting_threshold;
+            graphene::chain::share_type transfer_amount = escrow_obj.amount.amount;
 
             // Pay escrow fee.
             escrow_dlog("Sending escrow fee.");
-            if(escrow_obj.ob_fee.escrow_fee.valid())
-            {
-                d.deposit_cashback(escrow_obj.escrow(d),
-                                   escrow_obj.ob_fee.escrow_fee->amount,
-                                   escrow_obj.ob_fee.escrow_fee->amount > cashback_vesting_threshold,
-                                   graphene::chain::vesting_balance_object::escrow_fee_type);
-            }
+            transfer_amount -= deposit_fee(escrow_obj.escrow,
+                                           escrow_obj.ob_fee.escrow_fee,
+                                           graphene::chain::vesting_balance_object::escrow_fee_type);
 
-            graphene::chain::share_type transfer_amount = escrow_obj.amount.amount -
-                    (escrow_obj.ob_fee.escrow_fee.valid() ? escrow_obj.ob_fee.escrow_fee->amount : 0);
             if(escrow_obj.listing.valid())
             {
-                // Pay fee to referrers and OmniBazaar.
-                using namespace graphene::chain;
-                const std::tuple<account_id_type, fc::optional<asset>, vesting_balance_object::balance_type> fees[] = {
-                    std::make_tuple(OMNIBAZAAR_FOUNDER_ACCOUNT,    escrow_obj.ob_fee.omnibazaar_fee,      vesting_balance_object::founder_sale_fee),
-                    std::make_tuple(escrow_obj.buyer(d).referrer,  escrow_obj.ob_fee.referrer_buyer_fee,  vesting_balance_object::referrer_sale_fee),
-                    std::make_tuple(escrow_obj.seller(d).referrer, escrow_obj.ob_fee.referrer_seller_fee, vesting_balance_object::referrer_sale_fee)
-                };
-                for(const auto& fee : fees)
-                {
-                    if(std::get<1>(fee).valid())
-                    {
-                        d.deposit_cashback(std::get<0>(fee)(d),
-                                           std::get<1>(fee)->amount,
-                                           std::get<1>(fee)->amount > cashback_vesting_threshold,
-                                           std::get<2>(fee));
-                        transfer_amount -= std::get<1>(fee)->amount;
-                    }
-                }
+                escrow_dlog("Sending sale fees.");
+                transfer_amount -= deposit_fee(OMNIBAZAAR_FOUNDER_ACCOUNT,
+                                               escrow_obj.ob_fee.omnibazaar_fee,
+                                               graphene::chain::vesting_balance_object::founder_sale_fee);
+                transfer_amount -= deposit_fee(escrow_obj.buyer(d).referrer,
+                                               escrow_obj.ob_fee.referrer_buyer_fee,
+                                               graphene::chain::vesting_balance_object::referrer_sale_fee);
+                transfer_amount -= deposit_fee(escrow_obj.seller(d).referrer,
+                                               escrow_obj.ob_fee.referrer_seller_fee,
+                                               graphene::chain::vesting_balance_object::referrer_sale_fee);
             }
 
             // Send remaining funds to seller.
@@ -280,19 +266,17 @@ namespace omnibazaar {
                 d.adjust_balance(escrow_obj.escrow, -escrow_obj.amount);
             }
 
+            graphene::chain::share_type transfer_amount = escrow_obj.amount.amount;
+
             // Pay escrow fee.
             escrow_dlog("Sending escrow fee.");
-            if(escrow_obj.ob_fee.escrow_fee.valid())
-            {
-                d.deposit_cashback(escrow_obj.escrow(d),
-                                   escrow_obj.ob_fee.escrow_fee->amount,
-                                   escrow_obj.ob_fee.escrow_fee->amount > d.get_global_properties().parameters.cashback_vesting_threshold,
-                                   graphene::chain::vesting_balance_object::escrow_fee_type);
-            }
+            transfer_amount -= deposit_fee(escrow_obj.escrow,
+                                           escrow_obj.ob_fee.escrow_fee,
+                                           graphene::chain::vesting_balance_object::escrow_fee_type);
 
             // Return remaining funds to buyer.
             escrow_dlog("Adjusting buyer balance.");
-            d.adjust_balance(escrow_obj.buyer, escrow_obj.amount.amount - (escrow_obj.ob_fee.escrow_fee.valid() ? escrow_obj.ob_fee.escrow_fee->amount : 0));
+            d.adjust_balance(escrow_obj.buyer, transfer_amount);
 
             // Update reputation votes.
             const std::vector<std::pair<graphene::chain::account_id_type, uint16_t>> reputations = {
