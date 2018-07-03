@@ -2144,7 +2144,7 @@ public:
             operation_history_object& i = d.op;
             auto b = _remote_db->get_block_header(i.block_num);
             FC_ASSERT(b);
-            ss << b->timestamp.to_iso_string() << " ";
+            ss << b->timestamp.to_iso_string() << " " << std::string(i.id) << " ";
             i.op.visit(operation_printer(ss, *this, i.result));
             ss << " \n";
          }
@@ -2161,7 +2161,7 @@ public:
             operation_history_object& i = d.op;
             auto b = _remote_db->get_block_header(i.block_num);
             FC_ASSERT(b);
-            ss << b->timestamp.to_iso_string() << " ";
+            ss << b->timestamp.to_iso_string() << " " << std::string(i.id) << " ";
             i.op.visit(operation_printer(ss, *this, i.result));
             ss << " \n";
          }
