@@ -287,7 +287,9 @@ namespace graphene { namespace chain {
          uint16_t reputation_score = 0;
          uint16_t reputation_unweighted_score = 0;
          uint16_t trust_score = 0;
-         uint16_t reliability_score = 0;
+         // [OM-295]: witnesses start with 100% reliability score,
+         // so that they are not at a disadvantage from the start.
+         uint16_t reliability_score = GRAPHENE_100_PERCENT;
          uint16_t pop_score = 0;
          // Number of reputation votes for this account.
          uint64_t reputation_votes_count = 0;
