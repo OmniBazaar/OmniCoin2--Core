@@ -42,6 +42,8 @@ namespace omnibazaar {
                 FC_ASSERT(seller_balance >= (op.ob_fee.publisher_fee->amount + op.fee.amount), "Insufficient funds to pay fee to publisher.");
             }
 
+            FC_ASSERT(op.priority_fee <= d.get_global_properties().parameters.maximum_listing_priority_fee, "Invalid priority fee value.");
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -65,6 +67,7 @@ namespace omnibazaar {
                 obj.quantity = op.quantity;
                 obj.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
                 obj.seller_score = op.seller(d).pop_score;
+                obj.priority_fee = op.priority_fee;
             });
 
             // Pay fee to publisher.
@@ -135,6 +138,11 @@ namespace omnibazaar {
                 FC_ASSERT(seller_balance >= (op.ob_fee.publisher_fee->amount + op.fee.amount), "Insufficient funds to pay fee to publisher.");
             }
 
+            if(op.priority_fee.valid())
+            {
+                FC_ASSERT(*op.priority_fee <= d.get_global_properties().parameters.maximum_listing_priority_fee, "Invalid priority fee value.");
+            }
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -185,6 +193,10 @@ namespace omnibazaar {
                 if(op.update_expiration_time)
                 {
                     listing.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
+                }
+                if(op.priority_fee.valid())
+                {
+                    listing.priority_fee = *op.priority_fee;
                 }
             });
 

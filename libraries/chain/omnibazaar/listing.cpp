@@ -37,7 +37,8 @@ namespace omnibazaar {
                 || price.valid()
                 || listing_hash.valid()
                 || quantity.valid()
-                || update_expiration_time;
+                || update_expiration_time
+                || priority_fee.valid();
         FC_ASSERT( has_action );
     }
 
