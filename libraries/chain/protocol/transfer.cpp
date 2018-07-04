@@ -24,6 +24,7 @@
 #include <graphene/chain/protocol/transfer.hpp>
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/database.hpp>
+#include <../omnibazaar/listing_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -61,7 +62,14 @@ omnibazaar::omnibazaar_fee_type transfer_operation::calculate_omnibazaar_fee(con
     // Add sale fees.
     if(listing.valid())
     {
-        fees.omnibazaar_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 2), amount.asset_id);
+        // Add OmniBazaar fee based on listing priority.
+        const omnibazaar::listing_object& listing_obj = (*listing)(db);
+        const share_type omnibazaar_fee = graphene::chain::cut_fee(amount.amount, listing_obj.priority_fee);
+        if(omnibazaar_fee > 0)
+        {
+            fees.omnibazaar_fee = graphene::chain::asset(omnibazaar_fee, amount.asset_id);
+        }
+
         // Add any referral fees only if seller opted in to Referral program.
         if(to(db).is_referrer)
         {
