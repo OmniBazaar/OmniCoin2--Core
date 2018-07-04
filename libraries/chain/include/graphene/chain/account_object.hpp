@@ -264,7 +264,7 @@ namespace graphene { namespace chain {
          bool is_an_escrow = false;
 
          // Fee % collected by this account as an escrow agent.
-         uint16_t escrow_fee = GRAPHENE_1_PERCENT;
+         uint16_t escrow_fee = GRAPHENE_1_PERCENT / 2;
 
          // Users that bought something from this account. Used in Sale Bonus processing.
          std::set<account_id_type> buyers;
