@@ -305,6 +305,15 @@ namespace omnibazaar {
 
             if(ban_listing)
             {
+                // Update publisher's listings count.
+                d.modify(listing.publisher(d), [](graphene::chain::account_object& a){
+                    if(a.listings_count > 0)
+                    {
+                        --a.listings_count;
+                    }
+                });
+
+                // Remove listing from database, effectively banning it.
                 d.remove(op.listing_id(d));
             }
             else
