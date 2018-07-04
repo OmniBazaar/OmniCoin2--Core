@@ -284,6 +284,9 @@ namespace graphene { namespace chain {
          // Flag indicating if user opted-in to Referral program.
          bool is_referrer = true;
 
+         // Fee paid by seller to publisher for listing hosting.
+         uint16_t publisher_fee = GRAPHENE_1_PERCENT / 4;
+
          // Proof of Participation scores in GRAPHENE_1_PERCENT.
          uint16_t referral_score = 0;
          uint16_t listings_score = 0;
@@ -540,6 +543,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (listings_count)
                     (sent_referral_bonus)
                     (is_referrer)
+                    (publisher_fee)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,
