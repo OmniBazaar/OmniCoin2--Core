@@ -53,8 +53,14 @@ namespace omnibazaar {
     omnibazaar_fee_type escrow_create_operation::calculate_omnibazaar_fee(const graphene::chain::database& db)const
     {
         omnibazaar_fee_type fees;
+
         // Add escrow fee.
-        fees.escrow_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, escrow(db).escrow_fee), amount.asset_id);
+        const graphene::chain::share_type escrow_fee = graphene::chain::cut_fee(amount.amount, escrow(db).escrow_fee);
+        if(escrow_fee > 0)
+        {
+            fees.escrow_fee = graphene::chain::asset(escrow_fee, amount.asset_id);
+        }
+
         // Add sale fees.
         if(listing.valid())
         {
@@ -72,12 +78,20 @@ namespace omnibazaar {
                 // Add fee if Buyer's referrer opted in to Referral program.
                 if(buyer(db).referrer(db).is_referrer)
                 {
-                    fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+                    const graphene::chain::share_type referrer_buyer_fee = graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4);
+                    if(referrer_buyer_fee > 0)
+                    {
+                        fees.referrer_buyer_fee = graphene::chain::asset(referrer_buyer_fee, amount.asset_id);
+                    }
                 }
                 // Add fee if Seller's referrer opted in to Referral program.
                 if(seller(db).referrer(db).is_referrer)
                 {
-                    fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+                    const graphene::chain::share_type referrer_seller_fee = graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4);
+                    if(referrer_seller_fee > 0)
+                    {
+                        fees.referrer_seller_fee = graphene::chain::asset(referrer_seller_fee, amount.asset_id);
+                    }
                 }
             }
         }
