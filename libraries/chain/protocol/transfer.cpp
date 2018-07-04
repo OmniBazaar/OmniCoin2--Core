@@ -23,6 +23,7 @@
  */
 #include <graphene/chain/protocol/transfer.hpp>
 #include <graphene/chain/account_object.hpp>
+#include <graphene/chain/database.hpp>
 
 namespace graphene { namespace chain {
 
@@ -61,8 +62,20 @@ omnibazaar::omnibazaar_fee_type transfer_operation::calculate_omnibazaar_fee(con
     if(listing.valid())
     {
         fees.omnibazaar_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 2), amount.asset_id);
-        fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
-        fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+        // Add any referral fees only if seller opted in to Referral program.
+        if(to(db).is_referrer)
+        {
+            // Add fee if Buyer's referrer opted in to Referral program.
+            if(from(db).referrer(db).is_referrer)
+            {
+                fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+            }
+            // Add fee if Seller's referrer opted in to Referral program.
+            if(to(db).referrer(db).is_referrer)
+            {
+                fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+            }
+        }
     }
     return fees;
 }

@@ -58,8 +58,20 @@ namespace omnibazaar {
         if(listing.valid())
         {
             fees.omnibazaar_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 2), amount.asset_id);
-            fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
-            fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+            // Add any referral fees only if seller opted in to Referral program.
+            if(seller(db).is_referrer)
+            {
+                // Add fee if Buyer's referrer opted in to Referral program.
+                if(buyer(db).referrer(db).is_referrer)
+                {
+                    fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+                }
+                // Add fee if Seller's referrer opted in to Referral program.
+                if(seller(db).referrer(db).is_referrer)
+                {
+                    fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+                }
+            }
         }
         return fees;
     }
