@@ -281,6 +281,9 @@ namespace graphene { namespace chain {
          // Flag indicating that this account sent Referral bonus to its referrer.
          bool sent_referral_bonus = false;
 
+         // Flag indicating if user opted-in to Referral program.
+         bool is_referrer = true;
+
          // Proof of Participation scores in GRAPHENE_1_PERCENT.
          uint16_t referral_score = 0;
          uint16_t listings_score = 0;
@@ -536,6 +539,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (reputation_votes_count)
                     (listings_count)
                     (sent_referral_bonus)
+                    (is_referrer)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

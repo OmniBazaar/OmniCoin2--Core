@@ -378,6 +378,11 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
       {
           a.implicit_escrow_options = *o.implicit_escrow_options;
       }
+
+      if(o.is_referrer)
+      {
+          a.is_referrer = *o.is_referrer;
+      }
             
       sa_after = a.has_special_authority();
    });

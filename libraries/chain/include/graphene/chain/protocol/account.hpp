@@ -172,6 +172,9 @@ namespace graphene { namespace chain {
       /// New options for implicitly approved escrows.
       optional<escrow_options> implicit_escrow_options;
 
+      /// New value for Referral program participation.
+      optional<bool> is_referrer;
+
       /// New account options
       optional<account_options> new_options;
       extension< ext > extensions;
@@ -281,7 +284,8 @@ FC_REFLECT( graphene::chain::account_create_operation,
 
 FC_REFLECT(graphene::chain::account_update_operation::ext, (null_ext)(owner_special_authority)(active_special_authority) )
 FC_REFLECT( graphene::chain::account_update_operation,
-            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(publisher_ip)(is_an_escrow)(escrow_fee)(escrows)(implicit_escrow_options)
+            (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(publisher_ip)(is_an_escrow)(escrow_fee)
+            (escrows)(implicit_escrow_options)(is_referrer)
           )
 
 FC_REFLECT( graphene::chain::account_whitelist_operation, (fee)(authorizing_account)(account_to_list)(new_listing)(extensions))

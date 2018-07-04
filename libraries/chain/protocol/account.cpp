@@ -219,6 +219,7 @@ void account_update_operation::validate()const
       || publisher_ip.valid()
       || is_an_escrow.valid()
       || implicit_escrow_options.valid()
+      || is_referrer.valid()
       );
 
    FC_ASSERT( has_action );
