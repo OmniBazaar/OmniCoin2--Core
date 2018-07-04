@@ -156,6 +156,9 @@ void_result account_create_evaluator::do_evaluate( const account_create_operatio
       FC_ASSERT( current_account_itr == acnt_indx.indices().get<by_name>().end() );
    }
 
+   FC_ASSERT( op.referrer(d).is_referrer, "Can't use ${ref} as referrer, that account opted out of Referral program.",
+              ("ref", op.referrer(d).name));
+
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (op) ) }
 
