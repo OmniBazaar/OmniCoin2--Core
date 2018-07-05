@@ -1,4 +1,7 @@
 #include <omnibazaar_fee_type.hpp>
+#include <listing_object.hpp>
+#include <graphene/chain/account_object.hpp>
+#include <graphene/chain/database.hpp>
 
 namespace omnibazaar
 {
@@ -54,5 +57,47 @@ namespace omnibazaar
                 + (referrer_buyer_fee.valid()  ? referrer_buyer_fee->amount  : 0)
                 + (referrer_seller_fee.valid() ? referrer_seller_fee->amount : 0)
                 + (publisher_fee.valid()       ? publisher_fee->amount       : 0);
+    }
+
+    void omnibazaar_fee_type::set_sale_fees(const graphene::chain::database& db,
+                                            const listing_object &listing,
+                                            const graphene::chain::asset &amount,
+                                            const graphene::chain::account_id_type& buyer,
+                                            const graphene::chain::account_id_type& seller)
+    {
+        // Clear current values.
+        omnibazaar_fee = fc::optional<graphene::chain::asset>();
+        referrer_buyer_fee = fc::optional<graphene::chain::asset>();
+        referrer_seller_fee = fc::optional<graphene::chain::asset>();
+
+        // Add OmniBazaar fee based on listing priority.
+        const graphene::chain::share_type ob_fee = graphene::chain::cut_fee(amount.amount, listing.priority_fee);
+        if(ob_fee > 0)
+        {
+            omnibazaar_fee = graphene::chain::asset(ob_fee, amount.asset_id);
+        }
+
+        // Add any referral fees only if seller opted in to Referral program.
+        if(seller(db).is_referrer)
+        {
+            // Add fee if Buyer's referrer opted in to Referral program.
+            if(buyer(db).referrer(db).is_referrer)
+            {
+                const graphene::chain::share_type ref_buyer_fee = graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4);
+                if(ref_buyer_fee > 0)
+                {
+                    referrer_buyer_fee = graphene::chain::asset(ref_buyer_fee, amount.asset_id);
+                }
+            }
+            // Add fee if Seller's referrer opted in to Referral program.
+            if(seller(db).referrer(db).is_referrer)
+            {
+                const graphene::chain::share_type ref_seller_fee = graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4);
+                if(ref_seller_fee > 0)
+                {
+                    referrer_seller_fee = graphene::chain::asset(ref_seller_fee, amount.asset_id);
+                }
+            }
+        }
     }
 }

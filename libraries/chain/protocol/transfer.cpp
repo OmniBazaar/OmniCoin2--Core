@@ -62,36 +62,7 @@ omnibazaar::omnibazaar_fee_type transfer_operation::calculate_omnibazaar_fee(con
     // Add sale fees.
     if(listing.valid())
     {
-        // Add OmniBazaar fee based on listing priority.
-        const omnibazaar::listing_object& listing_obj = (*listing)(db);
-        const share_type omnibazaar_fee = graphene::chain::cut_fee(amount.amount, listing_obj.priority_fee);
-        if(omnibazaar_fee > 0)
-        {
-            fees.omnibazaar_fee = asset(omnibazaar_fee, amount.asset_id);
-        }
-
-        // Add any referral fees only if seller opted in to Referral program.
-        if(to(db).is_referrer)
-        {
-            // Add fee if Buyer's referrer opted in to Referral program.
-            if(from(db).referrer(db).is_referrer)
-            {
-                const share_type referrer_buyer_fee = graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4);
-                if(referrer_buyer_fee > 0)
-                {
-                    fees.referrer_buyer_fee = asset(referrer_buyer_fee, amount.asset_id);
-                }
-            }
-            // Add fee if Seller's referrer opted in to Referral program.
-            if(to(db).referrer(db).is_referrer)
-            {
-                const share_type referrer_seller_fee = graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4);
-                if(referrer_seller_fee > 0)
-                {
-                    fees.referrer_seller_fee = asset(referrer_seller_fee, amount.asset_id);
-                }
-            }
-        }
+        fees.set_sale_fees(db, (*listing)(db), amount, from, to);
     }
     return fees;
 }
