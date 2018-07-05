@@ -1,6 +1,7 @@
 #include <escrow.hpp>
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/database.hpp>
+#include <listing_object.hpp>
 
 namespace omnibazaar {
 
@@ -52,14 +53,18 @@ namespace omnibazaar {
     omnibazaar_fee_type escrow_create_operation::calculate_omnibazaar_fee(const graphene::chain::database& db)const
     {
         omnibazaar_fee_type fees;
+
         // Add escrow fee.
-        fees.escrow_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, escrow(db).escrow_fee), amount.asset_id);
+        const graphene::chain::share_type escrow_fee = graphene::chain::cut_fee(amount.amount, escrow(db).escrow_fee);
+        if(escrow_fee > 0)
+        {
+            fees.escrow_fee = graphene::chain::asset(escrow_fee, amount.asset_id);
+        }
+
         // Add sale fees.
         if(listing.valid())
         {
-            fees.omnibazaar_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 2), amount.asset_id);
-            fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
-            fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+            fees.set_sale_fees(db, (*listing)(db), amount, buyer, seller);
         }
         return fees;
     }

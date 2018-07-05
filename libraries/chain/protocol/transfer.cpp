@@ -23,6 +23,8 @@
  */
 #include <graphene/chain/protocol/transfer.hpp>
 #include <graphene/chain/account_object.hpp>
+#include <graphene/chain/database.hpp>
+#include <../omnibazaar/listing_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -60,9 +62,7 @@ omnibazaar::omnibazaar_fee_type transfer_operation::calculate_omnibazaar_fee(con
     // Add sale fees.
     if(listing.valid())
     {
-        fees.omnibazaar_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 2), amount.asset_id);
-        fees.referrer_buyer_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
-        fees.referrer_seller_fee = graphene::chain::asset(graphene::chain::cut_fee(amount.amount, GRAPHENE_1_PERCENT / 4), amount.asset_id);
+        fees.set_sale_fees(db, (*listing)(db), amount, from, to);
     }
     return fees;
 }

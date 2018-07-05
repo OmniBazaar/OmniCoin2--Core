@@ -3,6 +3,8 @@
 #include <graphene/chain/protocol/asset.hpp>
 #include <fc/optional.hpp>
 
+namespace graphene { namespace chain { class database; } }
+
 namespace omnibazaar
 {
     // Contains fees specific to OmniBazaar.
@@ -25,6 +27,14 @@ namespace omnibazaar
 
         // Check if fees in this object are not less than in reference object.
         bool is_enough(const omnibazaar_fee_type& reference_fee)const;
+
+        // Set sale fees for this object depending on listing priority and Referral participation.
+        // Implicitly clears/overwrites existing sale fee values, if any.
+        void set_sale_fees(const graphene::chain::database& db,
+                           const listing_object& listing,
+                           const graphene::chain::asset& amount,
+                           const graphene::chain::account_id_type& buyer,
+                           const graphene::chain::account_id_type& seller);
     };
 }
 

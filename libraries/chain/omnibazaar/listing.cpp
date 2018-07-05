@@ -19,7 +19,11 @@ namespace omnibazaar {
         // Add publisher fee if seller is not hosting this listing himself.
         if(seller != publisher)
         {
-            fees.publisher_fee = graphene::chain::asset(graphene::chain::cut_fee(price.amount, GRAPHENE_1_PERCENT / 4), price.asset_id);
+            const graphene::chain::share_type publisher_fee = graphene::chain::cut_fee(price.amount, publisher(db).publisher_fee);
+            if(publisher_fee > 0)
+            {
+                fees.publisher_fee = graphene::chain::asset(publisher_fee, price.asset_id);
+            }
         }
         return fees;
     }
@@ -37,7 +41,8 @@ namespace omnibazaar {
                 || price.valid()
                 || listing_hash.valid()
                 || quantity.valid()
-                || update_expiration_time;
+                || update_expiration_time
+                || priority_fee.valid();
         FC_ASSERT( has_action );
     }
 
@@ -55,7 +60,11 @@ namespace omnibazaar {
         else if(publisher.valid() || update_expiration_time)
         {
             const graphene::chain::asset final_price = price.valid() ? *price : listing_id(db).price;
-            fees.publisher_fee = graphene::chain::asset(graphene::chain::cut_fee(final_price.amount, GRAPHENE_1_PERCENT / 4), final_price.asset_id);
+            const graphene::chain::share_type publisher_fee = graphene::chain::cut_fee(final_price.amount, final_publisher(db).publisher_fee);
+            if(publisher_fee > 0)
+            {
+                fees.publisher_fee = graphene::chain::asset(publisher_fee, final_price.asset_id);
+            }
         }
         return fees;
     }

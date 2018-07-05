@@ -219,6 +219,8 @@ void account_update_operation::validate()const
       || publisher_ip.valid()
       || is_an_escrow.valid()
       || implicit_escrow_options.valid()
+      || is_referrer.valid()
+      || publisher_fee.valid()
       );
 
    FC_ASSERT( has_action );
@@ -255,6 +257,11 @@ void account_update_operation::validate()const
 
        FC_ASSERT( addr != fc::ip::address(), "Publisher IP is empty");
        FC_ASSERT( addr.is_public_address(), "Publisher IP is not a public address" );
+   }
+
+   if( publisher_fee )
+   {
+       FC_ASSERT( (*publisher_fee) < GRAPHENE_100_PERCENT, "Publisher fee cannot be 100% or more." );
    }
 }
 

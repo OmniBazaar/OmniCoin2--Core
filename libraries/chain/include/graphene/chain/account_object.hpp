@@ -264,7 +264,7 @@ namespace graphene { namespace chain {
          bool is_an_escrow = false;
 
          // Fee % collected by this account as an escrow agent.
-         uint16_t escrow_fee = GRAPHENE_1_PERCENT;
+         uint16_t escrow_fee = GRAPHENE_1_PERCENT / 2;
 
          // Users that bought something from this account. Used in Sale Bonus processing.
          std::set<account_id_type> buyers;
@@ -280,6 +280,12 @@ namespace graphene { namespace chain {
 
          // Flag indicating that this account sent Referral bonus to its referrer.
          bool sent_referral_bonus = false;
+
+         // Flag indicating if user opted-in to Referral program.
+         bool is_referrer = true;
+
+         // Fee paid by seller to publisher for listing hosting.
+         uint16_t publisher_fee = GRAPHENE_1_PERCENT / 4;
 
          // Proof of Participation scores in GRAPHENE_1_PERCENT.
          uint16_t referral_score = 0;
@@ -536,6 +542,8 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (reputation_votes_count)
                     (listings_count)
                     (sent_referral_bonus)
+                    (is_referrer)
+                    (publisher_fee)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,
