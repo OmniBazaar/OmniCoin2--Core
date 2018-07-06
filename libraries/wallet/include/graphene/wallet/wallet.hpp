@@ -363,9 +363,11 @@ class wallet_api
        * @returns a list of \c operation_history_objects
        */
       vector<operation_detail>  get_account_history(string name, int limit)const;
+      vector<operation_detail>  get_account_history_op(string name, const int op_type, int limit)const;
       vector<operation_history_object>  get_account_history_raw(string name, int limit)const;
       vector<operation_history_object>  get_account_purchase_history(string name, int limit)const;
       vector<operation_history_object>  get_account_history_op_raw(const string name, const int op_type, int limit);
+      vector<omnibazaar::listing_object> get_account_listings(const string& seller_name);
 
       /** Returns the relative operations on the named account from start number.
        *
@@ -454,6 +456,7 @@ class wallet_api
        * @returns the requested object
        */
       variant                           get_object(object_id_type id) const;
+      vector<variant>                   get_objects(const vector<object_id_type> ids) const;
 
       /** Returns the current wallet filename.  
        *
@@ -1715,8 +1718,10 @@ FC_API( graphene::wallet::wallet_api,
         (get_block)
         (get_account_count)
         (get_account_history)
+        (get_account_history_op)
         (get_account_history_raw)
         (get_account_history_op_raw)
+        (get_account_listings)
         (get_account_purchase_history)
         (get_relative_account_history)
         (get_collateral_bids)
@@ -1725,6 +1730,7 @@ FC_API( graphene::wallet::wallet_api,
         (get_global_properties)
         (get_dynamic_global_properties)
         (get_object)
+        (get_objects)
         (get_private_key)
         (load_wallet_file)
         (normalize_brain_key)

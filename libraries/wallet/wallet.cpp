@@ -2151,6 +2151,8 @@ public:
 
          return ss.str();
       };
+      m["get_account_history_op"] = m["get_account_history"];
+
       m["get_relative_account_history"] = [this](variant result, const fc::variants& a)
       {
          auto r = result.as<vector<operation_detail>>();
@@ -2916,6 +2918,39 @@ vector<operation_detail> wallet_api::get_account_history(string name, int limit)
    return result;
 }
 
+vector<operation_detail> wallet_api::get_account_history_op(string name, const int op_type, int limit)const
+{
+    vector<operation_detail> result;
+    auto account_id = get_account(name).get_id();
+
+    while( limit > 0 )
+    {
+       operation_history_id_type start;
+       if( result.size() )
+       {
+          start = result.back().op.id;
+          start = start + 1;
+       }
+
+
+       vector<operation_history_object> current = my->_remote_hist->get_account_history_operations(account_id,
+                                                                                                   op_type,
+                                                                                                   start,
+                                                                                                   operation_history_id_type(),
+                                                                                                   std::min(100,limit));
+       for( auto& o : current ) {
+          std::stringstream ss;
+          auto memo = o.op.visit(detail::operation_printer(ss, *my, o.result));
+          result.push_back( operation_detail{ memo, ss.str(), o } );
+       }
+       if( int(current.size()) < std::min(100,limit) )
+          break;
+       limit -= current.size();
+    }
+
+    return result;
+}
+
 vector<operation_history_object> wallet_api::get_account_history_raw(string name, int limit)const
 {
     vector<operation_history_object> result;
@@ -2973,6 +3008,11 @@ vector<operation_history_object> wallet_api::get_account_history_op_raw(const st
     }
 
     return result;
+}
+
+vector<omnibazaar::listing_object> wallet_api::get_account_listings(const string& seller_name)
+{
+    return my->_remote_db->get_listings_by_seller(seller_name);
 }
 
 vector<operation_history_object>  wallet_api::get_account_purchase_history(string name, int limit)const
@@ -3109,6 +3149,11 @@ string wallet_api::serialize_transaction( signed_transaction tx )const
 variant wallet_api::get_object( object_id_type id ) const
 {
    return my->_remote_db->get_objects({id});
+}
+
+vector<variant> wallet_api::get_objects(const vector<object_id_type> ids) const
+{
+    return my->_remote_db->get_objects(ids);
 }
 
 string wallet_api::get_wallet_filename() const
