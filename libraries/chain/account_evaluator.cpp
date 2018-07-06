@@ -211,6 +211,7 @@ object_id_type account_create_evaluator::do_apply( const account_create_operatio
 
          obj.drive_id = o.drive_id;
          obj.mac_address = o.mac_address;
+         obj.btc_address = o.btc_address;
    });
 
    /*
@@ -385,6 +386,11 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
       if(o.is_referrer)
       {
           a.is_referrer = *o.is_referrer;
+      }
+
+      if(o.btc_address)
+      {
+          a.btc_address = *o.btc_address;
       }
             
       sa_after = a.has_special_authority();

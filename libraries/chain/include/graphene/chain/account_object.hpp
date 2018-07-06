@@ -287,6 +287,9 @@ namespace graphene { namespace chain {
          // Fee paid by seller to publisher for listing hosting.
          uint16_t publisher_fee = GRAPHENE_1_PERCENT / 4;
 
+         // Bitcoin address of this user.
+         string btc_address;
+
          // Proof of Participation scores in GRAPHENE_1_PERCENT.
          uint16_t referral_score = 0;
          uint16_t listings_score = 0;
@@ -544,6 +547,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (sent_referral_bonus)
                     (is_referrer)
                     (publisher_fee)
+                    (btc_address)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

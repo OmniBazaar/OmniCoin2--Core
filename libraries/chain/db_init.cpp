@@ -332,6 +332,7 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.options.memo_key = genesis_state.founder.active_key;
        a.registrar = a.referrer = OMNIBAZAAR_FOUNDER_ACCOUNT;
        a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
+       a.btc_address = genesis_state.founder.btc_address;
    }).get_id() == OMNIBAZAAR_FOUNDER_ACCOUNT);
 
    // Create more special accounts
@@ -448,6 +449,7 @@ void database::init_genesis(const genesis_state_type& genesis_state)
          cop.active = authority(1, account.active_key, 1);
          cop.options.memo_key = account.active_key;
       }
+      cop.btc_address = account.btc_address;
       account_id_type account_id(apply_operation(genesis_eval_state, cop).get<object_id_type>());
    }
 

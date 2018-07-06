@@ -221,6 +221,7 @@ void account_update_operation::validate()const
       || implicit_escrow_options.valid()
       || is_referrer.valid()
       || publisher_fee.valid()
+      || btc_address.valid()
       );
 
    FC_ASSERT( has_action );

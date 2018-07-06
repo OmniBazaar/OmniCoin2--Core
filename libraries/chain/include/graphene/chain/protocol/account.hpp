@@ -107,6 +107,9 @@ namespace graphene { namespace chain {
       string drive_id;
       string mac_address;
 
+      // Bitcoin address of this user.
+      string btc_address;
+
       account_options options;
       extension< ext > extensions;
 
@@ -177,6 +180,9 @@ namespace graphene { namespace chain {
 
       /// New value for Publisher fee.
       optional<uint16_t> publisher_fee;
+
+      /// Bitcoin address of this user.
+      optional<string> btc_address;
 
       /// New account options
       optional<account_options> new_options;
@@ -282,13 +288,13 @@ FC_REFLECT(graphene::chain::account_create_operation::ext, (null_ext)(owner_spec
 FC_REFLECT( graphene::chain::account_create_operation,
             (fee)(registrar)
             (referrer)(referrer_percent)
-            (name)(owner)(active)(drive_id)(mac_address)(options)(extensions)
+            (name)(owner)(active)(drive_id)(mac_address)(btc_address)(options)(extensions)
           )
 
 FC_REFLECT(graphene::chain::account_update_operation::ext, (null_ext)(owner_special_authority)(active_special_authority) )
 FC_REFLECT( graphene::chain::account_update_operation,
             (fee)(account)(owner)(active)(new_options)(extensions)(is_a_publisher)(publisher_ip)(is_an_escrow)(escrow_fee)
-            (escrows)(implicit_escrow_options)(is_referrer)(publisher_fee)
+            (escrows)(implicit_escrow_options)(is_referrer)(publisher_fee)(btc_address)
           )
 
 FC_REFLECT( graphene::chain::account_whitelist_operation, (fee)(authorizing_account)(account_to_list)(new_listing)(extensions))

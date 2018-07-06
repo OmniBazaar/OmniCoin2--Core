@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( genesis_and_persistence_bench )
 #endif
 
       for( int i = 0; i < account_count; ++i )
-         genesis_state.initial_accounts.emplace_back("target"+fc::to_string(i),
+         genesis_state.initial_accounts.emplace_back("target"+fc::to_string(i), "",
                                                      public_key_type(fc::ecc::private_key::regenerate(fc::digest(i)).get_public_key()));
 
       fc::temp_directory data_dir( graphene::utilities::temp_directory_path() );
