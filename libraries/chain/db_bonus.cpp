@@ -28,6 +28,20 @@ bool database::is_welcome_bonus_available(const string &harddrive_id, const stri
     return true;
 }
 
+share_type database::get_welcome_bonus_amount()const
+{
+    bonus_ddump((""));
+
+    const auto users_count = get_index_type<account_index>().indices().size();
+    bonus_ddump((users_count));
+
+    if      (users_count <= 1000   )    return 10000 * GRAPHENE_BLOCKCHAIN_PRECISION;
+    else if (users_count <= 10000  )    return 5000  * GRAPHENE_BLOCKCHAIN_PRECISION;
+    else if (users_count <= 100000 )    return 2500  * GRAPHENE_BLOCKCHAIN_PRECISION;
+    else if (users_count <= 1000000)    return 1250  * GRAPHENE_BLOCKCHAIN_PRECISION;
+    else                                return 625   * GRAPHENE_BLOCKCHAIN_PRECISION;
+}
+
 bool database::is_referral_bonus_available()const
 {
     return get_dynamic_global_properties().referral_bonus < OMNIBAZAAR_REFERRAL_BONUS_LIMIT;

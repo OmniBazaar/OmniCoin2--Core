@@ -424,6 +424,11 @@ namespace graphene { namespace chain {
          bool is_welcome_bonus_available(const string &harddrive_id, const string &mac_address)const;
 
          /**
+           * @brief Get amount of Welcome Bonus that is available at this moment for a new user.
+           */
+         share_type get_welcome_bonus_amount()const;
+
+         /**
            * @brief Check if Referral Bonus is available
            * @return true if bonus is available, false otherwise
            */
