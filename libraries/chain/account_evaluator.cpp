@@ -392,6 +392,11 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
       {
           a.btc_address = *o.btc_address;
       }
+
+      if(o.publisher_fee)
+      {
+          a.publisher_fee = *o.publisher_fee;
+      }
             
       sa_after = a.has_special_authority();
    });
