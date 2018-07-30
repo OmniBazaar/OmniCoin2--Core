@@ -124,6 +124,39 @@ namespace omnibazaar {
         void get_required_authorities(std::vector<graphene::chain::authority>& auths)const;
     };
 
+    // Operation for changing (extending) escrow expiration date.
+    struct escrow_extend_operation : public graphene::chain::base_operation
+    {
+        struct fee_parameters_type {
+           uint64_t fee             = GRAPHENE_BLOCKCHAIN_PRECISION;
+           uint32_t price_per_kbyte = 10;
+        };
+
+        // Operation fee.
+        graphene::chain::asset fee;
+        // Fee payer.
+        graphene::chain::account_id_type fee_paying_account;
+        // Escrow object that this instance operates on.
+        graphene::chain::escrow_id_type escrow;
+        // Accounts that are authorized to perform this operation.
+        graphene::chain::account_id_type seller_account;
+        graphene::chain::account_id_type buyer_account;
+        // Escrow agent will also get notified about this operation.
+        graphene::chain::account_id_type escrow_account;
+
+        // New escrow expiration time after which funds are automatically released to seller.
+        fc::time_point_sec expiration_time;
+
+        // User provided data encrypted to the memo key of the receiving account.
+        fc::optional<graphene::chain::memo_data> memo;
+
+        // base_operation interface
+        graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
+        void validate()const;
+        graphene::chain::share_type calculate_fee(const fee_parameters_type& k)const;
+        void get_required_authorities(std::vector<graphene::chain::authority>& auths)const;
+    };
+
 }
 
 FC_REFLECT( omnibazaar::escrow_create_operation::fee_parameters_type, (fee)(price_per_kbyte) )
@@ -165,3 +198,14 @@ FC_REFLECT( omnibazaar::escrow_return_operation,
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
             (reputation_vote_for_escrow))
+
+FC_REFLECT( omnibazaar::escrow_extend_operation::fee_parameters_type, (fee)(price_per_kbyte) )
+FC_REFLECT( omnibazaar::escrow_extend_operation,
+            (fee)
+            (fee_paying_account)
+            (escrow)
+            (seller_account)
+            (buyer_account)
+            (escrow_account)
+            (expiration_time)
+            (memo))

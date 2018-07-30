@@ -38,4 +38,15 @@ namespace omnibazaar {
         graphene::chain::void_result do_apply( const escrow_return_operation& op );
     };
 
+    // Evaluator for Escrow extend operation.
+    class escrow_extend_evaluator : public graphene::chain::evaluator<escrow_extend_evaluator>
+    {
+    public:
+        typedef escrow_extend_operation operation_type;
+
+        // Methods required by graphene::chain::evaluator to process an operation.
+        graphene::chain::void_result do_evaluate( const escrow_extend_operation& op );
+        graphene::chain::void_result do_apply( const escrow_extend_operation& op );
+    };
+
 }

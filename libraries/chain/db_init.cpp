@@ -188,6 +188,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::escrow_create_evaluator>();
    register_evaluator<omnibazaar::escrow_release_evaluator>();
    register_evaluator<omnibazaar::escrow_return_evaluator>();
+   register_evaluator<omnibazaar::escrow_extend_evaluator>();
    register_evaluator<omnibazaar::multisig_transfer_evaluator>();
    register_evaluator<omnibazaar::listing_create_evaluator>();
    register_evaluator<omnibazaar::listing_update_evaluator>();
