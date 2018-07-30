@@ -312,4 +312,50 @@ namespace omnibazaar {
         FC_CAPTURE_AND_RETHROW( (op) )
     }
 
+    graphene::chain::void_result escrow_extend_evaluator::do_evaluate( const escrow_extend_operation& op )
+    {
+        try
+        {
+            escrow_ddump((op));
+
+            const graphene::chain::database& d = db();
+            const auto& global_parameters = d.get_global_properties().parameters;
+
+            const escrow_object& escrow_obj = op.escrow(d);
+            escrow_ddump((escrow_obj));
+
+            // Check that this operation specifies correct accounts.
+            FC_ASSERT( op.seller_account == escrow_obj.seller, "Seller specified in this operation doesn't match initial seller." );
+            FC_ASSERT( op.escrow_account == escrow_obj.escrow, "Escrow agent specified in this operation doesn't match initial agent." );
+            FC_ASSERT( op.buyer_account == escrow_obj.buyer, "Buyer specified in this operation doesn't match initial buyer." );
+
+            // Check expiration time.
+            escrow_ddump((d.head_block_time())(global_parameters.maximum_escrow_lifetime));
+            FC_ASSERT( op.expiration_time > d.head_block_time(), "Specified expiration time is in the past." );
+            FC_ASSERT( op.expiration_time <= (d.head_block_time() + global_parameters.maximum_escrow_lifetime),
+                       "Escrow expiration time is too far in the future.");
+            FC_ASSERT( op.expiration_time != escrow_obj.expiration_time, "New expiration time must be different from old value." );
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
+    graphene::chain::void_result escrow_extend_evaluator::do_apply( const escrow_extend_operation& op )
+    {
+        try
+        {
+            escrow_ddump((op));
+
+            graphene::chain::database& d = db();
+
+            d.modify(op.escrow(d), [&op](escrow_object& escrow){
+                escrow.expiration_time = op.expiration_time;
+            });
+
+            return graphene::chain::void_result();
+        }
+        FC_CAPTURE_AND_RETHROW( (op) )
+    }
+
 }

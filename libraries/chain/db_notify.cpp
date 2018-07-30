@@ -248,6 +248,14 @@ struct get_impacted_account_visitor
        _impacted.insert( op.escrow_account );
    }
 
+   void operator()( const omnibazaar::escrow_extend_operation& op )
+   {
+       _impacted.insert( op.fee_paying_account );
+       _impacted.insert( op.seller_account );
+       _impacted.insert( op.buyer_account );
+       _impacted.insert( op.escrow_account );
+   }
+
    void operator()( const omnibazaar::multisig_transfer_operation& op )
    {
       _impacted.insert( op.to );
