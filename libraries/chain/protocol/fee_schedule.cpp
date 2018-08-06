@@ -211,6 +211,12 @@ namespace graphene { namespace chain {
                  "Maximum transaction expiration time must be greater than a block interval" );
       FC_ASSERT( maximum_proposal_lifetime - committee_proposal_review_period > block_interval,
                  "Committee proposal review period must be less than the maximum proposal lifetime" );
+      FC_ASSERT( maximum_escrow_lifetime > block_interval,
+                 "Maximum escrow expiration time must be greater than a block interval" );
+      FC_ASSERT( maximum_listing_lifetime > block_interval,
+                 "Maximum listing expiration time must be greater than a block interval" );
+      FC_ASSERT( maximum_listing_priority_fee < GRAPHENE_100_PERCENT,
+                 "Maximum listing priority fee is too high" );
    }
 
 } } // graphene::chain

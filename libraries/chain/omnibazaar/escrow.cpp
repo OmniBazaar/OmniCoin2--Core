@@ -176,14 +176,11 @@ namespace omnibazaar {
         return core_fee_required;
     }
 
-    void escrow_extend_operation::get_required_authorities(std::vector<graphene::chain::authority>& auths)const
+    void escrow_extend_operation::get_required_active_authorities(fc::flat_set<graphene::chain::account_id_type>& active)const
     {
         // Seller and Buyer must both provide their signatures in order for this operation to complete.
-        graphene::chain::authority auth;
-        auth.add_authority(seller_account, 1);
-        auth.add_authority(buyer_account, 1);
-        auth.weight_threshold = 2;
-        auths.emplace_back(std::move(auth));
+        active.insert(seller_account);
+        active.insert(buyer_account);
     }
 
 }
