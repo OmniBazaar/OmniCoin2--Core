@@ -95,13 +95,14 @@ namespace detail {
          auto name = "init"+fc::to_string(i);
          initial_state.initial_accounts.emplace_back(name,
                                                      "",
+                                                     "",
                                                      nathan_key.get_public_key(),
                                                      nathan_key.get_public_key());
          initial_state.initial_committee_candidates.push_back({name});
          initial_state.initial_witness_candidates.push_back({name, nathan_key.get_public_key()});
       }
 
-      initial_state.initial_accounts.emplace_back("nathan", "", nathan_key.get_public_key());
+      initial_state.initial_accounts.emplace_back("nathan", "", "", nathan_key.get_public_key());
       initial_state.initial_balances.push_back({nathan_key.get_public_key(),
                                                 GRAPHENE_SYMBOL,
                                                 GRAPHENE_MAX_SHARE_SUPPLY});
@@ -109,6 +110,7 @@ namespace detail {
 
       // Use password "P5KbaKcTzHPQgzSsJhd4XkF7JbsHQ2Zr2o2uwJeRKhUGS" to login with this account.
       initial_state.founder = {"omnibazaar",
+                               "",
                                "",
                                utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
                                utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()

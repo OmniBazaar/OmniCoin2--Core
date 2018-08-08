@@ -1570,7 +1570,7 @@ BOOST_AUTO_TEST_CASE( balance_object_test )
    vest.amount = 400;
    genesis_state.initial_vesting_balances.push_back(vest);
 
-   genesis_state.initial_accounts.emplace_back("n", "", n_key.get_public_key());
+   genesis_state.initial_accounts.emplace_back("n", "", "", n_key.get_public_key());
 
    auto _sign = [&]( signed_transaction& tx, const private_key_type& key )
    {  tx.sign( key, db.get_chain_id() );   };

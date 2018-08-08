@@ -40,15 +40,18 @@ struct genesis_state_type {
    struct initial_account_type {
       initial_account_type(const string& name = string(),
                            const string& btc_addr = string(),
+                           const string& eth_addr = string(),
                            const public_key_type& owner_key = public_key_type(),
                            const public_key_type& active_key = public_key_type())
          : name(name),
            btc_address(btc_addr),
+           eth_address(eth_addr),
            owner_key(owner_key),
            active_key(active_key == public_key_type()? owner_key : active_key)
       {}
       string name;
       string btc_address;
+      string eth_address;
       public_key_type owner_key;
       public_key_type active_key;
    };
@@ -128,7 +131,7 @@ struct genesis_state_type {
 
 } } // namespace graphene::chain
 
-FC_REFLECT(graphene::chain::genesis_state_type::initial_account_type, (name)(btc_address)(owner_key)(active_key))
+FC_REFLECT(graphene::chain::genesis_state_type::initial_account_type, (name)(btc_address)(eth_address)(owner_key)(active_key))
 
 FC_REFLECT(graphene::chain::genesis_state_type::initial_asset_type,
            (symbol)(issuer_name)(description)(precision)(max_supply)(accumulated_fees)(is_bitasset)(collateral_records))
