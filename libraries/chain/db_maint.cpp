@@ -160,10 +160,17 @@ void database::update_account_scores()
     // Update Witness-specific scores
     //
 
-    const asset_dynamic_data_object dyn_core_asset = get_core_asset().dynamic_asset_data_id(*this);
-    pop_ddump((dyn_core_asset));
-
     const auto& all_witnesses = get_index_type<witness_index>().indices();
+
+    // Trust Score
+    // 1) find largest amount of votes for any witness.
+    uint64_t max_votes = 0;
+    for(const witness_object& wit : all_witnesses)
+    {
+        max_votes = std::max(max_votes, _vote_tally_buffer[wit.vote_id]);
+    }
+    pop_ddump((max_votes));
+
     for(const witness_object& wit : all_witnesses)
     {
         const account_object& account = wit.witness_account(*this);
@@ -171,18 +178,18 @@ void database::update_account_scores()
         uint16_t new_reliability_score = account.reliability_score;
 
         // Trust Score
-        // Calculated as witness votes divided by total shares supply.
-        if(dyn_core_asset.current_supply.value > 0)
+        // 2) calculated as witness votes divided by largest votes amount.
+        if(max_votes > 0)
         {
             new_trust_score = (fc::uint128_t(_vote_tally_buffer[wit.vote_id])
                     * GRAPHENE_100_PERCENT
-                    / dyn_core_asset.current_supply.value)
+                    / max_votes)
                     .to_integer();
             pop_ddump((new_trust_score)(account.trust_score));
         }
         else
         {
-            pop_elog("Invalid asset supply value: ${v}.", ("v", dyn_core_asset.current_supply));
+            pop_elog("Invalid max votes: ${v}.", ("v", max_votes));
         }
 
         // Reliability Score
