@@ -290,6 +290,9 @@ namespace graphene { namespace chain {
          // Bitcoin address of this user.
          string btc_address;
 
+         // Ethereum address of this user.
+         string eth_address;
+
          // Proof of Participation scores in GRAPHENE_1_PERCENT.
          uint16_t referral_score = 0;
          uint16_t listings_score = 0;
@@ -548,6 +551,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (is_referrer)
                     (publisher_fee)
                     (btc_address)
+                    (eth_address)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

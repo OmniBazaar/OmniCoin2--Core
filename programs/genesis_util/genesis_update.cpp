@@ -130,6 +130,7 @@ int main( int argc, char** argv )
          genesis_state_type::initial_account_type acct(
             dev_account_prefix+std::to_string(i),
             "",
+            "",
             get_dev_key( "owner-", i ),
             get_dev_key( "active-", i ));
 

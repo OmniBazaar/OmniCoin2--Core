@@ -54,6 +54,7 @@ genesis_state_type make_genesis() {
       auto name = "init"+fc::to_string(i);
       genesis_state.initial_accounts.emplace_back(name,
                                                   "",
+                                                  "",
                                                   init_account_priv_key.get_public_key(),
                                                   init_account_priv_key.get_public_key());
       genesis_state.initial_committee_candidates.push_back({name});
