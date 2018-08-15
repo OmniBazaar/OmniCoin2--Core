@@ -206,11 +206,20 @@ void elasticsearch_plugin_impl::add_elasticsearch( const account_id_type account
       sendBulk(_elasticsearch_node_url, _elasticsearch_logs);
    }
 
-   // remove everything except current object from ath
+   // remove everything except objects from current block from ath
    const auto &his_idx = db.get_index_type<account_transaction_history_index>();
    const auto &by_seq_idx = his_idx.indices().get<by_seq>();
+   const auto &by_opid_idx = his_idx.indices().get<by_opid>();
    auto itr = by_seq_idx.lower_bound(boost::make_tuple(account_id, 0));
-   if (itr != by_seq_idx.end() && itr->account == account_id && itr->id != ath.id) {
+   while (itr != by_seq_idx.end() && itr->account == account_id && itr->id != ath.id)
+   {
+       // Don't remove ops that belong to this block just yet, wait until next block.
+       const auto op_itr = db.find(itr->operation_id);
+       if(op_itr && (op_itr->block_num == b.block_num()))
+       {
+           ++itr;
+           continue;
+       }
       // if found, remove the entry
       const auto remove_op_id = itr->operation_id;
       const auto itr_remove = itr;
@@ -225,8 +234,8 @@ void elasticsearch_plugin_impl::add_elasticsearch( const account_id_type account
          });
       }
       // do the same on oho
-      const auto &by_opid_idx = his_idx.indices().get<by_opid>();
-      if (by_opid_idx.find(remove_op_id) == by_opid_idx.end()) {
+      if (by_opid_idx.find(remove_op_id) == by_opid_idx.end())
+      {
          db.remove(remove_op_id(db));
       }
    }
