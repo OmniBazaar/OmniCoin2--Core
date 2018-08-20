@@ -163,7 +163,7 @@ namespace graphene { namespace chain {
       /// New is-publisher flag value
       optional<bool> is_a_publisher;
 
-      /// New IP address of pubisher node
+      /// New IP/domain address of pubisher node
       optional<string> publisher_ip;
 
       /// New is-escrow flag value

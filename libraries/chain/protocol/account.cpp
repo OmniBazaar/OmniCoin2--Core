@@ -254,11 +254,24 @@ void account_update_operation::validate()const
 
    if( publisher_ip && !(*publisher_ip).empty() )
    {
-       // First, let address class parse it and report errors.
-       const fc::ip::address addr(*publisher_ip);
+       // First try to parse it as IP address.
+       fc::ip::address addr;
+       try
+       {
+           addr = fc::ip::address(*publisher_ip);
+       }
+       catch(...)
+       {
+           // If fc::ip::address raised any errors - it might not mean anything
+           // because 'publisher_ip' can also store a domain name.
+       }
 
-       FC_ASSERT( addr != fc::ip::address(), "Publisher IP is empty");
-       FC_ASSERT( addr.is_public_address(), "Publisher IP is not a public address" );
+       // If publisher_ip is actually an IP address.
+       if(addr != fc::ip::address())
+       {
+           FC_ASSERT( addr.is_public_address(), "Publisher IP is not a public address" );
+       }
+       // Otherwise it can be a domain name and we don't need validation for that.
    }
 
    if( publisher_fee )

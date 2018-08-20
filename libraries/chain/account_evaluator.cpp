@@ -299,19 +299,35 @@ void_result account_update_evaluator::do_evaluate( const account_update_operatio
    if( o.new_options.valid() )
       verify_account_votes( d, *o.new_options );
 
+   // If user specified that he wants to be a publisher then he must also
+   // either already have an address or specify it in this operation.
+   if(o.is_a_publisher && *o.is_a_publisher)
+   {
+       const bool will_have_address = o.publisher_ip
+               ? !o.publisher_ip->empty()
+               : !acnt->publisher_ip.empty();
+       FC_ASSERT( will_have_address, "Cannot register publisher with empty address." );
+   }
+
+   // If user specified an address then he must also become a publisher.
    if(o.publisher_ip)
    {
-       if(fc::ip::address((*o.publisher_ip)) != fc::ip::address())
+       const bool will_be_publisher = o.is_a_publisher
+               ? *o.is_a_publisher
+               : acnt->is_a_publisher;
+
+       if(o.publisher_ip->empty())
        {
-           const bool will_be_publisher = o.is_a_publisher
-                   ? *o.is_a_publisher
-                   : acnt->is_a_publisher;
+           FC_ASSERT( !will_be_publisher, "Publisher can't have empty address." );
+       }
+       else
+       {
            FC_ASSERT( will_be_publisher, "Cannot set publisher IP while not being publisher." );
 
            // Check for duplicating addresses.
            const auto& idx = d.get_index_type<account_index>().indices().get<by_publisher_ip>();
            const auto itr = idx.find(*o.publisher_ip);
-           FC_ASSERT( itr == idx.end(), "IP ${ip} is already registered.", ("ip", *o.publisher_ip) );
+           FC_ASSERT( itr == idx.end(), "Address ${ip} is already registered.", ("ip", *o.publisher_ip) );
        }
    }
 
@@ -346,6 +362,7 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
          a.top_n_control_flags = 0;
       }
 
+      // This must be evaluated before 'publisher_ip' update.
       if (o.is_a_publisher)
       {
          a.is_a_publisher = *o.is_a_publisher;
@@ -366,6 +383,7 @@ void_result account_update_evaluator::do_apply( const account_update_operation& 
           a.escrows = *o.escrows;
       }
 
+      // This must be evaluated after 'is_a_publisher' update.
       if(a.is_a_publisher)
       {
           if(o.publisher_ip)

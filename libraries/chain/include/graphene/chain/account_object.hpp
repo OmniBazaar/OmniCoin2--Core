@@ -257,7 +257,7 @@ namespace graphene { namespace chain {
          // Flag to indicate if the account has chosen to be a publisher
          bool is_a_publisher = false;
 
-         // Currently registered IP address of publisher node
+         // Currently registered IP/domain address of publisher node
          string publisher_ip;
 
          // Flag to indicate if the account has chosen to be a escrow
@@ -483,8 +483,8 @@ namespace graphene { namespace chain {
             tag<by_listings_count>,
             member<account_object, uint64_t, &account_object::listings_count>
          >,
-         // Index that will sort publishers by their IP address and allow quick search by IP.
-         // Publishers should not be allowed to have same IP,
+         // Index that will sort publishers by their IP/domain address and allow quick search by address.
+         // Publishers should not be allowed to have same IP/domain,
          // but many users will have empty "publisher_ip" member which is why "ordered_non_unique" is used.
          ordered_non_unique<
             tag<by_publisher_ip>,
