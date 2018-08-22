@@ -176,23 +176,7 @@ namespace detail {
          {
             // https://bitsharestalk.org/index.php/topic,23715.0.html
             vector<string> seeds = {
-               "104.236.144.84:1777",               // puppies      (USA)
-               "128.199.143.47:2015",               // Harvey       (Singapore)
-               "23.92.53.182:1776",                 // sahkan       (USA)
-               "192.121.166.162:1776",              // sahkan       (UK)
-               "51.15.61.160:1776",                 // lafona       (France)
-               "bts-seed1.abit-more.com:62015",     // abit         (China)
-               "node.blckchnd.com:4243",            // blckchnd     (Germany)
-               "seed.bitsharesdex.com:50696",       // iHashFury    (Europe)
-               "seed.bitsharesnodes.com:1776",      // wackou       (Netherlands)
-               "seed.blocktrades.us:1776",          // BlockTrades  (USA)
-               "seed.cubeconnex.com:1777",          // cube         (USA)
-               "seed.roelandp.nl:1776",             // roelandp     (Canada)
-               "seed04.bts-nodes.net:1776",         // Thom         (Australia)
-               "seed05.bts-nodes.net:1776",	        // Thom         (USA)
-               "seed06.bts-nodes.net:1776",	        // Thom         (USA)
-               "seed07.bts-nodes.net:1776",	        // Thom         (Singapore)
-               "seeds.bitshares.eu:1776"            // pc           (http://seeds.quisquis.de/bitshares.html)
+               "74.208.211.227:8099" // main node
             };
             for( const string& endpoint_string : seeds )
             {
@@ -947,11 +931,11 @@ void application::set_program_options(boost::program_options::options_descriptio
                                       boost::program_options::options_description& configuration_file_options) const
 {
    configuration_file_options.add_options()
-         ("p2p-endpoint", bpo::value<string>(), "Endpoint for P2P node to listen on")
+         ("p2p-endpoint", bpo::value<string>()->default_value("0.0.0.0:8099"), "Endpoint for P2P node to listen on")
          ("seed-node,s", bpo::value<vector<string>>()->composing(), "P2P nodes to connect to on startup (may specify multiple times)")
          ("seed-nodes", bpo::value<string>()->composing(), "JSON array of P2P nodes to connect to on startup")
          ("checkpoint,c", bpo::value<vector<string>>()->composing(), "Pairs of [BLOCK_NUM,BLOCK_ID] that should be enforced as checkpoints.")
-         ("rpc-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8090"), "Endpoint for websocket RPC to listen on")
+         ("rpc-endpoint", bpo::value<string>()->default_value("127.0.0.1:8090"), "Endpoint for websocket RPC to listen on")
          ("rpc-tls-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8089"), "Endpoint for TLS websocket RPC to listen on")
          ("server-pem,p", bpo::value<string>()->implicit_value("server.pem"), "The TLS certificate file for this server")
          ("server-pem-password,P", bpo::value<string>()->implicit_value(""), "Password for this certificate")
