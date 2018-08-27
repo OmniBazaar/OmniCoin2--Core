@@ -174,9 +174,11 @@ namespace detail {
          }
          else
          {
-            // https://bitsharestalk.org/index.php/topic,23715.0.html
             vector<string> seeds = {
-               "74.208.211.227:8099" // main node
+               "74.208.244.30:8099", // main node
+               "OmniBazaar.ddns.net:8099",
+               "74.208.211.227:8099",
+               "207.254.40.73:8099"
             };
             for( const string& endpoint_string : seeds )
             {
