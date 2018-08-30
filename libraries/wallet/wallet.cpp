@@ -2652,6 +2652,29 @@ public:
       return it->second;
    }
 
+   signed_transaction set_account_verification(const string& account)
+   {
+       try
+       {
+           FC_ASSERT( !self.is_locked() );
+
+           const account_object account_obj = get_account(account);
+           FC_ASSERT( !account_obj.verified, "Account ${a} is already verified.", ("a", account) );
+
+           omnibazaar::verification_operation op;
+           op.account = account_obj.get_id();
+
+           signed_transaction tx;
+           tx.operations.push_back(op);
+
+           set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+           tx.validate();
+
+           return sign_transaction(tx, true);
+       }
+       FC_CAPTURE_AND_RETHROW( (account) )
+   }
+
    string                  _wallet_filename;
    wallet_data             _wallet;
 
@@ -4587,6 +4610,11 @@ vector<blind_receipt> wallet_api::blind_history( string key_or_account )
 order_book wallet_api::get_order_book( const string& base, const string& quote, unsigned limit )
 {
    return( my->_remote_db->get_order_book( base, quote, limit ) );
+}
+
+signed_transaction wallet_api::set_account_verification(const string& account)
+{
+    return my->set_account_verification(account);
 }
 
 signed_block_with_info::signed_block_with_info( const signed_block& block )

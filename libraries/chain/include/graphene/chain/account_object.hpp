@@ -306,6 +306,9 @@ namespace graphene { namespace chain {
          // Number of reputation votes for this account.
          uint64_t reputation_votes_count = 0;
 
+         // Flag indicating if this account passed KYC verification.
+         bool verified = false;
+
          // Update reputation for this account given by 'from' account.
          static void update_reputation(database& db, const account_id_type target, const account_id_type from, const uint16_t reputation, const asset amount);
    };
@@ -552,6 +555,7 @@ FC_REFLECT_DERIVED( graphene::chain::account_object,
                     (publisher_fee)
                     (btc_address)
                     (eth_address)
+                    (verified)
                     )
 
 FC_REFLECT_DERIVED( graphene::chain::account_balance_object,

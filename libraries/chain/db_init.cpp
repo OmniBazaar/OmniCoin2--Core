@@ -71,6 +71,7 @@
 #include <listing_object.hpp>
 #include <multisig_transfer_evaluator.hpp>
 #include <listing_evaluator.hpp>
+#include <verification_evaluator.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
 #include <fc/smart_ref_impl.hpp>
@@ -194,6 +195,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::listing_update_evaluator>();
    register_evaluator<omnibazaar::listing_delete_evaluator>();
    register_evaluator<omnibazaar::listing_report_evaluator>();
+   register_evaluator<omnibazaar::verification_evaluator>();
 }
 
 void database::initialize_indexes()
