@@ -302,6 +302,12 @@ struct get_impacted_account_visitor
    {
       _impacted.insert( op.reporting_account );
    }
+
+   void operator()( const omnibazaar::verification_operation& op )
+   {
+      _impacted.insert( OMNIBAZAAR_FOUNDER_ACCOUNT );
+      _impacted.insert( op.account );
+   }
 };
 
 void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )

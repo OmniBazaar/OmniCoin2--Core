@@ -1577,6 +1577,12 @@ class wallet_api
                                          bool broadcast = false,
                                          bool to_temp = false );
 
+      /** Set "verified" flag to "true" for specfied account.
+       * @param account the name or id of the account for which verification status will be set to 'true'
+       * @returns the signed transaction on success
+       */
+      signed_transaction set_account_verification(const string& account);
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1768,4 +1774,5 @@ FC_API( graphene::wallet::wallet_api,
         (blind_history)
         (receive_blind_transfer)
         (get_order_book)
+        (set_account_verification)
       )
