@@ -305,7 +305,7 @@ struct get_impacted_account_visitor
 
    void operator()( const omnibazaar::verification_operation& op )
    {
-      _impacted.insert( OMNIBAZAAR_FOUNDER_ACCOUNT );
+      _impacted.insert( op.fee_payer() );
       _impacted.insert( op.account );
    }
 };
