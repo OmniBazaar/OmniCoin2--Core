@@ -19,6 +19,8 @@ namespace omnibazaar {
         static std::vector<std::string> get_files_in_folder(const std::string &folder);
         // Get file paths in specified folder.
         static std::vector<fc::path> get_files_in_folder(const fc::path& path);
+        // Calculate square root using only integers.
+        static uint32_t isqrt(const uint32_t n);
     };
 }
 
