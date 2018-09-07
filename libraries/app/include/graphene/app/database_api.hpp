@@ -717,6 +717,15 @@ class database_api
        */
       vector<omnibazaar::exchange_object> lookup_exchange_objects(const exchange_id_type lower_bound_id, uint32_t limit);
 
+      /**
+       * @brief Get pending exchange objects.
+       * @param currency Currency name, for example "BTC" or "ETH".
+       * @param lower_bound_id Lower bound of the first object ID to return.
+       * @param limit Maximum number of results to return, must not exceed 100.
+       * @return list of exchange objects.
+       */
+      vector<omnibazaar::exchange_object> lookup_exchange_objects_by_currency(const string currency, const exchange_id_type lower_bound_id, uint32_t limit);
+
    private:
       std::shared_ptr< database_api_impl > my;
 };
@@ -850,4 +859,5 @@ FC_API(graphene::app::database_api,
 
     // Exchange
     (lookup_exchange_objects)
+    (lookup_exchange_objects_by_currency)
 )

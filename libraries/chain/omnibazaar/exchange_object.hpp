@@ -2,6 +2,7 @@
 
 #include <graphene/db/object.hpp>
 #include <graphene/chain/protocol/types.hpp>
+#include <boost/multi_index/composite_key.hpp>
 
 namespace omnibazaar {
 
@@ -20,9 +21,8 @@ namespace omnibazaar {
         graphene::chain::account_id_type sender;
     };
 
-    struct by_coin_name;
+    struct by_coin_and_id;
     struct by_tx_id;
-    struct by_sender;
     typedef boost::multi_index_container<
         exchange_object,
         graphene::chain::indexed_by<
@@ -35,12 +35,12 @@ namespace omnibazaar {
                 graphene::chain::member< exchange_object, fc::string, &exchange_object::tx_id >
             >,
             graphene::chain::ordered_non_unique<
-                graphene::chain::tag< by_sender >,
-                graphene::chain::member< exchange_object, graphene::chain::account_id_type, &exchange_object::sender >
-            >,
-            graphene::chain::ordered_non_unique<
-                graphene::chain::tag< by_coin_name >,
-                graphene::chain::member< exchange_object, fc::string, &exchange_object::coin_name >
+                graphene::chain::tag< by_coin_and_id >,
+                boost::multi_index::composite_key<
+                    exchange_object,
+                    graphene::chain::member< exchange_object, fc::string, &exchange_object::coin_name >,
+                    graphene::chain::member< graphene::chain::object, graphene::chain::object_id_type, &graphene::chain::object::id >
+                >
             >
         >
     > exchange_multi_index_container;

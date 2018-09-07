@@ -175,6 +175,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
 
       // Exchange
       vector<omnibazaar::exchange_object> lookup_exchange_objects(const exchange_id_type lower_bound_id, uint32_t limit);
+      vector<omnibazaar::exchange_object> lookup_exchange_objects_by_currency(const string currency, const exchange_id_type lower_bound_id, uint32_t limit);
 
    //private:
       template<typename T>
@@ -2505,6 +2506,32 @@ vector<omnibazaar::exchange_object> database_api_impl::lookup_exchange_objects(c
     for(auto itr = exchange_idx.lower_bound(lower_bound_id); limit-- && itr != exchange_idx.end(); ++itr)
     {
        result.push_back(*itr);
+    }
+
+    return result;
+}
+
+vector<omnibazaar::exchange_object> database_api::lookup_exchange_objects_by_currency(const string currency, const exchange_id_type lower_bound_id, uint32_t limit)
+{
+    return my->lookup_exchange_objects_by_currency(currency, lower_bound_id, limit);
+}
+
+vector<omnibazaar::exchange_object> database_api_impl::lookup_exchange_objects_by_currency(const string currency, const exchange_id_type lower_bound_id, uint32_t limit)
+{
+    FC_ASSERT( limit <= 100 );
+
+    const auto& exchange_idx = _db.get_index_type<omnibazaar::exchange_index>().indices().get<omnibazaar::by_coin_and_id>();
+    vector<omnibazaar::exchange_object> result;
+    result.reserve(limit);
+
+    // Database stores coin names in lowercase format, see exchange_create_evaluator::do_apply.
+    const string currency_lowercase = fc::to_lower(currency);
+
+    auto itr = exchange_idx.lower_bound(std::make_tuple(currency_lowercase, lower_bound_id));
+    const auto next_currency_itr = exchange_idx.upper_bound(currency_lowercase);
+    for(; limit-- && (itr != exchange_idx.end()) && (itr != next_currency_itr); ++itr)
+    {
+        result.push_back(*itr);
     }
 
     return result;
