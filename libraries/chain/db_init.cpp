@@ -344,6 +344,17 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.eth_address = genesis_state.founder.eth_address;
    }).get_id() == OMNIBAZAAR_FOUNDER_ACCOUNT);
    FC_ASSERT(create<account_object>([&](account_object& a) {
+       a.name = genesis_state.kyc.name;
+       a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
+       a.owner = authority(1, genesis_state.kyc.owner_key, 1);
+       a.active = authority(1, genesis_state.kyc.active_key, 1);
+       a.options.memo_key = genesis_state.kyc.active_key;
+       a.registrar = a.referrer = OMNIBAZAAR_KYC_ACCOUNT;
+       a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
+       a.btc_address = genesis_state.kyc.btc_address;
+       a.eth_address = genesis_state.kyc.eth_address;
+   }).get_id() == OMNIBAZAAR_KYC_ACCOUNT);
+   FC_ASSERT(create<account_object>([&](account_object& a) {
        a.name = genesis_state.exchange.name;
        a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
        a.owner = authority(1, genesis_state.exchange.owner_key, 1);

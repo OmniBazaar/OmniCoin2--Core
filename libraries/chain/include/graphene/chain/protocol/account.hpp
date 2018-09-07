@@ -85,7 +85,7 @@ namespace graphene { namespace chain {
 
       struct fee_parameters_type
       {
-         uint64_t basic_fee       = 5 * GRAPHENE_BLOCKCHAIN_PRECISION;
+         uint64_t basic_fee       = GRAPHENE_BLOCKCHAIN_PRECISION;
          uint32_t price_per_kbyte = GRAPHENE_BLOCKCHAIN_PRECISION;
       };
 
