@@ -17,7 +17,7 @@ namespace omnibazaar {
         graphene::chain::account_id_type account;
 
         // base_operation interface
-        graphene::chain::account_id_type fee_payer()const { return OMNIBAZAAR_FOUNDER_ACCOUNT; }
+        graphene::chain::account_id_type fee_payer()const { return OMNIBAZAAR_KYC_ACCOUNT; }
         void validate()const;
     };
 
