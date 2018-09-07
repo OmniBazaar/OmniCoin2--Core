@@ -181,6 +181,8 @@
 
 /// Main OmniBazaar account object
 #define OMNIBAZAAR_FOUNDER_ACCOUNT (graphene::chain::account_id_type(6))
+/// Account for exchange operations
+#define OMNIBAZAAR_EXCHANGE_ACCOUNT (graphene::chain::account_id_type(8))
 
 #define OMNIBAZAAR_DEFAULT_MAX_ESCROW_LIFETIME_SEC (60*60*24*90) // 3 months
 #define OMNIBAZAAR_DEFAULT_MAX_LISTINGS_LIFETIME_SEC (60*60*24*60) // 60 days
