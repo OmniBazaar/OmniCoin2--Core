@@ -69,9 +69,11 @@
 #include <escrow_evaluator.hpp>
 #include <escrow_object.hpp>
 #include <listing_object.hpp>
+#include <exchange_object.hpp>
 #include <multisig_transfer_evaluator.hpp>
 #include <listing_evaluator.hpp>
 #include <verification_evaluator.hpp>
+#include <exchange_evaluator.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
 #include <fc/smart_ref_impl.hpp>
@@ -196,6 +198,8 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::listing_delete_evaluator>();
    register_evaluator<omnibazaar::listing_report_evaluator>();
    register_evaluator<omnibazaar::verification_evaluator>();
+   register_evaluator<omnibazaar::exchange_create_evaluator>();
+   register_evaluator<omnibazaar::exchange_complete_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -224,6 +228,7 @@ void database::initialize_indexes()
    escr_index->add_secondary_index<omnibazaar::escrow_account_index>();
 
    add_index< primary_index<omnibazaar::listing_index> >();
+   add_index< primary_index<omnibazaar::exchange_index> >();
 
    add_index< primary_index<withdraw_permission_index > >();
    add_index< primary_index<vesting_balance_index> >();
@@ -349,6 +354,17 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.btc_address = genesis_state.kyc.btc_address;
        a.eth_address = genesis_state.kyc.eth_address;
    }).get_id() == OMNIBAZAAR_KYC_ACCOUNT);
+   FC_ASSERT(create<account_object>([&](account_object& a) {
+       a.name = genesis_state.exchange.name;
+       a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
+       a.owner = authority(1, genesis_state.exchange.owner_key, 1);
+       a.active = authority(1, genesis_state.exchange.active_key, 1);
+       a.options.memo_key = genesis_state.exchange.active_key;
+       a.registrar = a.referrer = OMNIBAZAAR_EXCHANGE_ACCOUNT;
+       a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
+       a.btc_address = genesis_state.exchange.btc_address;
+       a.eth_address = genesis_state.exchange.eth_address;
+   }).get_id() == OMNIBAZAAR_EXCHANGE_ACCOUNT);
 
    // Create more special accounts
    while( true )

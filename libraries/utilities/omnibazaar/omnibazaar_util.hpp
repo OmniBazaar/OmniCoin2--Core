@@ -69,3 +69,12 @@ namespace omnibazaar {
 #define market_idump( SEQ ) market_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define market_wdump( SEQ ) market_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define market_edump( SEQ ) market_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+
+#define exchange_dlog( FORMAT, ... ) fc_dlog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_ilog( FORMAT, ... ) fc_ilog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_wlog( FORMAT, ... ) fc_wlog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_elog( FORMAT, ... ) fc_elog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_ddump( SEQ ) exchange_dlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define exchange_idump( SEQ ) exchange_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define exchange_wdump( SEQ ) exchange_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define exchange_edump( SEQ ) exchange_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )

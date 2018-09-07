@@ -106,6 +106,7 @@ struct genesis_state_type {
    share_type                               max_core_supply = GRAPHENE_MAX_SHARE_SUPPLY;
    initial_account_type                     founder;
    initial_account_type                     kyc;
+   initial_account_type                     exchange;
    chain_parameters                         initial_parameters;
    immutable_chain_parameters               immutable_parameters;
    vector<initial_account_type>             initial_accounts;
@@ -153,7 +154,7 @@ FC_REFLECT(graphene::chain::genesis_state_type::initial_committee_member_type, (
 FC_REFLECT(graphene::chain::genesis_state_type::initial_worker_type, (owner_name)(daily_pay))
 
 FC_REFLECT(graphene::chain::genesis_state_type,
-           (initial_timestamp)(max_core_supply)(founder)(kyc)(initial_parameters)(initial_accounts)(initial_assets)(initial_balances)
+           (initial_timestamp)(max_core_supply)(founder)(kyc)(exchange)(initial_parameters)(initial_accounts)(initial_assets)(initial_balances)
            (initial_vesting_balances)(initial_active_witnesses)(initial_witness_candidates)
            (initial_committee_candidates)(initial_worker_candidates)
            (initial_chain_id)
