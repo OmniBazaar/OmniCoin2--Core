@@ -42,6 +42,7 @@
 #include <graphene/chain/witness_object.hpp>
 #include <../omnibazaar/escrow_object.hpp>
 #include <../omnibazaar/listing_object.hpp>
+#include <../omnibazaar/exchange_object.hpp>
 
 #include <graphene/market_history/market_history_plugin.hpp>
 
@@ -704,6 +705,18 @@ class database_api
        */
       vector<omnibazaar::listing_object> get_listings_by_seller(const string& seller_name);
 
+      //////////////
+      // Exchange //
+      //////////////
+
+      /**
+       * @brief Get pending exchange objects.
+       * @param lower_bound_id Lower bound of the first object ID to return.
+       * @param limit Maximum number of results to return, must not exceed 100.
+       * @return list of exchange objects.
+       */
+      vector<omnibazaar::exchange_object> lookup_exchange_objects(const exchange_id_type lower_bound_id, uint32_t limit);
+
    private:
       std::shared_ptr< database_api_impl > my;
 };
@@ -834,4 +847,7 @@ FC_API(graphene::app::database_api,
     // Marketplace
     (check_listing_exists)
     (get_listings_by_seller)
+
+    // Exchange
+    (lookup_exchange_objects)
 )

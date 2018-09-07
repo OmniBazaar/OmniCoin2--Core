@@ -72,6 +72,7 @@
 #include <multisig_transfer_evaluator.hpp>
 #include <listing_evaluator.hpp>
 #include <verification_evaluator.hpp>
+#include <exchange_object.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
 #include <fc/smart_ref_impl.hpp>
@@ -224,6 +225,7 @@ void database::initialize_indexes()
    escr_index->add_secondary_index<omnibazaar::escrow_account_index>();
 
    add_index< primary_index<omnibazaar::listing_index> >();
+   add_index< primary_index<omnibazaar::exchange_index> >();
 
    add_index< primary_index<withdraw_permission_index > >();
    add_index< primary_index<vesting_balance_index> >();

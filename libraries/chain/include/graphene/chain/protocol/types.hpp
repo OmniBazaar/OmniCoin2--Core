@@ -49,6 +49,7 @@
 namespace omnibazaar {
     class escrow_object;
     class listing_object;
+    class exchange_object;
 }
 
 namespace graphene { namespace chain {
@@ -141,6 +142,7 @@ namespace graphene { namespace chain {
       balance_object_type,
       escrow_object_type,
       listing_object_type,
+      exchange_object_type,
       OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
    };
 
@@ -200,6 +202,7 @@ namespace graphene { namespace chain {
    typedef object_id< protocol_ids, balance_object_type,            balance_object>               balance_id_type;
    typedef object_id< protocol_ids, escrow_object_type,             omnibazaar::escrow_object>    escrow_id_type;
    typedef object_id< protocol_ids, listing_object_type,            omnibazaar::listing_object>   listing_id_type;
+   typedef object_id< protocol_ids, exchange_object_type,           omnibazaar::exchange_object>  exchange_id_type;
 
    // implementation types
    class global_property_object;
@@ -353,6 +356,7 @@ FC_REFLECT_ENUM( graphene::chain::object_type,
                  (balance_object_type)
                  (escrow_object_type)
                  (listing_object_type)
+                 (exchange_object_type)
                  (OBJECT_TYPE_COUNT)
                )
 FC_REFLECT_ENUM( graphene::chain::impl_object_type,
@@ -407,6 +411,7 @@ FC_REFLECT_TYPENAME( graphene::chain::buyback_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::fba_accumulator_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::collateral_bid_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::escrow_id_type )
+FC_REFLECT_TYPENAME( graphene::chain::exchange_id_type )
 
 FC_REFLECT( graphene::chain::void_t, )
 

@@ -67,6 +67,8 @@ add_library( graphene_chain
              omnibazaar/verification.cpp
              omnibazaar/verification_evaluator.cpp
 
+             omnibazaar/exchange_object.cpp
+
              protocol/types.cpp
              protocol/address.cpp
              protocol/authority.cpp
