@@ -1583,6 +1583,12 @@ class wallet_api
        */
       signed_transaction set_account_verification(const string& account);
 
+      /** Set confirmed status for specified exchange object (effectively delete it from database).
+       * @param exchange_id ID of the exchange object.
+       * @returns the signed transaction on success.
+       */
+      signed_transaction confirm_exchange(const exchange_id_type exchange_id);
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1775,4 +1781,5 @@ FC_API( graphene::wallet::wallet_api,
         (receive_blind_transfer)
         (get_order_book)
         (set_account_verification)
+        (confirm_exchange)
       )

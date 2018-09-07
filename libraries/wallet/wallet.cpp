@@ -2675,6 +2675,26 @@ public:
        FC_CAPTURE_AND_RETHROW( (account) )
    }
 
+   signed_transaction confirm_exchange(const exchange_id_type exchange_id)
+   {
+       try
+       {
+           FC_ASSERT( !self.is_locked() );
+
+           omnibazaar::exchange_complete_operation op;
+           op.exchange = exchange_id;
+
+           signed_transaction tx;
+           tx.operations.push_back(op);
+
+           set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+           tx.validate();
+
+           return sign_transaction(tx, true);
+       }
+       FC_CAPTURE_AND_RETHROW( (exchange_id) )
+   }
+
    string                  _wallet_filename;
    wallet_data             _wallet;
 
@@ -4615,6 +4635,11 @@ order_book wallet_api::get_order_book( const string& base, const string& quote, 
 signed_transaction wallet_api::set_account_verification(const string& account)
 {
     return my->set_account_verification(account);
+}
+
+signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id)
+{
+    return my->confirm_exchange(exchange_id);
 }
 
 signed_block_with_info::signed_block_with_info( const signed_block& block )
