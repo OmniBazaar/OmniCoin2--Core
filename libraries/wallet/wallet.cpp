@@ -4644,6 +4644,11 @@ signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_
     return my->confirm_exchange(exchange_id);
 }
 
+std::vector<std::string> wallet_api::get_publisher_names() const
+{
+    return my->_remote_db->get_publisher_nodes_names();
+}
+
 signed_block_with_info::signed_block_with_info( const signed_block& block )
    : signed_block( block )
 {

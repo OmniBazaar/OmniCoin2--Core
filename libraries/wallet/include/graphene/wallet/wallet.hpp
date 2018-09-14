@@ -1590,6 +1590,8 @@ class wallet_api
        */
       signed_transaction confirm_exchange(const exchange_id_type exchange_id);
 
+      std::vector<std::string> get_publisher_names() const;
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1783,4 +1785,5 @@ FC_API( graphene::wallet::wallet_api,
         (get_order_book)
         (set_account_verification)
         (confirm_exchange)
+        (get_publisher_names)
       )
