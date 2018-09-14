@@ -18,6 +18,11 @@ namespace omnibazaar {
             FC_ASSERT( exchange_idx.find(op.tx_id) == exchange_idx.end(), "Transaction ${tx} is already registered.",
                        ("tx", op.tx_id));
 
+            // Only accounts that passed KYC verification can perform exchange operations.
+            const graphene::chain::account_object& account = op.sender(d);
+            FC_ASSERT( account.verified, "Account ${a} is not verified and cannot perform exchange operations.",
+                       ("a", account.name) );
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
