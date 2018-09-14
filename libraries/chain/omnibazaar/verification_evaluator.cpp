@@ -13,7 +13,8 @@ namespace omnibazaar {
             const graphene::chain::database& d = db();
 
             const graphene::chain::account_object& account = op.account(d);
-            FC_ASSERT( !account.verified, "Account ${a} is already verified.", ("a", account.name) );
+            FC_ASSERT( op.status != account.verified, "Account ${a} already has verification status '${s}'.",
+                       ("a", account.name)("s", account.verified) );
 
             return graphene::chain::void_result();
         }
@@ -28,8 +29,8 @@ namespace omnibazaar {
 
             graphene::chain::database& d = db();
 
-            d.modify(op.account(d), [](graphene::chain::account_object& a){
-                a.verified = true;
+            d.modify(op.account(d), [&](graphene::chain::account_object& a){
+                a.verified = op.status;
             });
 
             return graphene::chain::void_result();

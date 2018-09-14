@@ -15,6 +15,8 @@ namespace omnibazaar {
         graphene::chain::asset fee;
         // Account for which this operation sets "verified" flag.
         graphene::chain::account_id_type account;
+        // New value for "verified" flag.
+        bool status;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return OMNIBAZAAR_KYC_ACCOUNT; }
@@ -27,4 +29,5 @@ FC_REFLECT(omnibazaar::verification_operation::fee_parameters_type, (fee))
 FC_REFLECT(omnibazaar::verification_operation,
            (fee)
            (account)
+           (status)
            )

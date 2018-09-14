@@ -2652,17 +2652,19 @@ public:
       return it->second;
    }
 
-   signed_transaction set_account_verification(const string& account)
+   signed_transaction set_account_verification(const string& account, const bool new_status)
    {
        try
        {
            FC_ASSERT( !self.is_locked() );
 
            const account_object account_obj = get_account(account);
-           FC_ASSERT( !account_obj.verified, "Account ${a} is already verified.", ("a", account) );
+           FC_ASSERT( new_status != account_obj.verified, "Account ${a} already has verification status '${s}'.",
+                      ("a", account_obj.name)("s", account_obj.verified) );
 
            omnibazaar::verification_operation op;
            op.account = account_obj.get_id();
+           op.status = new_status;
 
            signed_transaction tx;
            tx.operations.push_back(op);
@@ -4632,9 +4634,9 @@ order_book wallet_api::get_order_book( const string& base, const string& quote, 
    return( my->_remote_db->get_order_book( base, quote, limit ) );
 }
 
-signed_transaction wallet_api::set_account_verification(const string& account)
+signed_transaction wallet_api::set_account_verification(const string& account, const bool new_status)
 {
-    return my->set_account_verification(account);
+    return my->set_account_verification(account, new_status);
 }
 
 signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id)

@@ -1577,11 +1577,12 @@ class wallet_api
                                          bool broadcast = false,
                                          bool to_temp = false );
 
-      /** Set "verified" flag to "true" for specfied account.
-       * @param account the name or id of the account for which verification status will be set to 'true'
+      /** Update "verified" flag for specfied account.
+       * @param account the name or id of the account for which verification status will be updated.
+       * @param new_status new status for account, "true" means verified, "false" means not verified.
        * @returns the signed transaction on success
        */
-      signed_transaction set_account_verification(const string& account);
+      signed_transaction set_account_verification(const string& account, const bool new_status);
 
       /** Set confirmed status for specified exchange object (effectively delete it from database).
        * @param exchange_id ID of the exchange object.
