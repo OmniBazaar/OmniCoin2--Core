@@ -1577,6 +1577,21 @@ class wallet_api
                                          bool broadcast = false,
                                          bool to_temp = false );
 
+      /** Update "verified" flag for specfied account.
+       * @param account the name or id of the account for which verification status will be updated.
+       * @param new_status new status for account, "true" means verified, "false" means not verified.
+       * @returns the signed transaction on success
+       */
+      signed_transaction set_account_verification(const string& account, const bool new_status);
+
+      /** Set confirmed status for specified exchange object (effectively delete it from database).
+       * @param exchange_id ID of the exchange object.
+       * @returns the signed transaction on success.
+       */
+      signed_transaction confirm_exchange(const exchange_id_type exchange_id);
+
+      std::vector<std::string> get_publisher_names() const;
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1768,4 +1783,7 @@ FC_API( graphene::wallet::wallet_api,
         (blind_history)
         (receive_blind_transfer)
         (get_order_book)
+        (set_account_verification)
+        (confirm_exchange)
+        (get_publisher_names)
       )

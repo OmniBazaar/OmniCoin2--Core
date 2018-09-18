@@ -19,6 +19,8 @@ namespace omnibazaar {
         static std::vector<std::string> get_files_in_folder(const std::string &folder);
         // Get file paths in specified folder.
         static std::vector<fc::path> get_files_in_folder(const fc::path& path);
+        // Calculate square root using only integers.
+        static uint32_t isqrt(const uint32_t n);
     };
 }
 
@@ -67,3 +69,12 @@ namespace omnibazaar {
 #define market_idump( SEQ ) market_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define market_wdump( SEQ ) market_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define market_edump( SEQ ) market_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+
+#define exchange_dlog( FORMAT, ... ) fc_dlog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_ilog( FORMAT, ... ) fc_ilog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_wlog( FORMAT, ... ) fc_wlog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_elog( FORMAT, ... ) fc_elog( fc::logger::get("exchange"), FORMAT, __VA_ARGS__ )
+#define exchange_ddump( SEQ ) exchange_dlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define exchange_idump( SEQ ) exchange_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define exchange_wdump( SEQ ) exchange_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+#define exchange_edump( SEQ ) exchange_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )

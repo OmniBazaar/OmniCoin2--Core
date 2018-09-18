@@ -115,6 +115,18 @@ namespace detail {
                                utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
                                utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()
                               };
+      initial_state.kyc = {"kyc",
+                           "",
+                           "",
+                           utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
+                           utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()
+                          };
+      initial_state.exchange = {"exchange",
+                               "",
+                               "",
+                               utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
+                               utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()
+                              };
 
       return initial_state;
    }

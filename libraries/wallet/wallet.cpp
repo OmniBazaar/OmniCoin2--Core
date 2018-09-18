@@ -2652,6 +2652,51 @@ public:
       return it->second;
    }
 
+   signed_transaction set_account_verification(const string& account, const bool new_status)
+   {
+       try
+       {
+           FC_ASSERT( !self.is_locked() );
+
+           const account_object account_obj = get_account(account);
+           FC_ASSERT( new_status != account_obj.verified, "Account ${a} already has verification status '${s}'.",
+                      ("a", account_obj.name)("s", account_obj.verified) );
+
+           omnibazaar::verification_operation op;
+           op.account = account_obj.get_id();
+           op.status = new_status;
+
+           signed_transaction tx;
+           tx.operations.push_back(op);
+
+           set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+           tx.validate();
+
+           return sign_transaction(tx, true);
+       }
+       FC_CAPTURE_AND_RETHROW( (account) )
+   }
+
+   signed_transaction confirm_exchange(const exchange_id_type exchange_id)
+   {
+       try
+       {
+           FC_ASSERT( !self.is_locked() );
+
+           omnibazaar::exchange_complete_operation op;
+           op.exchange = exchange_id;
+
+           signed_transaction tx;
+           tx.operations.push_back(op);
+
+           set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+           tx.validate();
+
+           return sign_transaction(tx, true);
+       }
+       FC_CAPTURE_AND_RETHROW( (exchange_id) )
+   }
+
    string                  _wallet_filename;
    wallet_data             _wallet;
 
@@ -4587,6 +4632,21 @@ vector<blind_receipt> wallet_api::blind_history( string key_or_account )
 order_book wallet_api::get_order_book( const string& base, const string& quote, unsigned limit )
 {
    return( my->_remote_db->get_order_book( base, quote, limit ) );
+}
+
+signed_transaction wallet_api::set_account_verification(const string& account, const bool new_status)
+{
+    return my->set_account_verification(account, new_status);
+}
+
+signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id)
+{
+    return my->confirm_exchange(exchange_id);
+}
+
+std::vector<std::string> wallet_api::get_publisher_names() const
+{
+    return my->_remote_db->get_publisher_nodes_names();
 }
 
 signed_block_with_info::signed_block_with_info( const signed_block& block )

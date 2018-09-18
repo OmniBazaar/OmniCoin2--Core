@@ -1,8 +1,22 @@
 {
-  "initial_timestamp": "2018-08-10T13:45:00",
+  "initial_timestamp": "2018-09-18T18:00:00",
   "max_core_supply": "100000000000000000",
   "founder": {
     "name": "omnibazaar",
+    "btc_address": "",
+    "eth_address": "",
+    "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
+    "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
+  },
+  "kyc": {
+    "name": "kyc",
+    "btc_address": "",
+    "eth_address": "",
+    "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
+    "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
+  },
+  "exchange": {
+    "name": "exchange",
     "btc_address": "",
     "eth_address": "",
     "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
@@ -31,7 +45,7 @@
           4,{}
         ],[
           5,{
-            "basic_fee": 500000,
+            "basic_fee": 100000,
             "price_per_kbyte": 100000
           }
         ],[
@@ -260,6 +274,19 @@
             "fee": 100000,
             "price_per_kbyte": 10
           }
+        ],[
+          60,{
+            "fee": 0
+          }
+        ],[
+          61,{
+            "fee": 100000,
+            "price_per_kbyte": 10
+          }
+        ],[
+          62,{
+            "fee": 0
+          }
         ]
       ],
       "scale": 10000
@@ -295,6 +322,7 @@
     "maximum_listing_lifetime": 5184000,
     "listing_ban_threshold": 3,
     "maximum_listing_priority_fee": 200,
+    "witness_count_term": 20,
     "extensions": []
   },
   "initial_accounts": [{

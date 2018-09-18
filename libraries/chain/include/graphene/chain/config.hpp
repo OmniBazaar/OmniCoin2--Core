@@ -181,6 +181,10 @@
 
 /// Main OmniBazaar account object
 #define OMNIBAZAAR_FOUNDER_ACCOUNT (graphene::chain::account_id_type(6))
+/// Account that is used to set KYC verification flag for users.
+#define OMNIBAZAAR_KYC_ACCOUNT (graphene::chain::account_id_type(7))
+/// Account for exchange operations
+#define OMNIBAZAAR_EXCHANGE_ACCOUNT (graphene::chain::account_id_type(8))
 
 #define OMNIBAZAAR_DEFAULT_MAX_ESCROW_LIFETIME_SEC (60*60*24*90) // 3 months
 #define OMNIBAZAAR_DEFAULT_MAX_LISTINGS_LIFETIME_SEC (60*60*24*60) // 60 days
@@ -198,3 +202,5 @@
 
 #define OMNIBAZAAR_DEFAULT_LISTING_PRIORITY_FEE (GRAPHENE_1_PERCENT / 2)
 #define OMNIBAZAAR_DEFAULT_MAX_LISTING_PRIORITY_FEE (2 * GRAPHENE_1_PERCENT)
+
+#define OMNIBAZAAR_DEFAULT_WITNESS_COUNT_TERM (20)

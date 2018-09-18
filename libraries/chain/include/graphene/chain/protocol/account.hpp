@@ -85,7 +85,7 @@ namespace graphene { namespace chain {
 
       struct fee_parameters_type
       {
-         uint64_t basic_fee       = 5 * GRAPHENE_BLOCKCHAIN_PRECISION;
+         uint64_t basic_fee       = GRAPHENE_BLOCKCHAIN_PRECISION;
          uint32_t price_per_kbyte = GRAPHENE_BLOCKCHAIN_PRECISION;
       };
 
@@ -163,7 +163,7 @@ namespace graphene { namespace chain {
       /// New is-publisher flag value
       optional<bool> is_a_publisher;
 
-      /// New IP address of pubisher node
+      /// New IP/domain address of pubisher node
       optional<string> publisher_ip;
 
       /// New is-escrow flag value

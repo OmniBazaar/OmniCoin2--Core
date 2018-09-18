@@ -11,6 +11,7 @@
 #include <graphene/chain/committee_member_object.hpp>
 #include <../omnibazaar/escrow_object.hpp>
 #include <../omnibazaar/listing_object.hpp>
+#include <../omnibazaar/exchange_object.hpp>
 
 using namespace fc;
 using namespace graphene::chain;
@@ -287,6 +288,22 @@ struct get_impacted_account_visitor
    {
       _impacted.insert( op.reporting_account );
    }
+
+   void operator()( const omnibazaar::verification_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+      _impacted.insert( op.account );
+   }
+
+   void operator()( const omnibazaar::exchange_create_operation& op )
+   {
+      _impacted.insert( op.sender );
+   }
+
+   void operator()( const omnibazaar::exchange_complete_operation& op )
+   {
+      _impacted.insert( OMNIBAZAAR_EXCHANGE_ACCOUNT );
+   }
 };
 
 static void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )
@@ -387,6 +404,11 @@ static void get_relevant_accounts( const object* obj, flat_set<account_id_type>&
           assert( aobj != nullptr );
           accounts.insert( aobj->seller );
           accounts.insert( aobj->publisher );
+          break;
+        } case exchange_object_type:{
+          const auto& aobj = dynamic_cast<const omnibazaar::exchange_object*>(obj);
+          assert( aobj != nullptr );
+          accounts.insert( aobj->sender );
           break;
         }
       }

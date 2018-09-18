@@ -295,5 +295,28 @@ namespace omnibazaar {
         return result;
     }
 
+    uint32_t util::isqrt(const uint32_t n)
+    {
+        if(n == 0)
+            return 0;
+
+        // Using Newton's method.
+
+        // Initialize to N.
+        uint64_t r = n;
+        while(true)
+        {
+            // Perform one iteration.
+            r = (r + n / r) / 2;
+            // If square(current number) is less than or equal N
+            // and if square(current number + 1) is larger than N
+            // then we're done.
+            const auto current_squared = r * r;
+            const auto next_squared = (r + 1) * (r + 1);
+            if((current_squared <= n) && (next_squared > n))
+                break;
+        }
+        return r;
+    }
 
 }
