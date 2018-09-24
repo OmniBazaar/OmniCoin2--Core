@@ -20,9 +20,10 @@ namespace omnibazaar {
 
         // Check that bonus is still available.
         const auto dyn_props = db.get_dynamic_global_properties();
-        if(dyn_props.head_block_number >= OMNIBAZAAR_FOUNDER_BLOCK_LIMIT)
+        if(dyn_props.founder_bonus >= OMNIBAZAAR_FOUNDER_COINS_LIMIT)
         {
-            bonus_wdump(("Bonus is not available.")(dyn_props.head_block_number)(OMNIBAZAAR_FOUNDER_BLOCK_LIMIT));
+            bonus_wdump(("Bonus is not available.")(dyn_props.head_block_number)(dyn_props.founder_bonus)
+                        (OMNIBAZAAR_FOUNDER_TIME_LIMIT)(OMNIBAZAAR_FOUNDER_COINS_LIMIT));
             return false;
         }
 
