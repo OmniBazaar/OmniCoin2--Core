@@ -61,6 +61,15 @@ struct brain_key_info
    public_key_type pub_key;
 };
 
+struct password_key_info
+{
+   string account;
+   string password;
+   string wif_priv_key_active;
+   string wif_priv_key_owner;
+   public_key_type pub_key_active;
+   public_key_type pub_key_owner;
+};
 
 /**
  *  Contains the confirmation receipt the sender must give the receiver and
@@ -1592,6 +1601,14 @@ class wallet_api
 
       std::vector<std::string> get_publisher_names() const;
 
+      /** Create public/private keys using account name and password.
+       * This mimics the behavior of webwallet function 'generateKeyFromPassword'.
+       *
+       * @param account_name name of the account for which keys are created.
+       * @param password desired password. If empty, random password will be created.
+       */
+      password_key_info create_keys_from_password(const string account_name, const string password);
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1658,6 +1675,15 @@ FC_REFLECT_DERIVED( graphene::wallet::vesting_balance_object_with_info, (graphen
 
 FC_REFLECT( graphene::wallet::operation_detail, 
             (memo)(description)(op) )
+
+FC_REFLECT( graphene::wallet::password_key_info,
+            (account)
+            (password)
+            (wif_priv_key_active)
+            (wif_priv_key_owner)
+            (pub_key_active)
+            (pub_key_owner)
+            )
 
 FC_API( graphene::wallet::wallet_api,
         (help)
@@ -1786,4 +1812,5 @@ FC_API( graphene::wallet::wallet_api,
         (set_account_verification)
         (confirm_exchange)
         (get_publisher_names)
+        (create_keys_from_password)
       )

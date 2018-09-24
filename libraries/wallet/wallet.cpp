@@ -4649,6 +4649,24 @@ std::vector<std::string> wallet_api::get_publisher_names() const
     return my->_remote_db->get_publisher_nodes_names();
 }
 
+password_key_info wallet_api::create_keys_from_password(const string account_name, const string password)
+{
+    FC_ASSERT( !account_name.empty() );
+
+    password_key_info result;
+
+    result.account = account_name;
+    result.password = password.empty() ? fc::ecc::private_key::generate().get_secret().str() : password;
+    const auto active_key = fc::ecc::private_key::regenerate(fc::sha256::hash(account_name + "active" + result.password));
+    const auto owner_key = fc::ecc::private_key::regenerate(fc::sha256::hash(account_name + "owner" + result.password));
+    result.wif_priv_key_active = key_to_wif(active_key);
+    result.wif_priv_key_owner = key_to_wif(owner_key);
+    result.pub_key_active = active_key.get_public_key();
+    result.pub_key_owner = owner_key.get_public_key();
+
+    return result;
+}
+
 signed_block_with_info::signed_block_with_info( const signed_block& block )
    : signed_block( block )
 {
