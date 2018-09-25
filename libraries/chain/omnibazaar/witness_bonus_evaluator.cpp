@@ -61,7 +61,7 @@ namespace omnibazaar {
         const graphene::chain::database& d = db();
 
         bonus_ddump((d.get_chain_properties().initial_timestamp)(d.head_block_time()));
-        const fc::microseconds time_since_genesis = d.get_chain_properties().initial_timestamp - d.head_block_time();
+        const fc::microseconds time_since_genesis = d.head_block_time() - d.get_chain_properties().initial_timestamp;
         bonus_ddump((time_since_genesis));
 
         // First distribution interval.
