@@ -1,6 +1,7 @@
 #include <witness_bonus_evaluator.hpp>
 #include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/chain_property_object.hpp>
 
 namespace omnibazaar {
 
@@ -10,11 +11,9 @@ namespace omnibazaar {
         {
             bonus_ddump((op));
 
-            bonus_ddump((db().get_dynamic_global_properties().head_block_number)(OMNIBAZAAR_WITNESS_BLOCK_LIMIT));
-            if(db().get_dynamic_global_properties().head_block_number > OMNIBAZAAR_WITNESS_BLOCK_LIMIT)
-            {
-                FC_THROW("Witness Bonus is depleted");
-            }
+            bonus_ddump((db().get_dynamic_global_properties().witness_bonus)(OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS));
+            FC_ASSERT(db().get_dynamic_global_properties().witness_bonus < OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS,
+                      "Witness Bonus is depleted.");
 
             return graphene::chain::void_result();
         }
@@ -44,6 +43,12 @@ namespace omnibazaar {
                 dynamic_asset.current_supply += bonus_sum;
             });
 
+            // Adjust the number of total issued bonus coins.
+            bonus_dlog("Adjusting total bonus value.");
+            d.modify(d.get_dynamic_global_properties(), [&bonus_sum](graphene::chain::dynamic_global_property_object& prop) {
+               prop.witness_bonus += bonus_sum;
+            });
+
             return graphene::chain::asset(bonus_sum);
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -53,12 +58,28 @@ namespace omnibazaar {
     {
         bonus_ddump((""));
 
-        const auto blocks_count = db().get_dynamic_global_properties().head_block_number;
-        bonus_ddump((blocks_count));
+        const graphene::chain::database& d = db();
 
-        if      (blocks_count <= 25228800) return 200 * GRAPHENE_BLOCKCHAIN_PRECISION;
-        else if (blocks_count <= 37843200) return 100 * GRAPHENE_BLOCKCHAIN_PRECISION;
-        else                               return 50  * GRAPHENE_BLOCKCHAIN_PRECISION;
+        bonus_ddump((d.get_chain_properties().initial_timestamp)(d.head_block_time()));
+        const fc::microseconds time_since_genesis = d.get_chain_properties().initial_timestamp - d.head_block_time();
+        bonus_ddump((time_since_genesis));
+
+        // First distribution interval.
+        if(time_since_genesis.to_seconds() <= OMNIBAZAAR_WITNESS_BONUS_TIME_LIMIT_1)
+        {
+            return OMNIBAZAAR_WITNESS_BONUS_COINS_PER_SECOND_1 * d.block_interval();
+        }
+        // Second distribution interval.
+        else if(time_since_genesis.to_seconds() <= (OMNIBAZAAR_WITNESS_BONUS_TIME_LIMIT_1 + OMNIBAZAAR_WITNESS_BONUS_TIME_LIMIT_2))
+        {
+            return OMNIBAZAAR_WITNESS_BONUS_COINS_PER_SECOND_2 * d.block_interval();
+        }
+        // Until bonus is depleted.
+        else
+        {
+            return std::min(int64_t(OMNIBAZAAR_WITNESS_BONUS_COINS_PER_SECOND_3 * d.block_interval()),
+                            int64_t(OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS - d.get_dynamic_global_properties().witness_bonus.value));
+        }
     }
 
 }

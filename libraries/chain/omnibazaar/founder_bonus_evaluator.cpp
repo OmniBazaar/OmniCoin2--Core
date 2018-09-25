@@ -11,8 +11,8 @@ namespace omnibazaar {
             bonus_ddump((op));
 
             const auto& dyn_prop = db().get_dynamic_global_properties();
-            bonus_ddump((dyn_prop.head_block_number)(dyn_prop.founder_bonus)(OMNIBAZAAR_FOUNDER_TIME_LIMIT)(OMNIBAZAAR_FOUNDER_COINS_LIMIT));
-            FC_ASSERT(dyn_prop.founder_bonus < OMNIBAZAAR_FOUNDER_COINS_LIMIT, "Developer Bonus is depleted.");
+            bonus_ddump((dyn_prop.head_block_number)(dyn_prop.founder_bonus)(OMNIBAZAAR_FOUNDER_BONUS_TIME_LIMIT)(OMNIBAZAAR_FOUNDER_BONUS_COINS_LIMIT));
+            FC_ASSERT(dyn_prop.founder_bonus < OMNIBAZAAR_FOUNDER_BONUS_COINS_LIMIT, "Developer Bonus is depleted.");
 
             return graphene::chain::void_result();
         }
@@ -32,9 +32,9 @@ namespace omnibazaar {
             // Because of this, the very last bonus portion can be less than just "coins_per_second * block_time".
             const graphene::chain::share_type bonus_sum = std::min(
                         // Usual bonus amount.
-                        OMNIBAZAAR_FOUNDER_COINS_PER_SECOND * d.block_interval(),
+                        OMNIBAZAAR_FOUNDER_BONUS_COINS_PER_SECOND * d.block_interval(),
                         // Whatever is left in bonus reserves.
-                        OMNIBAZAAR_FOUNDER_COINS_LIMIT - d.get_dynamic_global_properties().founder_bonus.value);
+                        OMNIBAZAAR_FOUNDER_BONUS_COINS_LIMIT - d.get_dynamic_global_properties().founder_bonus.value);
             bonus_ddump((bonus_sum));
 
             // Send bonus.

@@ -450,6 +450,8 @@ void database::init_genesis(const genesis_state_type& genesis_state)
       p.welcome_bonus = 0;
       p.referral_bonus = 0;
       p.sale_bonus = 0;
+      p.founder_bonus = 0;
+      p.witness_bonus = 0;
    });
 
    FC_ASSERT( (genesis_state.immutable_parameters.min_witness_count & 1) == 1, "min_witness_count must be odd" );
@@ -459,6 +461,7 @@ void database::init_genesis(const genesis_state_type& genesis_state)
    {
       p.chain_id = chain_id;
       p.immutable_parameters = genesis_state.immutable_parameters;
+      p.initial_timestamp = genesis_state.initial_timestamp;
    } );
    for (uint32_t i = 0; i <= 0x10000; i++)
       create<block_summary_object>( [&]( block_summary_object&) {});
