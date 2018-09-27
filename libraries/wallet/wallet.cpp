@@ -4663,6 +4663,8 @@ password_key_info wallet_api::create_keys_from_password(const string account_nam
     result.wif_priv_key_owner = key_to_wif(owner_key);
     result.pub_key_active = active_key.get_public_key();
     result.pub_key_owner = owner_key.get_public_key();
+    result.address_active = result.pub_key_active;
+    result.address_owner = result.pub_key_owner;
 
     return result;
 }
