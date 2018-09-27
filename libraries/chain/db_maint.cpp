@@ -973,9 +973,8 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          d._total_voting_stake = 0;
       }
 
-      void operator()(const account_object& stake_account) {
-         if( props.parameters.count_non_member_votes )
-         {
+      void operator()(const account_object& stake_account)
+      {
             // There may be a difference between the account whose stake is voting and the one specifying opinions.
             // Usually they're the same, but if the stake account has specified a voting_account, that account is the one
             // specifying the opinions.
@@ -1022,7 +1021,6 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
 
             d._total_voting_stake += voting_stake;
          }
-      }
    } tally_helper(*this, gpo);
    struct process_fees_helper {
       database& d;

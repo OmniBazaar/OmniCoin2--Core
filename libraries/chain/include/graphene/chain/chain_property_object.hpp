@@ -40,6 +40,8 @@ class chain_property_object : public abstract_object<chain_property_object>
 
       chain_id_type chain_id;
       immutable_chain_parameters immutable_parameters;
+      // Chain start time.
+      time_point_sec initial_timestamp;
 };
 
 } }
@@ -47,4 +49,5 @@ class chain_property_object : public abstract_object<chain_property_object>
 FC_REFLECT_DERIVED( graphene::chain::chain_property_object, (graphene::db::object),
                     (chain_id)
                     (immutable_parameters)
+                    (initial_timestamp)
                   )
