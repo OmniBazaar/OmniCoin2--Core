@@ -69,6 +69,8 @@ struct password_key_info
    string wif_priv_key_owner;
    public_key_type pub_key_active;
    public_key_type pub_key_owner;
+   address address_owner;
+   address address_active;
 };
 
 /**
@@ -1683,6 +1685,8 @@ FC_REFLECT( graphene::wallet::password_key_info,
             (wif_priv_key_owner)
             (pub_key_active)
             (pub_key_owner)
+            (address_active)
+            (address_owner)
             )
 
 FC_API( graphene::wallet::wallet_api,
