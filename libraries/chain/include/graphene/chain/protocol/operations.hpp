@@ -118,7 +118,7 @@ namespace graphene { namespace chain {
             omnibazaar::listing_delete_operation,
             omnibazaar::listing_report_operation,
             omnibazaar::escrow_extend_operation,
-            omnibazaar::verification_operation,
+            omnibazaar::verification_operation,     // 60
             omnibazaar::exchange_create_operation,
             omnibazaar::exchange_complete_operation
          > operation;
