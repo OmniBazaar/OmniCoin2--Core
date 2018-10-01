@@ -4669,6 +4669,30 @@ password_key_info wallet_api::create_keys_from_password(const string account_nam
     return result;
 }
 
+signed_transaction wallet_api::send_welcome_bonus(const string& account)
+{
+    try
+    {
+        FC_ASSERT( !is_locked() );
+
+        const account_object account_obj = get_account(account);
+        FC_ASSERT( !account_obj.received_welcome_bonus, "Account '${a}' already received Welcome Bonus.",
+                   ("a", account_obj.name) );
+
+        omnibazaar::welcome_bonus_operation op;
+        op.receiver = account_obj.get_id();
+
+        signed_transaction tx;
+        tx.operations.push_back(op);
+
+        my->set_operation_fees(tx, my->_remote_db->get_global_properties().parameters.current_fees);
+        tx.validate();
+
+        return sign_transaction(tx, true);
+    }
+    FC_CAPTURE_AND_RETHROW( (account) )
+}
+
 signed_block_with_info::signed_block_with_info( const signed_block& block )
    : signed_block( block )
 {

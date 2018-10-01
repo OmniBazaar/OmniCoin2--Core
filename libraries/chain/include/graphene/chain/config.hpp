@@ -165,6 +165,14 @@
 #define GRAPHENE_PROXY_TO_SELF_ACCOUNT (graphene::chain::account_id_type(5))
 /// Sentinel value used in the scheduler.
 #define GRAPHENE_NULL_WITNESS (graphene::chain::witness_id_type(0))
+/// Main OmniBazaar account object
+#define OMNIBAZAAR_FOUNDER_ACCOUNT (graphene::chain::account_id_type(6))
+/// Account that is used to set KYC verification flag for users.
+#define OMNIBAZAAR_KYC_ACCOUNT (graphene::chain::account_id_type(7))
+/// Account for exchange operations
+#define OMNIBAZAAR_EXCHANGE_ACCOUNT (graphene::chain::account_id_type(8))
+/// Account for welcome_bonus_operation authorization
+#define OMNIBAZAAR_WELCOME_ACCOUNT (graphene::chain::account_id_type(9))
 ///@}
 
 #define GRAPHENE_FBA_STEALTH_DESIGNATED_ASSET (asset_id_type(743))
@@ -197,13 +205,6 @@
 /// From 17 to 57 years: 25 per block (given 10 seconds block interval).
 /// This will distribute the remaining 3,209,960,000 coins
 #define OMNIBAZAAR_WITNESS_BONUS_COINS_PER_SECOND_3 (2 * GRAPHENE_BLOCKCHAIN_PRECISION + 5 * GRAPHENE_BLOCKCHAIN_PRECISION / 10)
-
-/// Main OmniBazaar account object
-#define OMNIBAZAAR_FOUNDER_ACCOUNT (graphene::chain::account_id_type(6))
-/// Account that is used to set KYC verification flag for users.
-#define OMNIBAZAAR_KYC_ACCOUNT (graphene::chain::account_id_type(7))
-/// Account for exchange operations
-#define OMNIBAZAAR_EXCHANGE_ACCOUNT (graphene::chain::account_id_type(8))
 
 #define OMNIBAZAAR_DEFAULT_MAX_ESCROW_LIFETIME_SEC (60*60*24*90) // 3 months
 #define OMNIBAZAAR_DEFAULT_MAX_LISTINGS_LIFETIME_SEC (60*60*24*60) // 60 days

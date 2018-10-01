@@ -47,7 +47,7 @@ struct genesis_state_type {
            btc_address(btc_addr),
            eth_address(eth_addr),
            owner_key(owner_key),
-           active_key(active_key == public_key_type()? owner_key : active_key)
+           active_key(active_key == public_key_type() ? owner_key : active_key)
       {}
       string name;
       string btc_address;
@@ -107,6 +107,7 @@ struct genesis_state_type {
    initial_account_type                     founder;
    initial_account_type                     kyc;
    initial_account_type                     exchange;
+   initial_account_type                     welcome;
    chain_parameters                         initial_parameters;
    immutable_chain_parameters               immutable_parameters;
    vector<initial_account_type>             initial_accounts;
@@ -154,7 +155,7 @@ FC_REFLECT(graphene::chain::genesis_state_type::initial_committee_member_type, (
 FC_REFLECT(graphene::chain::genesis_state_type::initial_worker_type, (owner_name)(daily_pay))
 
 FC_REFLECT(graphene::chain::genesis_state_type,
-           (initial_timestamp)(max_core_supply)(founder)(kyc)(exchange)(initial_parameters)(initial_accounts)(initial_assets)(initial_balances)
+           (initial_timestamp)(max_core_supply)(founder)(kyc)(exchange)(welcome)(initial_parameters)(initial_accounts)(initial_assets)(initial_balances)
            (initial_vesting_balances)(initial_active_witnesses)(initial_witness_candidates)
            (initial_committee_candidates)(initial_worker_candidates)
            (initial_chain_id)

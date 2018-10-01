@@ -365,6 +365,17 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.btc_address = genesis_state.exchange.btc_address;
        a.eth_address = genesis_state.exchange.eth_address;
    }).get_id() == OMNIBAZAAR_EXCHANGE_ACCOUNT);
+   FC_ASSERT(create<account_object>([&](account_object& a) {
+       a.name = genesis_state.welcome.name;
+       a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
+       a.owner = authority(1, genesis_state.welcome.owner_key, 1);
+       a.active = authority(1, genesis_state.welcome.active_key, 1);
+       a.options.memo_key = genesis_state.welcome.active_key;
+       a.registrar = a.referrer = OMNIBAZAAR_WELCOME_ACCOUNT;
+       a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
+       a.btc_address = genesis_state.welcome.btc_address;
+       a.eth_address = genesis_state.welcome.eth_address;
+   }).get_id() == OMNIBAZAAR_WELCOME_ACCOUNT);
 
    // Create more special accounts
    while( true )
