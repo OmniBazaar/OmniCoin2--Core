@@ -468,10 +468,10 @@ void database::update_active_committee_members()
    const chain_property_object& cpo = get_chain_properties();
    auto committee_members = sort_votable_objects<committee_member_index>(std::max(committee_member_count*2+1, (size_t)cpo.immutable_parameters.min_committee_member_count),
                                                                          [this](const committee_member_object& a, const committee_member_object& b)->bool {
-                                                                             share_type oa_vote = _vote_tally_buffer[a.vote_id];
-                                                                             share_type ob_vote = _vote_tally_buffer[b.vote_id];
-                                                                             if( oa_vote != ob_vote )
-                                                                                return oa_vote > ob_vote;
+                                                                             const auto oa_score = a.committee_member_account(*this).pop_score;
+                                                                             const auto ob_score = b.committee_member_account(*this).pop_score;
+                                                                             if( oa_score != ob_score )
+                                                                                return oa_score > ob_score;
                                                                              return a.vote_id < b.vote_id;
                                                                           });
 
