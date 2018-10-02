@@ -72,6 +72,7 @@ namespace graphene { namespace chain {
       uint32_t                listing_ban_threshold               = OMNIBAZAAR_LISTING_BAN_THRESHOLD; /// number fo times reporting score has to be larger than seller score
       uint16_t                maximum_listing_priority_fee        = OMNIBAZAAR_DEFAULT_MAX_LISTING_PRIORITY_FEE; /// largest priority fee % that listing can have
       uint32_t                witness_count_term                  = OMNIBAZAAR_DEFAULT_WITNESS_COUNT_TERM;
+      uint16_t                committee_count                     = GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT; /// current number of active committee members
       extensions_type         extensions;
 
       /** defined in fee_schedule.cpp */
@@ -112,5 +113,6 @@ FC_REFLECT( graphene::chain::chain_parameters,
             (listing_ban_threshold)
             (maximum_listing_priority_fee)
             (witness_count_term)
+            (committee_count)
             (extensions)
           )
