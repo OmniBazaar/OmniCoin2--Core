@@ -432,38 +432,6 @@ void database::update_active_witnesses()
 
 void database::update_active_committee_members()
 { try {
-   assert( _committee_count_histogram_buffer.size() > 0 );
-   share_type stake_target = (_total_voting_stake-_committee_count_histogram_buffer[0]) / 2;
-   share_type old_stake_target = (_total_voting_stake-_witness_count_histogram_buffer[0]) / 2;
-   // TODO
-   // all the stuff about old_stake_target can *hopefully* be removed after the
-   // hardfork date has passed
-   //if( stake_target != old_stake_target )
-   //    ilog( "Different stake targets: ${old} / ${new}", ("old",old_stake_target)("new",stake_target) );
-
-   /// accounts that vote for 0 or 1 witness do not get to express an opinion on
-   /// the number of witnesses to have (they abstain and are non-voting accounts)
-   uint64_t stake_tally = 0; // _committee_count_histogram_buffer[0];
-   size_t committee_member_count = 0;
-   if( stake_target > 0 )
-      while( (committee_member_count < _committee_count_histogram_buffer.size() - 1)
-             && (stake_tally <= stake_target) )
-         stake_tally += _committee_count_histogram_buffer[++committee_member_count];
-   if( stake_target != old_stake_target && old_stake_target > 0 && head_block_time() < fc::time_point_sec(HARDFORK_CORE_353_TIME) )
-   {
-      uint64_t old_stake_tally = 0;
-      size_t old_committee_member_count = 0;
-      while( (old_committee_member_count < _committee_count_histogram_buffer.size() - 1)
-             && (old_stake_tally <= old_stake_target) )
-         old_stake_tally += _committee_count_histogram_buffer[++old_committee_member_count];
-      if( old_committee_member_count != committee_member_count
-              && (old_committee_member_count > GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT
-                  || committee_member_count > GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT) )
-      {
-          ilog( "Committee member count mismatch ${old} / ${new}", ("old",old_committee_member_count)("new", committee_member_count) );
-          committee_member_count = old_committee_member_count;
-      }
-   }
 
    auto committee_members = sort_votable_objects<committee_member_index>(std::max(get_global_properties().parameters.committee_count,
                                                                                   get_chain_properties().immutable_parameters.min_committee_member_count),
@@ -968,8 +936,6 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          : d(d), props(gpo)
       {
          d._vote_tally_buffer.resize(props.next_available_vote_id);
-         d._witness_count_histogram_buffer.resize(props.parameters.maximum_witness_count / 2 + 1);
-         d._committee_count_histogram_buffer.resize(props.parameters.maximum_committee_count / 2 + 1);
          d._total_voting_stake = 0;
       }
 
@@ -994,29 +960,6 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
                // if they somehow managed to specify an illegal offset, ignore it.
                if( offset < d._vote_tally_buffer.size() )
                   d._vote_tally_buffer[offset] += voting_stake;
-            }
-
-            if( opinion_account.options.num_witness <= props.parameters.maximum_witness_count )
-            {
-               uint16_t offset = std::min(size_t(opinion_account.options.num_witness/2),
-                                          d._witness_count_histogram_buffer.size() - 1);
-               // votes for a number greater than maximum_witness_count
-               // are turned into votes for maximum_witness_count.
-               //
-               // in particular, this takes care of the case where a
-               // member was voting for a high number, then the
-               // parameter was lowered.
-               d._witness_count_histogram_buffer[offset] += voting_stake;
-            }
-            if( opinion_account.options.num_committee <= props.parameters.maximum_committee_count )
-            {
-               uint16_t offset = std::min(size_t(opinion_account.options.num_committee/2),
-                                          d._committee_count_histogram_buffer.size() - 1);
-               // votes for a number greater than maximum_committee_count
-               // are turned into votes for maximum_committee_count.
-               //
-               // same rationale as for witnesses
-               d._committee_count_histogram_buffer[offset] += voting_stake;
             }
 
             d._total_voting_stake += voting_stake;
@@ -1051,9 +994,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       vector<uint64_t>* target64 = nullptr;
       vector<uint16_t>* target16 = nullptr;
    };
-   clear_canary a(_witness_count_histogram_buffer),
-                b(_committee_count_histogram_buffer),
-                c(_vote_tally_buffer);
+   clear_canary a(_vote_tally_buffer);
 
    update_top_n_authorities(*this);
    update_account_scores();
