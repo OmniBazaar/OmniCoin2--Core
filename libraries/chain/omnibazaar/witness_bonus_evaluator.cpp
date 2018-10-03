@@ -2,6 +2,8 @@
 #include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/chain_property_object.hpp>
+#include <graphene/chain/witness_object.hpp>
+#include <graphene/chain/operation_history_object.hpp>
 
 namespace omnibazaar {
 
@@ -11,9 +13,17 @@ namespace omnibazaar {
         {
             bonus_ddump((op));
 
-            bonus_ddump((db().get_dynamic_global_properties().witness_bonus)(OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS));
-            FC_ASSERT(db().get_dynamic_global_properties().witness_bonus < OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS,
+            const graphene::chain::database& d = db();
+
+            // Check that bonus is not depleted yet.
+            bonus_ddump((d.get_dynamic_global_properties().witness_bonus)(OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS));
+            FC_ASSERT(d.get_dynamic_global_properties().witness_bonus < OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS,
                       "Witness Bonus is depleted.");
+
+            // Check that bonus receiver is valid.
+            const auto& idx = d.get_index_type<graphene::chain::witness_index>().indices().get<graphene::chain::by_account>();
+            const auto witness_itr = idx.find(op.receiver);
+            FC_ASSERT(witness_itr != idx.end(), "${a} is not a witness.", ("a", op.receiver(d).name));
 
             return graphene::chain::void_result();
         }
