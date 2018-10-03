@@ -1611,6 +1611,12 @@ class wallet_api
        */
       password_key_info create_keys_from_password(const string account_name, const string password);
 
+      /** Send Welcome Bonus to specfied account.
+       * @param account the name or id of the account who is the receiver of the bonus.
+       * @returns the signed transaction on success
+       */
+      signed_transaction send_welcome_bonus(const string& account);
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1817,4 +1823,5 @@ FC_API( graphene::wallet::wallet_api,
         (confirm_exchange)
         (get_publisher_names)
         (create_keys_from_password)
+        (send_welcome_bonus)
       )

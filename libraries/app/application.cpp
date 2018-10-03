@@ -109,23 +109,31 @@ namespace detail {
       initial_state.initial_chain_id = fc::sha256::hash( "BOGUS" );
 
       // Use password "P5KbaKcTzHPQgzSsJhd4XkF7JbsHQ2Zr2o2uwJeRKhUGS" to login with this account.
+      static const std::string owner_wif = "5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP";
+      static const std::string active_wif = "5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG";
       initial_state.founder = {"omnibazaar",
                                "",
                                "",
-                               utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
-                               utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()
+                               utilities::wif_to_key(owner_wif)->get_public_key(),
+                               utilities::wif_to_key(active_wif)->get_public_key()
                               };
       initial_state.kyc = {"kyc",
                            "",
                            "",
-                           utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
-                           utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()
+                           utilities::wif_to_key(owner_wif)->get_public_key(),
+                           utilities::wif_to_key(active_wif)->get_public_key()
                           };
       initial_state.exchange = {"exchange",
                                "",
                                "",
-                               utilities::wif_to_key("5KAepSsie5dmnTHk92SMtqEtZrNTtpEVxdCydHYZdwwa1KD5cWP")->get_public_key(),
-                               utilities::wif_to_key("5JjV9Kq8bv3SxZqWDw1akjjMtqDNTUAUQFH7HSTVM6sQhWHYSxG")->get_public_key()
+                                utilities::wif_to_key(owner_wif)->get_public_key(),
+                                utilities::wif_to_key(active_wif)->get_public_key()
+                              };
+      initial_state.welcome = {"welcome",
+                               "",
+                               "",
+                               utilities::wif_to_key(owner_wif)->get_public_key(),
+                               utilities::wif_to_key(active_wif)->get_public_key()
                               };
 
       return initial_state;
