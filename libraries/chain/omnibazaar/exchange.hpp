@@ -22,6 +22,9 @@ namespace omnibazaar {
         // Account that created the transaction.
         graphene::chain::account_id_type sender;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return sender; }
         void validate()const;
@@ -40,6 +43,9 @@ namespace omnibazaar {
         // Exchange object that is completed and will be removed.
         graphene::chain::exchange_id_type exchange;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return OMNIBAZAAR_EXCHANGE_ACCOUNT; }
         void validate()const;
@@ -52,10 +58,12 @@ FC_REFLECT( omnibazaar::exchange_create_operation,
             (coin_name)
             (tx_id)
             (sender)
+            (extensions)
             )
 
 FC_REFLECT( omnibazaar::exchange_complete_operation::fee_parameters_type, (fee) )
 FC_REFLECT( omnibazaar::exchange_complete_operation,
             (fee)
             (exchange)
+            (extensions)
             )

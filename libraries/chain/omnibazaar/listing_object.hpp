@@ -34,6 +34,9 @@ namespace omnibazaar {
         std::set<graphene::chain::account_id_type> reported_accounts;
         // Listing priority fee.
         uint16_t priority_fee = OMNIBAZAAR_DEFAULT_LISTING_PRIORITY_FEE;
+
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
     };
 
     struct by_hash;
@@ -79,4 +82,5 @@ FC_REFLECT_DERIVED(omnibazaar::listing_object, (graphene::chain::object),
                    (reported_score)
                    (reported_accounts)
                    (priority_fee)
+                   (extensions)
                    )

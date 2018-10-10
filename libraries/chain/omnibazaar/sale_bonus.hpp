@@ -20,6 +20,9 @@ namespace omnibazaar {
         // Buying user.
         graphene::chain::account_id_type buyer;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return payer; }
         void validate()const;
@@ -28,4 +31,4 @@ namespace omnibazaar {
 }
 
 FC_REFLECT( omnibazaar::sale_bonus_operation::fee_parameters_type, (fee) )
-FC_REFLECT( omnibazaar::sale_bonus_operation, (fee)(payer)(seller)(buyer) )
+FC_REFLECT( omnibazaar::sale_bonus_operation, (fee)(payer)(seller)(buyer)(extensions) )
