@@ -71,6 +71,8 @@ add_library( graphene_chain
              omnibazaar/exchange.cpp
              omnibazaar/exchange_evaluator.cpp
 
+             omnibazaar/pop_weights.cpp
+
              protocol/types.cpp
              protocol/address.cpp
              protocol/authority.cpp

@@ -25,6 +25,7 @@
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/types.hpp>
 #include <fc/smart_ref_fwd.hpp>
+#include <../omnibazaar/pop_weights.hpp>
 
 namespace graphene { namespace chain { struct fee_schedule; } }
 /*
@@ -71,6 +72,7 @@ namespace graphene { namespace chain {
       uint16_t                maximum_listing_priority_fee        = OMNIBAZAAR_DEFAULT_MAX_LISTING_PRIORITY_FEE; /// largest priority fee % that listing can have
       uint32_t                witness_count_term                  = OMNIBAZAAR_DEFAULT_WITNESS_COUNT_TERM;
       uint16_t                committee_count                     = GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT; /// current number of active committee members
+      omnibazaar::pop_weights pop_weights;                        /// current weights of Proof of Participation components
       extensions_type         extensions;
 
       /** defined in fee_schedule.cpp */
@@ -110,5 +112,6 @@ FC_REFLECT( graphene::chain::chain_parameters,
             (maximum_listing_priority_fee)
             (witness_count_term)
             (committee_count)
+            (pop_weights)
             (extensions)
           )

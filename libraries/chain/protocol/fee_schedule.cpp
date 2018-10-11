@@ -215,6 +215,8 @@ namespace graphene { namespace chain {
                  "Maximum listing expiration time must be greater than a block interval" );
       FC_ASSERT( maximum_listing_priority_fee < GRAPHENE_100_PERCENT,
                  "Maximum listing priority fee is too high" );
+      FC_ASSERT( pop_weights.total() == GRAPHENE_100_PERCENT,
+                 "Proof of Participation weights do not sum to 100%");
    }
 
 } } // graphene::chain
