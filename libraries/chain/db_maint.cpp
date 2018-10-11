@@ -248,6 +248,7 @@ void database::update_account_scores()
     const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count;
     pop_ddump((max_reputation_votes));
 
+    const omnibazaar::pop_weights pop_weights = get_global_properties().parameters.pop_weights;
     const auto& all_accounts = get_index_type<account_index>().indices();
     for(const account_object& account : all_accounts)
     {
@@ -325,12 +326,12 @@ void database::update_account_scores()
             pop_wlog("There are no listings registered in blockchain: ${c}.", ("c", max_listings));
         }
 
-        const uint16_t new_pop_score = ((uint32_t)new_referral_score
-                                        + new_listings_score
-                                        + new_reputation_score
-                                        + account.trust_score
-                                        + account.reliability_score
-                                        ) / 5;
+        const uint16_t new_pop_score = pop_weights.calc_pop_score(new_referral_score,
+                                                                  new_listings_score,
+                                                                  new_reputation_score,
+                                                                  account.trust_score,
+                                                                  account.reliability_score,
+                                                                  account.verified);
 
         const bool changed = (new_referral_score != account.referral_score)
                 || (new_listings_score != account.listings_score)
