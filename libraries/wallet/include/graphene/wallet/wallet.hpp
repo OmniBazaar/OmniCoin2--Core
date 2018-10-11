@@ -1597,9 +1597,11 @@ class wallet_api
 
       /** Set confirmed status for specified exchange object (effectively delete it from database).
        * @param exchange_id ID of the exchange object.
+       * @param amount XOM amount that will be sent to user that is exchanging funds.
+       * @param memo Optional memo.
        * @returns the signed transaction on success.
        */
-      signed_transaction confirm_exchange(const exchange_id_type exchange_id);
+      signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo);
 
       std::vector<std::string> get_publisher_names() const;
 

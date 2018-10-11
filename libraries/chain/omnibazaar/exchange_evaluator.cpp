@@ -58,8 +58,16 @@ namespace omnibazaar {
             const graphene::chain::database& d = db();
 
             // Check that exchange object exists.
-            const auto& obj = op.exchange(d);
-            boost::ignore_unused_variable_warning(obj);
+            const exchange_object& obj = op.exchange(d);
+
+            // Check that exchange has enough funds.
+            FC_ASSERT( d.get_balance(OMNIBAZAAR_EXCHANGE_ACCOUNT(d), op.amount.asset_id(d)).amount >= op.amount.amount,
+                       "Exchange does not have enough balance to complete operation." );
+
+            // Check that account that will receive funds from exchange is the same account
+            // that originally sent funds to exchange.
+            FC_ASSERT( obj.sender == op.receiver, "Receiver '${r}' was not initial sender '${s}'.",
+                       ("r", op.receiver(d).name)("s", obj.sender(d).name) );
 
             return graphene::chain::void_result();
         }
@@ -76,6 +84,10 @@ namespace omnibazaar {
 
             exchange_dlog("Removing exchange object ${obj}.", ("obj", op.exchange));
             d.remove(op.exchange(d));
+
+            exchange_dlog("Sending funds to '${r}'.", ("r", op.receiver(d)));
+            d.adjust_balance(OMNIBAZAAR_EXCHANGE_ACCOUNT, -op.amount);
+            d.adjust_balance(op.receiver, op.amount);
 
             return graphene::chain::void_result();
         }

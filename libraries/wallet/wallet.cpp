@@ -2677,7 +2677,7 @@ public:
        FC_CAPTURE_AND_RETHROW( (account) )
    }
 
-   signed_transaction confirm_exchange(const exchange_id_type exchange_id)
+   signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
    {
        try
        {
@@ -2685,6 +2685,19 @@ public:
 
            omnibazaar::exchange_complete_operation op;
            op.exchange = exchange_id;
+           op.receiver = get_object<omnibazaar::exchange_object>(exchange_id).sender;
+           op.amount = amount;
+           if(!memo.empty())
+           {
+               const account_object exchange_account = get_account(OMNIBAZAAR_EXCHANGE_ACCOUNT);
+               const account_object receiver_account = get_account(op.receiver);
+               op.memo = memo_data();
+               op.memo->from = exchange_account.options.memo_key;
+               op.memo->to = receiver_account.options.memo_key;
+               op.memo->set_message(get_private_key(exchange_account.options.memo_key),
+                                    receiver_account.options.memo_key,
+                                    memo);
+           }
 
            signed_transaction tx;
            tx.operations.push_back(op);
@@ -4639,9 +4652,9 @@ signed_transaction wallet_api::set_account_verification(const string& account, c
     return my->set_account_verification(account, new_status);
 }
 
-signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id)
+signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
 {
-    return my->confirm_exchange(exchange_id);
+    return my->confirm_exchange(exchange_id, amount, memo);
 }
 
 std::vector<std::string> wallet_api::get_publisher_names() const
