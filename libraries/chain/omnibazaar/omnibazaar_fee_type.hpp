@@ -1,6 +1,7 @@
 #pragma once
 
 #include <graphene/chain/protocol/asset.hpp>
+#include <graphene/chain/protocol/base.hpp>
 #include <fc/optional.hpp>
 
 namespace graphene { namespace chain { class database; } }
@@ -21,6 +22,9 @@ namespace omnibazaar
         fc::optional<graphene::chain::asset> referrer_seller_fee;
         // Fee paid to publisher hosting listings.
         fc::optional<graphene::chain::asset> publisher_fee;
+
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
 
         // Calculate sum of all present fees.
         graphene::chain::share_type sum()const;
@@ -43,4 +47,5 @@ FC_REFLECT( omnibazaar::omnibazaar_fee_type,
             (escrow_fee)
             (referrer_buyer_fee)
             (referrer_seller_fee)
-            (publisher_fee))
+            (publisher_fee)
+            (extensions))

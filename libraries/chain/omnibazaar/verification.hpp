@@ -18,6 +18,9 @@ namespace omnibazaar {
         // New value for "verified" flag.
         bool status;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return OMNIBAZAAR_KYC_ACCOUNT; }
         void validate()const;
@@ -30,4 +33,5 @@ FC_REFLECT(omnibazaar::verification_operation,
            (fee)
            (account)
            (status)
+           (extensions)
            )

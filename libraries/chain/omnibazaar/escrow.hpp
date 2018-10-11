@@ -3,6 +3,7 @@
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/types.hpp>
 #include <graphene/chain/protocol/memo.hpp>
+#include <../omnibazaar/omnibazaar_fee_type.hpp>
 
 namespace omnibazaar {
 
@@ -38,6 +39,9 @@ namespace omnibazaar {
         fc::optional<graphene::chain::listing_id_type> listing;
         // Amount of items to buy.
         fc::optional<uint32_t> listing_count;
+
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return buyer; }
@@ -79,6 +83,9 @@ namespace omnibazaar {
         // Rating provided by buyer for escrow.
         uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
         void validate()const;
@@ -117,6 +124,9 @@ namespace omnibazaar {
         // Rating provided by seller for escrow.
         uint16_t reputation_vote_for_escrow = OMNIBAZAAR_REPUTATION_DEFAULT;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
         void validate()const;
@@ -150,6 +160,9 @@ namespace omnibazaar {
         // User provided data encrypted to the memo key of the receiving account.
         fc::optional<graphene::chain::memo_data> memo;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return fee_paying_account; }
         void validate()const;
@@ -171,7 +184,8 @@ FC_REFLECT( omnibazaar::escrow_create_operation,
             (transfer_to_escrow)
             (memo)
             (listing)
-            (listing_count))
+            (listing_count)
+            (extensions))
 
 FC_REFLECT( omnibazaar::escrow_release_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_release_operation,
@@ -184,7 +198,8 @@ FC_REFLECT( omnibazaar::escrow_release_operation,
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
-            (reputation_vote_for_escrow))
+            (reputation_vote_for_escrow)
+            (extensions))
 
 FC_REFLECT( omnibazaar::escrow_return_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_return_operation,
@@ -197,7 +212,8 @@ FC_REFLECT( omnibazaar::escrow_return_operation,
             (memo)
             (reputation_vote_for_seller)
             (reputation_vote_for_buyer)
-            (reputation_vote_for_escrow))
+            (reputation_vote_for_escrow)
+            (extensions))
 
 FC_REFLECT( omnibazaar::escrow_extend_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( omnibazaar::escrow_extend_operation,
@@ -208,4 +224,5 @@ FC_REFLECT( omnibazaar::escrow_extend_operation,
             (buyer_account)
             (escrow_account)
             (expiration_time)
-            (memo))
+            (memo)
+            (extensions))

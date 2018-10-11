@@ -2,6 +2,7 @@
 
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/types.hpp>
+#include <../omnibazaar/omnibazaar_fee_type.hpp>
 
 namespace omnibazaar {
 
@@ -28,6 +29,9 @@ namespace omnibazaar {
         uint32_t quantity;
         // Listing priority fee.
         uint16_t priority_fee;
+
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
 
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
@@ -63,6 +67,9 @@ namespace omnibazaar {
         // Listing priority fee.
         fc::optional<uint16_t> priority_fee;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
@@ -84,6 +91,9 @@ namespace omnibazaar {
         // ID of listing object that will be deleted.
         graphene::chain::listing_id_type listing_id;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return seller; }
         void validate()const;
@@ -103,6 +113,9 @@ namespace omnibazaar {
         // ID of listing object that will be reported as illegal.
         graphene::chain::listing_id_type listing_id;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return reporting_account; }
         void validate()const;
@@ -119,6 +132,7 @@ FC_REFLECT(omnibazaar::listing_create_operation,
            (listing_hash)
            (quantity)
            (priority_fee)
+           (extensions)
            )
 
 FC_REFLECT(omnibazaar::listing_update_operation::fee_parameters_type, (fee))
@@ -133,6 +147,7 @@ FC_REFLECT(omnibazaar::listing_update_operation,
            (quantity)
            (update_expiration_time)
            (priority_fee)
+           (extensions)
            )
 
 FC_REFLECT(omnibazaar::listing_delete_operation::fee_parameters_type, (fee))
@@ -140,6 +155,7 @@ FC_REFLECT(omnibazaar::listing_delete_operation,
            (fee)
            (seller)
            (listing_id)
+           (extensions)
            )
 
 FC_REFLECT(omnibazaar::listing_report_operation::fee_parameters_type, (fee))
@@ -147,4 +163,5 @@ FC_REFLECT(omnibazaar::listing_report_operation,
            (fee)
            (reporting_account)
            (listing_id)
+           (extensions)
            )

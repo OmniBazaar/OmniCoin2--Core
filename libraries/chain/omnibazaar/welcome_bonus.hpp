@@ -16,6 +16,9 @@ namespace omnibazaar {
         // Bonus receiver.
         graphene::chain::account_id_type receiver;
 
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
+
         // base_operation interface
         graphene::chain::account_id_type fee_payer()const { return OMNIBAZAAR_WELCOME_ACCOUNT; }
         void validate()const;
@@ -23,4 +26,4 @@ namespace omnibazaar {
 }
 
 FC_REFLECT( omnibazaar::welcome_bonus_operation::fee_parameters_type, (fee) )
-FC_REFLECT( omnibazaar::welcome_bonus_operation, (fee)(receiver) )
+FC_REFLECT( omnibazaar::welcome_bonus_operation, (fee)(receiver)(extensions) )
