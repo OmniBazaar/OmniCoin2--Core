@@ -2,6 +2,7 @@
 
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/types.hpp>
+#include <graphene/chain/protocol/memo.hpp>
 
 namespace omnibazaar {
 
@@ -42,6 +43,12 @@ namespace omnibazaar {
         graphene::chain::asset fee;
         // Exchange object that is completed and will be removed.
         graphene::chain::exchange_id_type exchange;
+        // Account that will receive funds from Exchange account.
+        graphene::chain::account_id_type receiver;
+        // Transfer amount.
+        graphene::chain::asset amount;
+        // Memo data encrypted to the memo key of the "receiver" account.
+        fc::optional<graphene::chain::memo_data> memo;
 
         // Future extensions.
         graphene::chain::extensions_type extensions;
@@ -65,5 +72,8 @@ FC_REFLECT( omnibazaar::exchange_complete_operation::fee_parameters_type, (fee) 
 FC_REFLECT( omnibazaar::exchange_complete_operation,
             (fee)
             (exchange)
+            (receiver)
+            (amount)
+            (memo)
             (extensions)
             )

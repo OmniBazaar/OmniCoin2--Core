@@ -317,6 +317,7 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::exchange_complete_operation& op )
    {
       _impacted.insert( OMNIBAZAAR_EXCHANGE_ACCOUNT );
+      _impacted.insert( op.receiver );
    }
 };
 
