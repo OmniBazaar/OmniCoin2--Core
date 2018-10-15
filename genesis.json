@@ -1,5 +1,5 @@
 {
-  "initial_timestamp": "2018-10-04T17:00:00",
+  "initial_timestamp": "2018-10-15T12:00:00",
   "max_core_supply": "100000000000000000",
   "founder": {
     "name": "omnibazaar",
@@ -327,6 +327,15 @@
     "maximum_listing_priority_fee": 200,
     "witness_count_term": 20,
     "committee_count": 11,
+    "pop_weights": {
+      "referral": 2000,
+      "listings": 2000,
+      "reputation": 2000,
+      "trust": 2000,
+      "reliability": 2000,
+      "verification": 0,
+      "extensions": []
+    },
     "extensions": []
   },
   "initial_accounts": [{
