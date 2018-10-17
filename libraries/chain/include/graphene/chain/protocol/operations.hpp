@@ -49,6 +49,7 @@
 #include <../omnibazaar/listing.hpp>
 #include <../omnibazaar/verification.hpp>
 #include <../omnibazaar/exchange.hpp>
+#include <../omnibazaar/reserved_names.hpp>
 
 namespace graphene { namespace chain {
 
@@ -120,7 +121,8 @@ namespace graphene { namespace chain {
             omnibazaar::escrow_extend_operation,
             omnibazaar::verification_operation,     // 60
             omnibazaar::exchange_create_operation,
-            omnibazaar::exchange_complete_operation
+            omnibazaar::exchange_complete_operation,
+            omnibazaar::reserved_names_update_operation
          > operation;
 
    /// @} // operations group

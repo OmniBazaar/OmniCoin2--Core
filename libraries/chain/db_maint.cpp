@@ -48,6 +48,7 @@
 
 #include <omnibazaar_util.hpp>
 #include <../omnibazaar/listing_object.hpp>
+#include <../omnibazaar/reserved_names_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -1015,6 +1016,19 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          p.parameters = std::move(*p.pending_parameters);
          p.pending_parameters.reset();
       }
+   });
+
+   modify(get_reserved_names(), [](omnibazaar::reserved_names_object& obj){
+       for(const auto& name : obj.pending_names_to_add)
+       {
+           obj.names.insert(fc::to_lower(name));
+       }
+       for(const auto& name : obj.pending_names_to_delete)
+       {
+           obj.names.erase(fc::to_lower(name));
+       }
+       obj.pending_names_to_add.clear();
+       obj.pending_names_to_delete.clear();
    });
 
    auto next_maintenance_time = get<dynamic_global_property_object>(dynamic_global_property_id_type()).next_maintenance_time;
