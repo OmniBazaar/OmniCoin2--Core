@@ -74,6 +74,8 @@
 #include <listing_evaluator.hpp>
 #include <verification_evaluator.hpp>
 #include <exchange_evaluator.hpp>
+#include <reserved_names_object.hpp>
+#include <reserved_names_evaluator.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
 #include <fc/smart_ref_impl.hpp>
@@ -200,6 +202,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::verification_evaluator>();
    register_evaluator<omnibazaar::exchange_create_evaluator>();
    register_evaluator<omnibazaar::exchange_complete_evaluator>();
+   register_evaluator<omnibazaar::reserved_names_update_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -251,6 +254,7 @@ void database::initialize_indexes()
    add_index< primary_index< special_authority_index                      > >();
    add_index< primary_index< buyback_index                                > >();
    add_index< primary_index<collateral_bid_index                          > >();
+   add_index< primary_index<simple_index<omnibazaar::reserved_names_object>>>();
 
    add_index< primary_index< simple_index< fba_accumulator_object       > > >();
 }
@@ -762,6 +766,9 @@ void database::init_genesis(const genesis_state_type& genesis_state)
    });
 
    FC_ASSERT( get_index<fba_accumulator_object>().get_next_id() == fba_accumulator_id_type( fba_accumulator_id_count ) );
+
+   create<omnibazaar::reserved_names_object>([&](omnibazaar::reserved_names_object& obj) {
+   });
 
    debug_dump();
 

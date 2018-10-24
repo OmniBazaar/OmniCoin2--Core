@@ -305,6 +305,8 @@ struct get_impacted_account_visitor
       _impacted.insert( OMNIBAZAAR_EXCHANGE_ACCOUNT );
       _impacted.insert( op.receiver );
    }
+
+   void operator()( const omnibazaar::reserved_names_update_operation& op ) {}
 };
 
 static void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )
@@ -470,7 +472,8 @@ static void get_relevant_accounts( const object* obj, flat_set<account_id_type>&
               assert( aobj != nullptr );
               accounts.insert( aobj->bidder );
               break;
-           }
+           } case impl_reserved_names_object_type:
+              break;
       }
    }
 } // end get_relevant_accounts( const object* obj, flat_set<account_id_type>& accounts )

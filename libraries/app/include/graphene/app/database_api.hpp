@@ -43,6 +43,7 @@
 #include <../omnibazaar/escrow_object.hpp>
 #include <../omnibazaar/listing_object.hpp>
 #include <../omnibazaar/exchange_object.hpp>
+#include <../omnibazaar/reserved_names_object.hpp>
 
 #include <graphene/market_history/market_history_plugin.hpp>
 
@@ -221,6 +222,11 @@ class database_api
        * @brief Retrieve the current @ref dynamic_global_property_object
        */
       dynamic_global_property_object get_dynamic_global_properties()const;
+
+      /**
+       * @brief Get the current list of reserved names
+       */
+      omnibazaar::reserved_names_object get_reserved_names()const;
 
       //////////
       // Keys //
@@ -763,6 +769,7 @@ FC_API(graphene::app::database_api,
    (get_config)
    (get_chain_id)
    (get_dynamic_global_properties)
+   (get_reserved_names)
 
    // Keys
    (get_key_references)

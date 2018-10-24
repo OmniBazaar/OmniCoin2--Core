@@ -73,6 +73,10 @@ add_library( graphene_chain
 
              omnibazaar/pop_weights.cpp
 
+             omnibazaar/reserved_names_object.cpp
+             omnibazaar/reserved_names.cpp
+             omnibazaar/reserved_names_evaluator.cpp
+
              protocol/types.cpp
              protocol/address.cpp
              protocol/authority.cpp

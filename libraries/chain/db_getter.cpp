@@ -97,5 +97,9 @@ uint32_t database::last_non_undoable_block_num() const
    return head_block_num() - _undo_db.size();
 }
 
+const omnibazaar::reserved_names_object& database::get_reserved_names()const
+{
+    return get( reserved_names_id_type() );
+}
 
 } }

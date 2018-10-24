@@ -37,6 +37,7 @@
 #include <graphene/chain/special_authority_object.hpp>
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/worker_object.hpp>
+#include <../omnibazaar/reserved_names_object.hpp>
 
 #include <algorithm>
 
@@ -147,7 +148,9 @@ void_result account_create_evaluator::do_evaluate( const account_create_operatio
    if( op.name.size() )
    {
       auto current_account_itr = acnt_indx.indices().get<by_name>().find( op.name );
-      FC_ASSERT( current_account_itr == acnt_indx.indices().get<by_name>().end() );
+      FC_ASSERT( current_account_itr == acnt_indx.indices().get<by_name>().end(), "Name is already registered." );
+
+      FC_ASSERT( d.get_reserved_names().names.count(fc::to_lower(op.name)) <= 0, "Name is already registered." );
    }
 
    FC_ASSERT( op.referrer(d).is_referrer, "Can't use ${ref} as referrer, that account opted out of Referral program.",
