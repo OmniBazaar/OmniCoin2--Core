@@ -488,7 +488,7 @@ void database::update_active_committee_members()
          {
             vote_counter vc;
             for( const committee_member_object& cm : committee_members )
-               vc.add( cm.committee_member_account, _vote_tally_buffer[cm.vote_id] );
+               vc.add( cm.committee_member_account, cm.committee_member_account(*this).pop_score );
             vc.finish( a.active );
          }
       } );
