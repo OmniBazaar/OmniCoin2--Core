@@ -481,6 +481,10 @@ void database::init_genesis(const genesis_state_type& genesis_state)
    for (uint32_t i = 0; i <= 0x10000; i++)
       create<block_summary_object>( [&]( block_summary_object&) {});
 
+   // Accounts registration depends on reserved_names_object so it must be created first.
+   create<omnibazaar::reserved_names_object>([&](omnibazaar::reserved_names_object& obj) {
+   });
+
    // Create initial accounts
    for( const auto& account : genesis_state.initial_accounts )
    {
@@ -766,9 +770,6 @@ void database::init_genesis(const genesis_state_type& genesis_state)
    });
 
    FC_ASSERT( get_index<fba_accumulator_object>().get_next_id() == fba_accumulator_id_type( fba_accumulator_id_count ) );
-
-   create<omnibazaar::reserved_names_object>([&](omnibazaar::reserved_names_object& obj) {
-   });
 
    debug_dump();
 
