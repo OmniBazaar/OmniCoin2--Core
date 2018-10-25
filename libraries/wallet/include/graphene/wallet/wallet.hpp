@@ -1619,6 +1619,24 @@ class wallet_api
        */
       signed_transaction send_welcome_bonus(const string& account);
 
+      /** Get current list of reserved names.
+       */
+      omnibazaar::reserved_names_object get_reserved_names()const;
+
+      /** Creates a transaction to propose changes to reserved names list.
+       * @param proposing_account The account paying the fee to propose the tx
+       * @param expiration_time Timestamp specifying when the proposal will either take effect or expire.
+       * @param names_to_add List of names to add to "reserved" list.
+       * @param names_to_delete List of names to delete from "reserved" list.
+       * @param broadcast true if you wish to broadcast the transaction
+       * @return the signed version of the transaction
+       */
+      signed_transaction propose_reserved_names(const string& proposing_account,
+                                                const fc::time_point_sec expiration_time,
+                                                const vector<string> names_to_add,
+                                                const vector<string> names_to_delete,
+                                                const bool broadcast = false);
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1826,4 +1844,6 @@ FC_API( graphene::wallet::wallet_api,
         (get_publisher_names)
         (create_keys_from_password)
         (send_welcome_bonus)
+        (get_reserved_names)
+        (propose_reserved_names)
       )

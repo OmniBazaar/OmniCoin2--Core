@@ -4706,6 +4706,44 @@ signed_transaction wallet_api::send_welcome_bonus(const string& account)
     FC_CAPTURE_AND_RETHROW( (account) )
 }
 
+omnibazaar::reserved_names_object wallet_api::get_reserved_names()const
+{
+    return my->_remote_db->get_reserved_names();
+}
+
+signed_transaction wallet_api::propose_reserved_names(const string& proposing_account,
+                                                      const fc::time_point_sec expiration_time,
+                                                      const vector<string> names_to_add,
+                                                      const vector<string> names_to_delete,
+                                                      const bool broadcast)
+{
+    try
+    {
+        const chain_parameters& current_params = get_global_properties().parameters;
+
+        omnibazaar::reserved_names_update_operation update_op;
+        for(const auto& name : names_to_add)
+            update_op.names_to_add.insert(name);
+        for(const auto& name : names_to_delete)
+            update_op.names_to_delete.insert(name);
+
+        proposal_create_operation prop_op;
+        prop_op.expiration_time = expiration_time;
+        prop_op.review_period_seconds = current_params.committee_proposal_review_period;
+        prop_op.fee_paying_account = get_account(proposing_account).id;
+        prop_op.proposed_ops.emplace_back( update_op );
+        current_params.current_fees->set_fee( prop_op.proposed_ops.back().op );
+
+        signed_transaction tx;
+        tx.operations.push_back(prop_op);
+        my->set_operation_fees(tx, current_params.current_fees);
+        tx.validate();
+
+        return sign_transaction(tx, broadcast);
+    }
+    FC_CAPTURE_AND_RETHROW( (proposing_account)(expiration_time)(names_to_add)(names_to_delete)(broadcast) )
+}
+
 signed_block_with_info::signed_block_with_info( const signed_block& block )
    : signed_block( block )
 {
