@@ -1637,6 +1637,16 @@ class wallet_api
                                                 const vector<string> names_to_delete,
                                                 const bool broadcast = false);
 
+      /**
+       *  @return all accounts that refer to the key or account id in their owner or active authorities.
+       */
+      vector<vector<account_id_type>> get_key_references( const vector<public_key_type>& keys )const;
+
+      /**
+       *  @return the set of proposed transactions relevant to the specified account.
+       */
+      vector<proposal_object> get_proposed_transactions( const string& name_or_id )const;
+
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1846,4 +1856,6 @@ FC_API( graphene::wallet::wallet_api,
         (send_welcome_bonus)
         (get_reserved_names)
         (propose_reserved_names)
+        (get_key_references)
+        (get_proposed_transactions)
       )
