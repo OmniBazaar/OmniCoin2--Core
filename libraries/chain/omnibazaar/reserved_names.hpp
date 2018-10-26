@@ -11,9 +11,9 @@ namespace omnibazaar
 
         graphene::chain::asset fee;
         // List of new names that will be added to database.
-        std::unordered_set<std::string> names_to_add;
+        fc::flat_set<std::string> names_to_add;
         // List of existing names that will be removed from database.
-        std::unordered_set<std::string> names_to_delete;
+        fc::flat_set<std::string> names_to_delete;
 
         // Future extensions.
         graphene::chain::extensions_type extensions;

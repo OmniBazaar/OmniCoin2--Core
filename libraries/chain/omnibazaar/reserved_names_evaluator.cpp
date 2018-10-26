@@ -17,7 +17,7 @@ namespace omnibazaar
             const reserved_names_object& reserved_names = d.get_reserved_names();
             FC_ASSERT( op.names_to_delete.size() <= reserved_names.names.size(),
                        "Cannot delete more names than currently present.");
-            const auto diff = util::difference(util::to_lower(op.names_to_delete), reserved_names.names);
+            const auto diff = util::set_difference(util::to_lower(op.names_to_delete), reserved_names.names);
             FC_ASSERT( diff.size() <= 0,
                        "Cannot delete names that are not currently present: ${d}.",
                        ("d", diff));
