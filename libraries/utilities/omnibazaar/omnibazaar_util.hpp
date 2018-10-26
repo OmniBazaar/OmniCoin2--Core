@@ -24,7 +24,7 @@ namespace omnibazaar {
 
         // Convert array of strings to lowercase.
         template<typename C>
-        static C to_lower(const C &contaner);
+        static C to_lower(const C &container);
 
         // Create the intersection between two unordered sets.
         // std::set_intersection requires input containers to be sorted, which is not the case with std::unordered_set,
@@ -37,6 +37,12 @@ namespace omnibazaar {
         // so this method reimplements it without such requirement.
         template<typename T>
         static std::unordered_set<T> difference(const std::unordered_set<T>& a, const std::unordered_set<T>& b);
+
+        // Wrappers for corresponding STL functions.
+        template<typename C>
+        static C set_difference(const C &container1, const C &container2);
+        template<typename C>
+        static C set_intersection(const C &container1, const C &container2);
     };
 }
 
@@ -96,11 +102,11 @@ namespace omnibazaar {
 #define exchange_edump( SEQ ) exchange_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 
 template<typename C>
-C omnibazaar::util::to_lower(const C &contaner)
+C omnibazaar::util::to_lower(const C &container)
 {
     C result;
-    std::transform(std::begin(contaner),
-                   std::end(contaner),
+    std::transform(std::begin(container),
+                   std::end(container),
                    std::inserter(result, std::end(result)),
                    [](const std::string& str){ return fc::to_lower(str); });
     return result;
@@ -138,5 +144,25 @@ std::unordered_set<T> omnibazaar::util::difference(const std::unordered_set<T>& 
             result.insert(elem);
         }
     }
+    return result;
+}
+
+template<typename C>
+C omnibazaar::util::set_difference(const C &container1, const C &container2)
+{
+    C result;
+    std::set_difference(std::begin(container1), std::end(container1),
+                        std::begin(container2), std::end(container2),
+                        std::inserter(result, std::end(result)));
+    return result;
+}
+
+template<typename C>
+C omnibazaar::util::set_intersection(const C &container1, const C &container2)
+{
+    C result;
+    std::set_intersection(std::begin(container1), std::end(container1),
+                          std::begin(container2), std::end(container2),
+                          std::inserter(result, std::end(result)));
     return result;
 }

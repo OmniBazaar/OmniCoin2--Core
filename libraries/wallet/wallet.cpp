@@ -4744,6 +4744,16 @@ signed_transaction wallet_api::propose_reserved_names(const string& proposing_ac
     FC_CAPTURE_AND_RETHROW( (proposing_account)(expiration_time)(names_to_add)(names_to_delete)(broadcast) )
 }
 
+vector<vector<account_id_type>> wallet_api::get_key_references( const vector<public_key_type>& keys )const
+{
+    return my->_remote_db->get_key_references(keys);
+}
+
+vector<proposal_object> wallet_api::get_proposed_transactions(const string& name_or_id )const
+{
+    return my->_remote_db->get_proposed_transactions(my->get_account(name_or_id).id);
+}
+
 signed_block_with_info::signed_block_with_info( const signed_block& block )
    : signed_block( block )
 {
