@@ -17,6 +17,7 @@ namespace omnibazaar {
     void exchange_complete_operation::validate()const
     {
         FC_ASSERT( fee.amount >= 0 );
+        FC_ASSERT( amount.amount > 0 );
     }
 
 }

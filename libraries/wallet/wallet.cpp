@@ -2677,7 +2677,7 @@ public:
        FC_CAPTURE_AND_RETHROW( (account) )
    }
 
-   signed_transaction confirm_exchange(const exchange_id_type exchange_id)
+   signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
    {
        try
        {
@@ -2685,6 +2685,19 @@ public:
 
            omnibazaar::exchange_complete_operation op;
            op.exchange = exchange_id;
+           op.receiver = get_object<omnibazaar::exchange_object>(exchange_id).sender;
+           op.amount = amount;
+           if(!memo.empty())
+           {
+               const account_object exchange_account = get_account(OMNIBAZAAR_EXCHANGE_ACCOUNT);
+               const account_object receiver_account = get_account(op.receiver);
+               op.memo = memo_data();
+               op.memo->from = exchange_account.options.memo_key;
+               op.memo->to = receiver_account.options.memo_key;
+               op.memo->set_message(get_private_key(exchange_account.options.memo_key),
+                                    receiver_account.options.memo_key,
+                                    memo);
+           }
 
            signed_transaction tx;
            tx.operations.push_back(op);
@@ -4639,14 +4652,106 @@ signed_transaction wallet_api::set_account_verification(const string& account, c
     return my->set_account_verification(account, new_status);
 }
 
-signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id)
+signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
 {
-    return my->confirm_exchange(exchange_id);
+    return my->confirm_exchange(exchange_id, amount, memo);
 }
 
 std::vector<std::string> wallet_api::get_publisher_names() const
 {
     return my->_remote_db->get_publisher_nodes_names();
+}
+
+password_key_info wallet_api::create_keys_from_password(const string account_name, const string password)
+{
+    FC_ASSERT( !account_name.empty() );
+
+    password_key_info result;
+
+    result.account = account_name;
+    result.password = password.empty() ? fc::ecc::private_key::generate().get_secret().str() : password;
+    const auto active_key = fc::ecc::private_key::regenerate(fc::sha256::hash(account_name + "active" + result.password));
+    const auto owner_key = fc::ecc::private_key::regenerate(fc::sha256::hash(account_name + "owner" + result.password));
+    result.wif_priv_key_active = key_to_wif(active_key);
+    result.wif_priv_key_owner = key_to_wif(owner_key);
+    result.pub_key_active = active_key.get_public_key();
+    result.pub_key_owner = owner_key.get_public_key();
+    result.address_active = result.pub_key_active;
+    result.address_owner = result.pub_key_owner;
+
+    return result;
+}
+
+signed_transaction wallet_api::send_welcome_bonus(const string& account)
+{
+    try
+    {
+        FC_ASSERT( !is_locked() );
+
+        const account_object account_obj = get_account(account);
+        FC_ASSERT( !account_obj.received_welcome_bonus, "Account '${a}' already received Welcome Bonus.",
+                   ("a", account_obj.name) );
+
+        omnibazaar::welcome_bonus_operation op;
+        op.receiver = account_obj.get_id();
+
+        signed_transaction tx;
+        tx.operations.push_back(op);
+
+        my->set_operation_fees(tx, my->_remote_db->get_global_properties().parameters.current_fees);
+        tx.validate();
+
+        return sign_transaction(tx, true);
+    }
+    FC_CAPTURE_AND_RETHROW( (account) )
+}
+
+omnibazaar::reserved_names_object wallet_api::get_reserved_names()const
+{
+    return my->_remote_db->get_reserved_names();
+}
+
+signed_transaction wallet_api::propose_reserved_names(const string& proposing_account,
+                                                      const fc::time_point_sec expiration_time,
+                                                      const vector<string> names_to_add,
+                                                      const vector<string> names_to_delete,
+                                                      const bool broadcast)
+{
+    try
+    {
+        const chain_parameters& current_params = get_global_properties().parameters;
+
+        omnibazaar::reserved_names_update_operation update_op;
+        for(const auto& name : names_to_add)
+            update_op.names_to_add.insert(name);
+        for(const auto& name : names_to_delete)
+            update_op.names_to_delete.insert(name);
+
+        proposal_create_operation prop_op;
+        prop_op.expiration_time = expiration_time;
+        prop_op.review_period_seconds = current_params.committee_proposal_review_period;
+        prop_op.fee_paying_account = get_account(proposing_account).id;
+        prop_op.proposed_ops.emplace_back( update_op );
+        current_params.current_fees->set_fee( prop_op.proposed_ops.back().op );
+
+        signed_transaction tx;
+        tx.operations.push_back(prop_op);
+        my->set_operation_fees(tx, current_params.current_fees);
+        tx.validate();
+
+        return sign_transaction(tx, broadcast);
+    }
+    FC_CAPTURE_AND_RETHROW( (proposing_account)(expiration_time)(names_to_add)(names_to_delete)(broadcast) )
+}
+
+vector<vector<account_id_type>> wallet_api::get_key_references( const vector<public_key_type>& keys )const
+{
+    return my->_remote_db->get_key_references(keys);
+}
+
+vector<proposal_object> wallet_api::get_proposed_transactions(const string& name_or_id )const
+{
+    return my->_remote_db->get_proposed_transactions(my->get_account(name_or_id).id);
 }
 
 signed_block_with_info::signed_block_with_info( const signed_block& block )

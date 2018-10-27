@@ -4,6 +4,7 @@
 #include <graphene/chain/protocol/types.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/db/generic_index.hpp>
+#include <omnibazaar_fee_type.hpp>
 
 namespace omnibazaar {
 
@@ -32,6 +33,9 @@ namespace omnibazaar {
         fc::optional<uint32_t> listing_count;
         // OmniBazaar-related fees for this escrow process.
         omnibazaar_fee_type ob_fee;
+
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
     };
 
     // Tracks all of the escrow objects that are relevant for an individual account.
@@ -67,4 +71,5 @@ FC_REFLECT_DERIVED(omnibazaar::escrow_object, (graphene::chain::object),
                    (transfer_to_escrow)
                    (listing)
                    (listing_count)
-                   (ob_fee))
+                   (ob_fee)
+                   (extensions))

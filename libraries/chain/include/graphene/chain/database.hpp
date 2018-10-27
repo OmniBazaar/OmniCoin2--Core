@@ -260,6 +260,7 @@ namespace graphene { namespace chain {
          const dynamic_global_property_object&  get_dynamic_global_properties()const;
          const node_property_object&            get_node_properties()const;
          const fee_schedule&                    current_fee_schedule()const;
+         const omnibazaar::reserved_names_object& get_reserved_names()const;
 
          time_point_sec   head_block_time()const;
          uint32_t         head_block_num()const;
@@ -546,8 +547,6 @@ namespace graphene { namespace chain {
          uint16_t                          _current_virtual_op   = 0;
 
          vector<uint64_t>                  _vote_tally_buffer;
-         vector<uint64_t>                  _witness_count_histogram_buffer;
-         vector<uint64_t>                  _committee_count_histogram_buffer;
          uint64_t                          _total_voting_stake;
 
          flat_map<uint32_t,block_id_type>  _checkpoints;

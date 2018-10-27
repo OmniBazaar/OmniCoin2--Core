@@ -26,7 +26,8 @@
 #include <graphene/chain/protocol/types.hpp>
 #include <graphene/chain/protocol/asset.hpp>
 #include <graphene/chain/protocol/authority.hpp>
-#include <../omnibazaar/omnibazaar_fee_type.hpp>
+
+namespace omnibazaar { class omnibazaar_fee_type; }
 
 namespace graphene { namespace chain {
 
@@ -98,10 +99,7 @@ namespace graphene { namespace chain {
       void get_required_owner_authorities( flat_set<account_id_type>& )const{}
       void validate()const{}
 
-      omnibazaar::omnibazaar_fee_type calculate_omnibazaar_fee(const database& db)const
-      {
-          return omnibazaar::omnibazaar_fee_type();
-      }
+      omnibazaar::omnibazaar_fee_type calculate_omnibazaar_fee(const database& db)const;
 
       static uint64_t calculate_data_fee( uint64_t bytes, uint64_t price_per_kbyte );
    };

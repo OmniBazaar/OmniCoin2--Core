@@ -408,6 +408,22 @@ signed_block database::_generate_block(
    auto maximum_block_size = get_global_properties().parameters.maximum_block_size;
    size_t total_block_size = max_block_header_size;
 
+   // Witness and Founder bonus operations are added automatically, users are not allowed to create them manually,
+   // so remove any transactions that contain those operations, as they are not created by current witness
+   // and are thus invalid.
+   for(int i = _pending_tx.size() - 1; i >= 0; --i)
+   {
+       for(const auto& op : _pending_tx[i].operations)
+       {
+           if(  (op.which() == operation::tag<omnibazaar::witness_bonus_operation>::value)
+             || (op.which() == operation::tag<omnibazaar::founder_bonus_operation>::value))
+           {
+               _pending_tx.erase(_pending_tx.begin() + i);
+               continue;
+           }
+       }
+   }
+
    // Add Founder Bonus
    omnibazaar::founder_bonus_operation::check_and_add_bonus(*this, witness_id, block_signing_private_key);
    // Add Witness Bonus.
@@ -592,6 +608,33 @@ void database::_apply_block( const signed_block& next_block )
        */
       apply_transaction( trx, skip );
       ++_current_trx_in_block;
+   }
+
+   // Check that there is only one of Witness and Founder bonus transactions per block and it belongs to the signing witness.
+   // No need to check it when bonus is already depleted.
+   if(dynamic_global_props.witness_bonus < OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS)
+   {
+       int witness_ops_count = 0;
+       for(const auto& trx : next_block.transactions)
+           for(const auto& op : trx.operations)
+               if(op.which() == operation::tag<omnibazaar::witness_bonus_operation>::value)
+               {
+                   ++witness_ops_count;
+                   const omnibazaar::witness_bonus_operation& wit_op = op.get<omnibazaar::witness_bonus_operation>();
+                   FC_ASSERT( wit_op.receiver == signing_witness.witness_account,
+                              "Witness Bonus does not belong to signing witness of this block. Witness is '${w}', receiver is '${r}'.",
+                              ("w", signing_witness)("r", wit_op.receiver) );
+               }
+       FC_ASSERT( witness_ops_count <= 1, "Block has more than one witness_bonus_operation: ${n}.", ("n", witness_ops_count) );
+   }
+   if(dynamic_global_props.founder_bonus < OMNIBAZAAR_FOUNDER_BONUS_COINS_LIMIT)
+   {
+       int founder_ops_count = 0;
+       for(const auto& trx : next_block.transactions)
+           for(const auto& op : trx.operations)
+               if(op.which() == operation::tag<omnibazaar::founder_bonus_operation>::value)
+                   ++founder_ops_count;
+       FC_ASSERT( founder_ops_count <= 1, "Block has more than one founder_bonus_operation: ${n}.", ("n", founder_ops_count) );
    }
 
    update_global_dynamic_data(next_block);

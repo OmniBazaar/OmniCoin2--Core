@@ -25,6 +25,7 @@
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/types.hpp>
 #include <fc/smart_ref_fwd.hpp>
+#include <../omnibazaar/pop_weights.hpp>
 
 namespace graphene { namespace chain { struct fee_schedule; } }
 /*
@@ -51,15 +52,11 @@ namespace graphene { namespace chain {
       uint32_t                maximum_proposal_lifetime           = GRAPHENE_DEFAULT_MAX_PROPOSAL_LIFETIME_SEC; ///< maximum lifetime in seconds for proposed transactions to be kept, before expiring
       uint8_t                 maximum_asset_whitelist_authorities = GRAPHENE_DEFAULT_MAX_ASSET_WHITELIST_AUTHORITIES; ///< maximum number of accounts which an asset may list as authorities for its whitelist OR blacklist
       uint8_t                 maximum_asset_feed_publishers       = GRAPHENE_DEFAULT_MAX_ASSET_FEED_PUBLISHERS; ///< the maximum number of feed publishers for a given asset
-      uint16_t                maximum_witness_count               = GRAPHENE_DEFAULT_MAX_WITNESSES; ///< maximum number of active witnesses
-      uint16_t                maximum_committee_count             = GRAPHENE_DEFAULT_MAX_COMMITTEE; ///< maximum number of active committee_members
       uint16_t                maximum_authority_membership        = GRAPHENE_DEFAULT_MAX_AUTHORITY_MEMBERSHIP; ///< largest number of keys/accounts an authority can have
       uint16_t                reserve_percent_of_fee              = GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE; ///< the percentage of the network's allocation of a fee that is taken out of circulation
       uint16_t                network_percent_of_fee              = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE; ///< percent of transaction fees paid to network
-      uint16_t                lifetime_referrer_percent_of_fee    = GRAPHENE_DEFAULT_LIFETIME_REFERRER_PERCENT_OF_FEE; ///< percent of transaction fees paid to network
       uint32_t                cashback_vesting_period_seconds     = GRAPHENE_DEFAULT_CASHBACK_VESTING_PERIOD_SEC; ///< time after cashback rewards are accrued before they become liquid
       share_type              cashback_vesting_threshold          = GRAPHENE_DEFAULT_CASHBACK_VESTING_THRESHOLD; ///< the maximum cashback that can be received without vesting
-      bool                    count_non_member_votes              = true; ///< set to false to restrict voting privlegages to member accounts
       bool                    allow_non_member_whitelists         = false; ///< true if non-member accounts may set whitelists and blacklists; false otherwise
       share_type              witness_pay_per_block               = GRAPHENE_DEFAULT_WITNESS_PAY_PER_BLOCK; ///< CORE to be allocated to witnesses (per block)
       uint32_t                witness_pay_vesting_seconds         = GRAPHENE_DEFAULT_WITNESS_PAY_VESTING_SECONDS; ///< vesting_seconds parameter for witness VBO's
@@ -74,6 +71,8 @@ namespace graphene { namespace chain {
       uint32_t                listing_ban_threshold               = OMNIBAZAAR_LISTING_BAN_THRESHOLD; /// number fo times reporting score has to be larger than seller score
       uint16_t                maximum_listing_priority_fee        = OMNIBAZAAR_DEFAULT_MAX_LISTING_PRIORITY_FEE; /// largest priority fee % that listing can have
       uint32_t                witness_count_term                  = OMNIBAZAAR_DEFAULT_WITNESS_COUNT_TERM;
+      uint16_t                committee_count                     = GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT; /// current number of active committee members
+      omnibazaar::pop_weights pop_weights;                        /// current weights of Proof of Participation components
       extensions_type         extensions;
 
       /** defined in fee_schedule.cpp */
@@ -94,15 +93,11 @@ FC_REFLECT( graphene::chain::chain_parameters,
             (maximum_proposal_lifetime)
             (maximum_asset_whitelist_authorities)
             (maximum_asset_feed_publishers)
-            (maximum_witness_count)
-            (maximum_committee_count)
             (maximum_authority_membership)
             (reserve_percent_of_fee)
             (network_percent_of_fee)
-            (lifetime_referrer_percent_of_fee)
             (cashback_vesting_period_seconds)
             (cashback_vesting_threshold)
-            (count_non_member_votes)
             (allow_non_member_whitelists)
             (witness_pay_per_block)
             (worker_budget_per_day)
@@ -116,5 +111,7 @@ FC_REFLECT( graphene::chain::chain_parameters,
             (listing_ban_threshold)
             (maximum_listing_priority_fee)
             (witness_count_term)
+            (committee_count)
+            (pop_weights)
             (extensions)
           )

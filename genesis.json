@@ -22,6 +22,13 @@
     "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
     "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
   },
+  "welcome": {
+    "name": "welcome",
+    "btc_address": "",
+    "eth_address": "",
+    "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
+    "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
+  },
   "initial_parameters": {
     "current_fees": {
       "parameters": [[
@@ -301,15 +308,11 @@
     "maximum_proposal_lifetime": 2419200,
     "maximum_asset_whitelist_authorities": 10,
     "maximum_asset_feed_publishers": 10,
-    "maximum_witness_count": 1001,
-    "maximum_committee_count": 1001,
     "maximum_authority_membership": 10,
     "reserve_percent_of_fee": 2000,
     "network_percent_of_fee": 2000,
-    "lifetime_referrer_percent_of_fee": 3000,
     "cashback_vesting_period_seconds": 2592000,
     "cashback_vesting_threshold": 10000000,
-    "count_non_member_votes": true,
     "allow_non_member_whitelists": false,
     "witness_pay_per_block": 1000000,
     "worker_budget_per_day": "50000000000",
@@ -323,6 +326,16 @@
     "listing_ban_threshold": 3,
     "maximum_listing_priority_fee": 200,
     "witness_count_term": 20,
+    "committee_count": 11,
+    "pop_weights": {
+      "referral": 2000,
+      "listings": 2000,
+      "reputation": 2000,
+      "trust": 2000,
+      "reliability": 2000,
+      "verification": 0,
+      "extensions": []
+    },
     "extensions": []
   },
   "initial_accounts": [{

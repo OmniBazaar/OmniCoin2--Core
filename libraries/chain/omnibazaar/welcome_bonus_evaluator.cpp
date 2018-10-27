@@ -19,9 +19,6 @@ namespace omnibazaar {
             const graphene::chain::account_object receiver = op.receiver(d);
             bonus_ddump((receiver));
             FC_ASSERT(!receiver.received_welcome_bonus, "${name} already received Welcome Bonus.", ("name", receiver.name));
-            FC_ASSERT(d.is_welcome_bonus_available(op.drive_id, op.mac_address),
-                      "Welcome Bonus was already received for ${drive}, ${mac}.",
-                      ("drive", op.drive_id)("mac", op.mac_address));
 
             return graphene::chain::void_result();
         }
@@ -47,8 +44,6 @@ namespace omnibazaar {
             // Set user hardware info to prevent multiple bonuses per machine.
             bonus_dlog("Setting hardware info.");
             d.modify(op.receiver(d), [&](graphene::chain::account_object& a) {
-                a.drive_id = op.drive_id;
-                a.mac_address = op.mac_address;
                 a.received_welcome_bonus = true;
             });
 

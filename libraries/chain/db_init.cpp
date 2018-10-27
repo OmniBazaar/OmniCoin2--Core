@@ -74,6 +74,8 @@
 #include <listing_evaluator.hpp>
 #include <verification_evaluator.hpp>
 #include <exchange_evaluator.hpp>
+#include <reserved_names_object.hpp>
+#include <reserved_names_evaluator.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
 #include <fc/smart_ref_impl.hpp>
@@ -200,6 +202,7 @@ void database::initialize_evaluators()
    register_evaluator<omnibazaar::verification_evaluator>();
    register_evaluator<omnibazaar::exchange_create_evaluator>();
    register_evaluator<omnibazaar::exchange_complete_evaluator>();
+   register_evaluator<omnibazaar::reserved_names_update_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -251,6 +254,7 @@ void database::initialize_indexes()
    add_index< primary_index< special_authority_index                      > >();
    add_index< primary_index< buyback_index                                > >();
    add_index< primary_index<collateral_bid_index                          > >();
+   add_index< primary_index<simple_index<omnibazaar::reserved_names_object>>>();
 
    add_index< primary_index< simple_index< fba_accumulator_object       > > >();
 }
@@ -365,6 +369,17 @@ void database::init_genesis(const genesis_state_type& genesis_state)
        a.btc_address = genesis_state.exchange.btc_address;
        a.eth_address = genesis_state.exchange.eth_address;
    }).get_id() == OMNIBAZAAR_EXCHANGE_ACCOUNT);
+   FC_ASSERT(create<account_object>([&](account_object& a) {
+       a.name = genesis_state.welcome.name;
+       a.statistics = create<account_statistics_object>([&](account_statistics_object& s){s.owner = a.id;}).id;
+       a.owner = authority(1, genesis_state.welcome.owner_key, 1);
+       a.active = authority(1, genesis_state.welcome.active_key, 1);
+       a.options.memo_key = genesis_state.welcome.active_key;
+       a.registrar = a.referrer = OMNIBAZAAR_WELCOME_ACCOUNT;
+       a.network_fee_percentage = GRAPHENE_DEFAULT_NETWORK_PERCENT_OF_FEE;
+       a.btc_address = genesis_state.welcome.btc_address;
+       a.eth_address = genesis_state.welcome.eth_address;
+   }).get_id() == OMNIBAZAAR_WELCOME_ACCOUNT);
 
    // Create more special accounts
    while( true )
@@ -450,6 +465,8 @@ void database::init_genesis(const genesis_state_type& genesis_state)
       p.welcome_bonus = 0;
       p.referral_bonus = 0;
       p.sale_bonus = 0;
+      p.founder_bonus = 0;
+      p.witness_bonus = 0;
    });
 
    FC_ASSERT( (genesis_state.immutable_parameters.min_witness_count & 1) == 1, "min_witness_count must be odd" );
@@ -459,9 +476,14 @@ void database::init_genesis(const genesis_state_type& genesis_state)
    {
       p.chain_id = chain_id;
       p.immutable_parameters = genesis_state.immutable_parameters;
+      p.initial_timestamp = genesis_state.initial_timestamp;
    } );
    for (uint32_t i = 0; i <= 0x10000; i++)
       create<block_summary_object>( [&]( block_summary_object&) {});
+
+   // Accounts registration depends on reserved_names_object so it must be created first.
+   create<omnibazaar::reserved_names_object>([&](omnibazaar::reserved_names_object& obj) {
+   });
 
    // Create initial accounts
    for( const auto& account : genesis_state.initial_accounts )

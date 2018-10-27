@@ -2,6 +2,7 @@
 
 #include <graphene/db/object.hpp>
 #include <graphene/chain/protocol/types.hpp>
+#include <graphene/chain/protocol/base.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
 namespace omnibazaar {
@@ -19,6 +20,9 @@ namespace omnibazaar {
         fc::string tx_id;
         // Account that created the transaction.
         graphene::chain::account_id_type sender;
+
+        // Future extensions.
+        graphene::chain::extensions_type extensions;
     };
 
     struct by_coin_and_id;
@@ -51,4 +55,5 @@ FC_REFLECT_DERIVED(omnibazaar::exchange_object, (graphene::chain::object),
                    (coin_name)
                    (tx_id)
                    (sender)
+                   (extensions)
                    )

@@ -10,11 +10,9 @@ namespace omnibazaar {
         {
             bonus_ddump((op));
 
-            bonus_ddump((db().get_dynamic_global_properties().head_block_number)(OMNIBAZAAR_FOUNDER_BLOCK_LIMIT));
-            if(db().get_dynamic_global_properties().head_block_number > OMNIBAZAAR_FOUNDER_BLOCK_LIMIT)
-            {
-                FC_THROW("Founder Bonus is depleted");
-            }
+            const auto& dyn_prop = db().get_dynamic_global_properties();
+            bonus_ddump((dyn_prop.head_block_number)(dyn_prop.founder_bonus)(OMNIBAZAAR_FOUNDER_BONUS_TIME_LIMIT)(OMNIBAZAAR_FOUNDER_BONUS_COINS_LIMIT));
+            FC_ASSERT(dyn_prop.founder_bonus < OMNIBAZAAR_FOUNDER_BONUS_COINS_LIMIT, "Developer Bonus is depleted.");
 
             return graphene::chain::void_result();
         }
@@ -29,7 +27,14 @@ namespace omnibazaar {
 
             graphene::chain::database& d = db();
 
-            const graphene::chain::share_type bonus_sum = 200 * GRAPHENE_BLOCKCHAIN_PRECISION;
+            // Block interval can change and that will change bonus amounts per block,
+            // and amounts will no longer map to bonus distribution timeline evenly (without a remainder).
+            // Because of this, the very last bonus portion can be less than just "coins_per_second * block_time".
+            const graphene::chain::share_type bonus_sum = std::min(
+                        // Usual bonus amount.
+                        OMNIBAZAAR_FOUNDER_BONUS_COINS_PER_SECOND * d.block_interval(),
+                        // Whatever is left in bonus reserves.
+                        OMNIBAZAAR_FOUNDER_BONUS_COINS_LIMIT - d.get_dynamic_global_properties().founder_bonus.value);
             bonus_ddump((bonus_sum));
 
             // Send bonus.
@@ -41,6 +46,12 @@ namespace omnibazaar {
             const graphene::chain::asset_object& asset = d.get_core_asset();
             d.modify(asset.dynamic_asset_data_id(d), [&bonus_sum](graphene::chain::asset_dynamic_data_object& dynamic_asset){
                 dynamic_asset.current_supply += bonus_sum;
+            });
+
+            // Adjust the number of total issued bonus coins.
+            bonus_dlog("Adjusting total bonus value.");
+            d.modify(d.get_dynamic_global_properties(), [&bonus_sum](graphene::chain::dynamic_global_property_object& prop) {
+               prop.founder_bonus += bonus_sum;
             });
 
             return graphene::chain::asset(bonus_sum);

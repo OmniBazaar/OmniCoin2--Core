@@ -193,8 +193,6 @@ namespace graphene { namespace chain {
       current_fees->validate();
       FC_ASSERT( reserve_percent_of_fee <= GRAPHENE_100_PERCENT );
       FC_ASSERT( network_percent_of_fee <= GRAPHENE_100_PERCENT );
-      FC_ASSERT( lifetime_referrer_percent_of_fee <= GRAPHENE_100_PERCENT );
-      FC_ASSERT( network_percent_of_fee + lifetime_referrer_percent_of_fee <= GRAPHENE_100_PERCENT );
 
       FC_ASSERT( block_interval >= GRAPHENE_MIN_BLOCK_INTERVAL );
       FC_ASSERT( block_interval <= GRAPHENE_MAX_BLOCK_INTERVAL );
@@ -217,6 +215,8 @@ namespace graphene { namespace chain {
                  "Maximum listing expiration time must be greater than a block interval" );
       FC_ASSERT( maximum_listing_priority_fee < GRAPHENE_100_PERCENT,
                  "Maximum listing priority fee is too high" );
+      FC_ASSERT( pop_weights.total() == GRAPHENE_100_PERCENT,
+                 "Proof of Participation weights do not sum to 100%");
    }
 
 } } // graphene::chain

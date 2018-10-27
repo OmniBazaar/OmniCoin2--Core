@@ -61,6 +61,17 @@ struct brain_key_info
    public_key_type pub_key;
 };
 
+struct password_key_info
+{
+   string account;
+   string password;
+   string wif_priv_key_active;
+   string wif_priv_key_owner;
+   public_key_type pub_key_active;
+   public_key_type pub_key_owner;
+   address address_owner;
+   address address_active;
+};
 
 /**
  *  Contains the confirmation receipt the sender must give the receiver and
@@ -1586,11 +1597,55 @@ class wallet_api
 
       /** Set confirmed status for specified exchange object (effectively delete it from database).
        * @param exchange_id ID of the exchange object.
+       * @param amount XOM amount that will be sent to user that is exchanging funds.
+       * @param memo Optional memo.
        * @returns the signed transaction on success.
        */
-      signed_transaction confirm_exchange(const exchange_id_type exchange_id);
+      signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo);
 
       std::vector<std::string> get_publisher_names() const;
+
+      /** Create public/private keys using account name and password.
+       * This mimics the behavior of webwallet function 'generateKeyFromPassword'.
+       *
+       * @param account_name name of the account for which keys are created.
+       * @param password desired password. If empty, random password will be created.
+       */
+      password_key_info create_keys_from_password(const string account_name, const string password);
+
+      /** Send Welcome Bonus to specfied account.
+       * @param account the name or id of the account who is the receiver of the bonus.
+       * @returns the signed transaction on success
+       */
+      signed_transaction send_welcome_bonus(const string& account);
+
+      /** Get current list of reserved names.
+       */
+      omnibazaar::reserved_names_object get_reserved_names()const;
+
+      /** Creates a transaction to propose changes to reserved names list.
+       * @param proposing_account The account paying the fee to propose the tx
+       * @param expiration_time Timestamp specifying when the proposal will either take effect or expire.
+       * @param names_to_add List of names to add to "reserved" list.
+       * @param names_to_delete List of names to delete from "reserved" list.
+       * @param broadcast true if you wish to broadcast the transaction
+       * @return the signed version of the transaction
+       */
+      signed_transaction propose_reserved_names(const string& proposing_account,
+                                                const fc::time_point_sec expiration_time,
+                                                const vector<string> names_to_add,
+                                                const vector<string> names_to_delete,
+                                                const bool broadcast = false);
+
+      /**
+       *  @return all accounts that refer to the key or account id in their owner or active authorities.
+       */
+      vector<vector<account_id_type>> get_key_references( const vector<public_key_type>& keys )const;
+
+      /**
+       *  @return the set of proposed transactions relevant to the specified account.
+       */
+      vector<proposal_object> get_proposed_transactions( const string& name_or_id )const;
 
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
@@ -1658,6 +1713,17 @@ FC_REFLECT_DERIVED( graphene::wallet::vesting_balance_object_with_info, (graphen
 
 FC_REFLECT( graphene::wallet::operation_detail, 
             (memo)(description)(op) )
+
+FC_REFLECT( graphene::wallet::password_key_info,
+            (account)
+            (password)
+            (wif_priv_key_active)
+            (wif_priv_key_owner)
+            (pub_key_active)
+            (pub_key_owner)
+            (address_active)
+            (address_owner)
+            )
 
 FC_API( graphene::wallet::wallet_api,
         (help)
@@ -1786,4 +1852,10 @@ FC_API( graphene::wallet::wallet_api,
         (set_account_verification)
         (confirm_exchange)
         (get_publisher_names)
+        (create_keys_from_password)
+        (send_welcome_bonus)
+        (get_reserved_names)
+        (propose_reserved_names)
+        (get_key_references)
+        (get_proposed_transactions)
       )

@@ -48,6 +48,7 @@
 
 #include <omnibazaar_util.hpp>
 #include <../omnibazaar/listing_object.hpp>
+#include <../omnibazaar/reserved_names_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -248,6 +249,7 @@ void database::update_account_scores()
     const uint64_t max_reputation_votes = accounts_reputations.empty() ? 0 : (--accounts_reputations.end())->reputation_votes_count;
     pop_ddump((max_reputation_votes));
 
+    const omnibazaar::pop_weights pop_weights = get_global_properties().parameters.pop_weights;
     const auto& all_accounts = get_index_type<account_index>().indices();
     for(const account_object& account : all_accounts)
     {
@@ -325,12 +327,12 @@ void database::update_account_scores()
             pop_wlog("There are no listings registered in blockchain: ${c}.", ("c", max_listings));
         }
 
-        const uint16_t new_pop_score = ((uint32_t)new_referral_score
-                                        + new_listings_score
-                                        + new_reputation_score
-                                        + account.trust_score
-                                        + account.reliability_score
-                                        ) / 5;
+        const uint16_t new_pop_score = pop_weights.calc_pop_score(new_referral_score,
+                                                                  new_listings_score,
+                                                                  new_reputation_score,
+                                                                  account.trust_score,
+                                                                  account.reliability_score,
+                                                                  account.verified);
 
         const bool changed = (new_referral_score != account.referral_score)
                 || (new_listings_score != account.listings_score)
@@ -432,46 +434,14 @@ void database::update_active_witnesses()
 
 void database::update_active_committee_members()
 { try {
-   assert( _committee_count_histogram_buffer.size() > 0 );
-   share_type stake_target = (_total_voting_stake-_committee_count_histogram_buffer[0]) / 2;
-   share_type old_stake_target = (_total_voting_stake-_witness_count_histogram_buffer[0]) / 2;
-   // TODO
-   // all the stuff about old_stake_target can *hopefully* be removed after the
-   // hardfork date has passed
-   //if( stake_target != old_stake_target )
-   //    ilog( "Different stake targets: ${old} / ${new}", ("old",old_stake_target)("new",stake_target) );
 
-   /// accounts that vote for 0 or 1 witness do not get to express an opinion on
-   /// the number of witnesses to have (they abstain and are non-voting accounts)
-   uint64_t stake_tally = 0; // _committee_count_histogram_buffer[0];
-   size_t committee_member_count = 0;
-   if( stake_target > 0 )
-      while( (committee_member_count < _committee_count_histogram_buffer.size() - 1)
-             && (stake_tally <= stake_target) )
-         stake_tally += _committee_count_histogram_buffer[++committee_member_count];
-   if( stake_target != old_stake_target && old_stake_target > 0 && head_block_time() < fc::time_point_sec(HARDFORK_CORE_353_TIME) )
-   {
-      uint64_t old_stake_tally = 0;
-      size_t old_committee_member_count = 0;
-      while( (old_committee_member_count < _committee_count_histogram_buffer.size() - 1)
-             && (old_stake_tally <= old_stake_target) )
-         old_stake_tally += _committee_count_histogram_buffer[++old_committee_member_count];
-      if( old_committee_member_count != committee_member_count
-              && (old_committee_member_count > GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT
-                  || committee_member_count > GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT) )
-      {
-          ilog( "Committee member count mismatch ${old} / ${new}", ("old",old_committee_member_count)("new", committee_member_count) );
-          committee_member_count = old_committee_member_count;
-      }
-   }
-
-   const chain_property_object& cpo = get_chain_properties();
-   auto committee_members = sort_votable_objects<committee_member_index>(std::max(committee_member_count*2+1, (size_t)cpo.immutable_parameters.min_committee_member_count),
+   auto committee_members = sort_votable_objects<committee_member_index>(std::max(get_global_properties().parameters.committee_count,
+                                                                                  get_chain_properties().immutable_parameters.min_committee_member_count),
                                                                          [this](const committee_member_object& a, const committee_member_object& b)->bool {
-                                                                             share_type oa_vote = _vote_tally_buffer[a.vote_id];
-                                                                             share_type ob_vote = _vote_tally_buffer[b.vote_id];
-                                                                             if( oa_vote != ob_vote )
-                                                                                return oa_vote > ob_vote;
+                                                                             const auto oa_score = a.committee_member_account(*this).pop_score;
+                                                                             const auto ob_score = b.committee_member_account(*this).pop_score;
+                                                                             if( oa_score != ob_score )
+                                                                                return oa_score > ob_score;
                                                                              return a.vote_id < b.vote_id;
                                                                           });
 
@@ -518,7 +488,7 @@ void database::update_active_committee_members()
          {
             vote_counter vc;
             for( const committee_member_object& cm : committee_members )
-               vc.add( cm.committee_member_account, _vote_tally_buffer[cm.vote_id] );
+               vc.add( cm.committee_member_account, cm.committee_member_account(*this).pop_score );
             vc.finish( a.active );
          }
       } );
@@ -968,14 +938,11 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          : d(d), props(gpo)
       {
          d._vote_tally_buffer.resize(props.next_available_vote_id);
-         d._witness_count_histogram_buffer.resize(props.parameters.maximum_witness_count / 2 + 1);
-         d._committee_count_histogram_buffer.resize(props.parameters.maximum_committee_count / 2 + 1);
          d._total_voting_stake = 0;
       }
 
-      void operator()(const account_object& stake_account) {
-         if( props.parameters.count_non_member_votes )
-         {
+      void operator()(const account_object& stake_account)
+      {
             // There may be a difference between the account whose stake is voting and the one specifying opinions.
             // Usually they're the same, but if the stake account has specified a voting_account, that account is the one
             // specifying the opinions.
@@ -997,32 +964,8 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
                   d._vote_tally_buffer[offset] += voting_stake;
             }
 
-            if( opinion_account.options.num_witness <= props.parameters.maximum_witness_count )
-            {
-               uint16_t offset = std::min(size_t(opinion_account.options.num_witness/2),
-                                          d._witness_count_histogram_buffer.size() - 1);
-               // votes for a number greater than maximum_witness_count
-               // are turned into votes for maximum_witness_count.
-               //
-               // in particular, this takes care of the case where a
-               // member was voting for a high number, then the
-               // parameter was lowered.
-               d._witness_count_histogram_buffer[offset] += voting_stake;
-            }
-            if( opinion_account.options.num_committee <= props.parameters.maximum_committee_count )
-            {
-               uint16_t offset = std::min(size_t(opinion_account.options.num_committee/2),
-                                          d._committee_count_histogram_buffer.size() - 1);
-               // votes for a number greater than maximum_committee_count
-               // are turned into votes for maximum_committee_count.
-               //
-               // same rationale as for witnesses
-               d._committee_count_histogram_buffer[offset] += voting_stake;
-            }
-
             d._total_voting_stake += voting_stake;
          }
-      }
    } tally_helper(*this, gpo);
    struct process_fees_helper {
       database& d;
@@ -1053,9 +996,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       vector<uint64_t>* target64 = nullptr;
       vector<uint16_t>* target16 = nullptr;
    };
-   clear_canary a(_witness_count_histogram_buffer),
-                b(_committee_count_histogram_buffer),
-                c(_vote_tally_buffer);
+   clear_canary a(_vote_tally_buffer);
 
    update_top_n_authorities(*this);
    update_account_scores();
@@ -1075,6 +1016,19 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          p.parameters = std::move(*p.pending_parameters);
          p.pending_parameters.reset();
       }
+   });
+
+   modify(get_reserved_names(), [](omnibazaar::reserved_names_object& obj){
+       for(const auto& name : obj.pending_names_to_add)
+       {
+           obj.names.insert(fc::to_lower(name));
+       }
+       for(const auto& name : obj.pending_names_to_delete)
+       {
+           obj.names.erase(fc::to_lower(name));
+       }
+       obj.pending_names_to_add.clear();
+       obj.pending_names_to_delete.clear();
    });
 
    auto next_maintenance_time = get<dynamic_global_property_object>(dynamic_global_property_id_type()).next_maintenance_time;

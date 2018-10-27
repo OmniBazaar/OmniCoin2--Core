@@ -21,6 +21,28 @@ namespace omnibazaar {
         static std::vector<fc::path> get_files_in_folder(const fc::path& path);
         // Calculate square root using only integers.
         static uint32_t isqrt(const uint32_t n);
+
+        // Convert array of strings to lowercase.
+        template<typename C>
+        static C to_lower(const C &container);
+
+        // Create the intersection between two unordered sets.
+        // std::set_intersection requires input containers to be sorted, which is not the case with std::unordered_set,
+        // so this method reimplements it without such requirement.
+        template<typename T>
+        static std::unordered_set<T> intersection(const std::unordered_set<T>& a, const std::unordered_set<T>& b);
+
+        // Create a container with copies of elements from 'a' which are not present in 'b'.
+        // std::set_difference requires input containers to be sorted, which is not the case with std::unordered_set,
+        // so this method reimplements it without such requirement.
+        template<typename T>
+        static std::unordered_set<T> difference(const std::unordered_set<T>& a, const std::unordered_set<T>& b);
+
+        // Wrappers for corresponding STL functions.
+        template<typename C>
+        static C set_difference(const C &container1, const C &container2);
+        template<typename C>
+        static C set_intersection(const C &container1, const C &container2);
     };
 }
 
@@ -78,3 +100,69 @@ namespace omnibazaar {
 #define exchange_idump( SEQ ) exchange_ilog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define exchange_wdump( SEQ ) exchange_wlog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
 #define exchange_edump( SEQ ) exchange_elog( FC_FORMAT(SEQ), FC_FORMAT_ARG_PARAMS(SEQ) )
+
+template<typename C>
+C omnibazaar::util::to_lower(const C &container)
+{
+    C result;
+    std::transform(std::begin(container),
+                   std::end(container),
+                   std::inserter(result, std::end(result)),
+                   [](const std::string& str){ return fc::to_lower(str); });
+    return result;
+}
+
+template<typename T>
+std::unordered_set<T> omnibazaar::util::intersection(const std::unordered_set<T>& a, const std::unordered_set<T>& b)
+{
+    if(a.size() <= b.size())
+    {
+        std::unordered_set<T> result;
+        for(const auto &elem: a)
+        {
+            if(b.count(elem) > 0)
+            {
+                result.insert(elem);
+            }
+        }
+        return result;
+    }
+    else
+    {
+        return intersection(b, a);
+    }
+}
+
+template<typename T>
+std::unordered_set<T> omnibazaar::util::difference(const std::unordered_set<T>& a, const std::unordered_set<T>& b)
+{
+    std::unordered_set<T> result;
+    for(const auto &elem: a)
+    {
+        if(b.count(elem) <= 0)
+        {
+            result.insert(elem);
+        }
+    }
+    return result;
+}
+
+template<typename C>
+C omnibazaar::util::set_difference(const C &container1, const C &container2)
+{
+    C result;
+    std::set_difference(std::begin(container1), std::end(container1),
+                        std::begin(container2), std::end(container2),
+                        std::inserter(result, std::end(result)));
+    return result;
+}
+
+template<typename C>
+C omnibazaar::util::set_intersection(const C &container1, const C &container2)
+{
+    C result;
+    std::set_intersection(std::begin(container1), std::end(container1),
+                          std::begin(container2), std::end(container2),
+                          std::inserter(result, std::end(result)));
+    return result;
+}

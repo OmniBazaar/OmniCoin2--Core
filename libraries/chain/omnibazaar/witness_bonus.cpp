@@ -20,9 +20,9 @@ namespace omnibazaar {
         bonus_ddump((witness_id));
 
         const auto dyn_props = db.get_dynamic_global_properties();
-        if(dyn_props.head_block_number >= OMNIBAZAAR_WITNESS_BLOCK_LIMIT)
+        if(dyn_props.witness_bonus >= OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS)
         {
-            bonus_wdump(("Bonus is not available.")(dyn_props.head_block_number)(OMNIBAZAAR_WITNESS_BLOCK_LIMIT));
+            bonus_wdump(("Bonus is not available.")(dyn_props.witness_bonus)(OMNIBAZAAR_WITNESS_BONUS_TOTAL_COINS));
             return false;
         }
 
