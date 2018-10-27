@@ -1,33 +1,33 @@
 {
-  "initial_timestamp": "2018-09-18T18:00:00",
-  "max_core_supply": "100000000000000000",
+  "initial_timestamp": "2018-10-27T18:00:00",
+  "max_core_supply": "2500000000000000",
   "founder": {
     "name": "omnibazaar",
-    "btc_address": "",
-    "eth_address": "",
-    "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
-    "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
+    "btc_address": "12zYsQLGL84U1a4QMRcRQFFXMXxEhRFt5b",
+    "eth_address": "0x2944C1FA64E0c49482E67CF46697c39270143bBE",
+    "owner_key": "XOM6hdL6noWwhJPwXkxMHb91io45HFw8JE36zZF522iFaxsHWxhas",
+    "active_key": "XOM7LdNaTdcwG7iPR9Hd32s1eJ2RL219d2QXrnCm2a2NAuU6TA2tR"
   },
   "kyc": {
     "name": "kyc",
-    "btc_address": "",
-    "eth_address": "",
-    "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
-    "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
+    "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+    "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+    "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+    "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
   },
   "exchange": {
     "name": "exchange",
-    "btc_address": "",
-    "eth_address": "",
-    "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
-    "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
+    "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+    "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+    "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+    "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
   },
   "welcome": {
     "name": "welcome",
-    "btc_address": "",
-    "eth_address": "",
-    "owner_key": "XOM8UrM3abfE9JT6fLCBKT1eGSn67xzao4QmeYyVReekLUWHvsfdn",
-    "active_key": "XOM5VGkwgppGH95JnxdMJyMpuBA1hnVwY1REu7jbqCv2yJSiXQddV"
+    "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+    "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+    "owner_key": "XOM8DXw6j8jHSpBzA1J1SwwoJThiBgRigK93a7WWzDh9s1G9bzzRy",
+    "active_key": "XOM5DCU6kgBmyJzJgvU25RqbKHpxCkA34JZ9655fbKm1sKyvVHrdM"
   },
   "initial_parameters": {
     "current_fees": {
@@ -115,7 +115,7 @@
           }
         ],[
           19,{
-            "fee": 500000000
+            "fee": 2500000000
           }
         ],[
           20,{
@@ -154,7 +154,7 @@
           }
         ],[
           28,{
-            "fee": 500000000
+            "fee": 2500000000
           }
         ],[
           29,{
@@ -174,7 +174,7 @@
           }
         ],[
           33,{
-            "fee": 500000000
+            "fee": 2500000000
           }
         ],[
           34,{
@@ -294,9 +294,13 @@
           62,{
             "fee": 0
           }
+        ],[
+          63,{
+            "fee": 100000
+          }
         ]
       ],
-      "scale": 10000
+      "scale": 2000
     },
     "block_interval": 10,
     "maintenance_interval": 3600,
@@ -309,8 +313,8 @@
     "maximum_asset_whitelist_authorities": 10,
     "maximum_asset_feed_publishers": 10,
     "maximum_authority_membership": 10,
-    "reserve_percent_of_fee": 2000,
-    "network_percent_of_fee": 2000,
+    "reserve_percent_of_fee": 3000,
+    "network_percent_of_fee": 3000,
     "cashback_vesting_period_seconds": 2592000,
     "cashback_vesting_threshold": 10000000,
     "allow_non_member_whitelists": false,
@@ -322,7 +326,7 @@
     "account_fee_scale_bitshifts": 4,
     "max_authority_depth": 2,
     "maximum_escrow_lifetime": 7776000,
-    "maximum_listing_lifetime": 5184000,
+    "maximum_listing_lifetime": 15552000,
     "listing_ban_threshold": 3,
     "maximum_listing_priority_fee": 200,
     "witness_count_term": 20,
@@ -340,120 +344,542 @@
   },
   "initial_accounts": [{
       "name": "init0",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init1",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init2",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init3",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init4",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init5",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init6",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init7",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init8",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init9",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "init10",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
     },{
       "name": "nathan",
-      "btc_address": "",
-      "eth_address": "",
-      "owner_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
-      "active_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
-    }
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+    },{
+      "name": "omnicoin",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "developer",
+      "btc_address": "14HVjRYD75yThT28fzRLD9QufkVY4p2eJs",
+      "eth_address": "0xaCb4095D97253a758a79a9E7737d2E035d98FeBb",
+      "owner_key": "XOM7kbDBA2exPH4DqY9FUwR54KCHFjvdT5WkwSgtMZFQubRURbcwx",
+      "active_key": "XOM7FnamAGYbySKkgfpjiLkM99DUo7j1CfB2VhPiiQhC5cCvziRPk"
+    },{
+      "name": "publisher",
+      "btc_address": "1CqjNptFBADC7AHPYZLdt82rH2DbpMyeeg",
+      "eth_address": "0xCF3021B37aA98226207e22aa46bC50e515d6179b",
+      "owner_key": "XOM5bWrHoW6eogy5RxBvKqM96TwsbxG2YY2b3QaJyeVMbMSEr7B2N",
+      "active_key": "XOM6r5Xj7w5xhL34fZ1xAfkqnRM8DBFfTrMYczFwi9ppCxPFmguqu"
+    },{
+      "name": "listings",
+      "btc_address": "1JS89QbVHfuU7LYQqF57j32FrrHrjMu6d5",
+      "eth_address": "0xaED3777adDE505A9846Cb6698B8b62D06EaC1E88",
+      "owner_key": "XOM78xtn27xT6SEGpSfQPXYttsZ5p6QM9ixK6T2rjwxmifT8a7rvg",
+      "active_key": "XOM7YWThFdn7c5rJY8CnBq1QsQdhpzCAfYV26KsQeehwmymv32mgZ"
+    },{
+      "name": "processor",
+      "btc_address": "1Ke9Xh4NvrcbYGXPFTkUn4wZQxrjU3MmV",
+      "eth_address": "0xb1623a1C5d8e44DC82ca73e443EBF93944572acE",
+      "owner_key": "XOM6oGXSD4wAHGi2qXMXL4jYfnZXffaRQzJbBbyxBChBAHjFUtg5F",
+      "active_key": "XOM518kCrpy4KnPT9xzY9oe2jk5u7sYDt5nbUGh4tYUC7fYmQ3VPV"
+    },{
+      "name": "referrer",
+      "btc_address": "15HZDa2uiPo5ZNQ5fhn9oYH77fjyeQ1ZES",
+      "eth_address": "0x0C42f72a3d2FB96263E8f909A8c4f6E9E2Be8E9A",
+      "owner_key": "XOM61xFa98smYTbCqJTarQpgzjNU5g63mM5AjeA6zscw51ForcqdL",
+      "active_key": "XOM7V8gAbM4Gjazw5zRXnYxBr3C38mo3B9GaczeCmavpvdXQ3wxaJ"
+    },{
+      "name": "escrow",
+      "btc_address": "1PJAFxHpudCNbWhWPeEin4rvorod5TMhSg",
+      "eth_address": "0xe4160c5f6D90bF231977038f0F1Cb9e312394A08",
+      "owner_key": "XOM58npFoyf8m92rirMFfWQcZiPA8HihX3zJkrVBFmwSwVSEtsE7y",
+      "active_key": "XOM5DEgXEm8VdAncYL5S8eCtR8eLV4jLVUNvFSVSE1qVJDSQuiW7R"
+    },{
+      "name": "barter",
+      "btc_address": "1ESpTnotNU64W6KwonefAF3GxMCA2NDAvJ",
+      "eth_address": "0xF22bdea5699C7c8aF549C1D8343770a817e6676C",
+      "owner_key": "XOM8MWxGW7J8BPgLzZhqiYYRRWoCjdjnkJ643twsUQR5jGqUabAc7",
+      "active_key": "XOM8cGKoQmxNvbQufEP8jsHbAauch1jdDa1XmQR1DbxxbzUtnbcHY"
+    },{
+      "name": "social",
+      "btc_address": "13hmP9KTTpt24SHNVWAKtFaTyypaWAFgjS",
+      "eth_address": "0x7279A84c3b5E32c7eCC5DA27C139534AF402Ff12",
+      "owner_key": "XOM8EWEu84uvbAF6CzGqEMxyvfyJnhrqCbBRtMwya8yVuq6DANfX3",
+      "active_key": "XOM6mTJHcqRhf9iMHMmgCwrhNyqDPnyd379J7Zpp84p9R2gzHzZNy"
+    },{
+      "name": "cryptobazaar",
+      "btc_address": "148VZ1X7b78VmZxVLbLPxzHyqGgesznPs8",
+      "eth_address": "0x1Acc70a8Db26D01b48d35328E71d987E8bF0a4F9",
+      "owner_key": "XOM511rC1ULqyQt2RMqxReFwD86SVRudjdsBHDsZ5WJ5mq1XEKp1C",
+      "active_key": "XOM4zvqAAMSqY35QKgvvnCKsivaYmMuw5Jq7QhAFJi79Y2d9pMcGg"
+    },{
+      "name": "bounty",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7L4Fkct1mtLYnkefQJeLdXG53Eiqh2HCkb7LVduyZt1FEEHnqa",
+      "active_key": "XOM51oiKcQnLw95TqQsgkrUbhf6CvK2wqofapCdreMfPFgnd8Wmc8"
+    },{
+      "name": "phase0",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM8eFoFQ8VJVZ8jLcqvD9GbiwKSowpmHipKXzni5Mb7PU5Zng7SW",
+      "active_key": "XOM5oM2jCb5gEuisDkDTsm7X5WK4hamZa2hMVvmQir1XLHbXFpP3B"
+    },{
+      "name": "phase1",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM4xT6eM6CBtN2t5LD87FdZaFtchYADj5rKwWCVwZBuwJNBhcNrU",
+      "active_key": "XOM8maBLtNT2GYQqGhH1XbQdYvvJRxfod5d3VFGywZzgfr2taM2UJ"
+    },{
+      "name": "phase2",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM5V9ohVRHVA6Djh8MrV6ic2AKuTAH25vFpJVjVQhkB8vjkHVsHY",
+      "active_key": "XOM5TyG8YqwS4GUs3VuzZ8p2URpLZocRN5w3ZikNbuJemRduiVUG5"
+    },{
+      "name": "phase3",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7t7PJQb5SkENd6ycbbWTBkii9KzKQS1HWcKntS247S8iSJjoNa",
+      "active_key": "XOM8Pf8LFkBm3s8BKXxWGubnqNKFZ7KocqYWqkxoVuhboUhvEifZ2"
+  }
   ],
-  "initial_assets": [],
+  "initial_assets": [
+        {
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Bitshares token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "BTS"
+        },
+        {
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Ether token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "ETH"
+        },
+        {
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Monero token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "XMR"
+        }, 
+		{
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Ripple token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "XRP"
+        },{
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Bitcoin Cash token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "BCH"
+        },{
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 EOS token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "EOS"
+        },{
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Lumen token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "XLM"
+        },{
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Cardano token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "ADA"
+        },{
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 IOTA token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "IOTA"
+        },{ 
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Litecoin token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "LTC"
+        },
+        {
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 Bitcoin token",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "BTC"
+        },
+        {
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "description": "1 barrel of light sweet crude oil",
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "WTI"
+        },
+        {
+            "description": "1 troy ounce .999 fine silver",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "SLV"
+        },
+        {
+            "description": "1 troy ounce .999 fine gold",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "GLD"
+        },
+        {
+            "description": "1 Turkish lira",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "TRY"
+        },
+        {
+            "description": "1 Singapore dollar",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "SGD"
+        },
+        {
+            "description": "1 Hong Kong dollar",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "HKD"
+        },
+        {
+            "description": "1 Russian ruble",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "RUB"
+        },
+        {
+            "description": "1 Swedish krona",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "SEK"
+        },
+        {
+            "description": "1 New Zealand dollar",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "NZD"
+        },
+        {
+            "description": "1 Chinese yuan",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "CNY"
+        },
+        {
+            "description": "1 Mexican peso",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "MXN"
+        },
+        {
+            "description": "1 Canadian dollar",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "CAD"
+        },
+        {
+            "description": "1 Swiss franc",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "CHF"
+        },
+        {
+            "description": "1 Australian dollar",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "AUD"
+        },
+        {
+            "description": "1 Pound Sterling",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "GBP"
+        },
+        {
+            "description": "1 Japanese yen",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "JPY"
+        },
+        {
+            "description": "1 Euro",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "EUR"
+        },
+        {
+            "description": "1 United States dollar",
+            "accumulated_fees": 0,
+            "collateral_records": [],
+            "is_bitasset": true,
+            "issuer_name": "committee-account",
+            "max_supply": "1000000000000000",
+            "precision": 4,
+            "symbol": "USD"
+        }
+    ],
   "initial_balances": [{
-      "owner": "XOMFAbAx7yuxt725qSZvfwWqkdCwp9ZnUama",
+      "owner": "XOM9yuWURHguPFwEkQrfzhE9mmJAJ2dCX5DX",
       "asset_symbol": "XOM",
-      "amount": "1000000000000000"
+      "amount": "25700000000000"
+    },
+	{
+      "owner": "XOMgX4kj3fcK8zk3Jh4RRRJWVHUkd63fQFR",
+      "asset_symbol": "XOM",
+      "amount": "140000000000000"
+    },
+	{
+      "owner": "XOMHPjmWvmcH2u4wSyAF6SvZNprAbGYNrb6C",
+      "asset_symbol": "XOM",
+      "amount": "200000000000000"
+    },
+	{
+      "owner": "XOMDQcv65ctPVXG7TPfomm9qZCcM34p8qV7o",
+      "asset_symbol": "XOM",
+      "amount": "200000000000000"
+    },
+	{
+      "owner": "XOMFKRxhQjtmyfS2gsigRUm1ws7JuhuERfqm",
+      "asset_symbol": "XOM",
+      "amount": "300000000000000"
     }
   ],
   "initial_vesting_balances": [],
-  "initial_active_witnesses": 11,
+  "initial_active_witnesses": 20,
   "initial_witness_candidates": [{
       "owner_name": "init0",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init1",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init2",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init3",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init4",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init5",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init6",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init7",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init8",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init9",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init10",
-      "block_signing_key": "XOM6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "developer",
+      "block_signing_key": "XOM7FnamAGYbySKkgfpjiLkM99DUo7j1CfB2VhPiiQhC5cCvziRPk"
+    },{
+      "owner_name": "publisher",
+      "block_signing_key": "XOM6r5Xj7w5xhL34fZ1xAfkqnRM8DBFfTrMYczFwi9ppCxPFmguqu"
+    },{
+      "owner_name": "listings",
+      "block_signing_key": "XOM7YWThFdn7c5rJY8CnBq1QsQdhpzCAfYV26KsQeehwmymv32mgZ"
+    },{
+      "owner_name": "referrer",
+      "block_signing_key": "XOM7V8gAbM4Gjazw5zRXnYxBr3C38mo3B9GaczeCmavpvdXQ3wxaJ"
+    },{
+      "owner_name": "escrow",
+      "block_signing_key": "XOM5DEgXEm8VdAncYL5S8eCtR8eLV4jLVUNvFSVSE1qVJDSQuiW7R"
+    },{
+      "owner_name": "social",
+      "block_signing_key": "XOM6mTJHcqRhf9iMHMmgCwrhNyqDPnyd379J7Zpp84p9R2gzHzZNy"
+    },{
+      "owner_name": "processor",
+      "block_signing_key": "XOM518kCrpy4KnPT9xzY9oe2jk5u7sYDt5nbUGh4tYUC7fYmQ3VPV"
+    },{
+      "owner_name": "cryptobazaar",
+      "block_signing_key": "XOM4zvqAAMSqY35QKgvvnCKsivaYmMuw5Jq7QhAFJi79Y2d9pMcGg"
+    },{
+      "owner_name": "barter",
+      "block_signing_key": "XOM8cGKoQmxNvbQufEP8jsHbAauch1jdDa1XmQR1DbxxbzUtnbcHY"
     }
   ],
   "initial_committee_candidates": [{
@@ -485,7 +911,7 @@
   "immutable_parameters": {
     "min_committee_member_count": 11,
     "min_witness_count": 11,
-    "num_special_accounts": 0,
-    "num_special_assets": 0
+    "num_special_accounts": 100,
+    "num_special_assets": 100
   }
 }
