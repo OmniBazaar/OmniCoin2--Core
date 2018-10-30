@@ -1,5 +1,5 @@
 {
-  "initial_timestamp": "2018-10-27T18:00:00",
+  "initial_timestamp": "2018-10-31T00:00:00",
   "max_core_supply": "2500000000000000",
   "founder": {
     "name": "omnibazaar",
@@ -347,73 +347,127 @@
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init1",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init2",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init3",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init4",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init5",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init6",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init7",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init8",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init9",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "init10",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init11",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init12",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init13",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init14",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init15",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init16",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init17",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init18",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "name": "init19",
+      "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
+      "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
+      "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "nathan",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
       "eth_address": "0x3339D8F8cD248589AE4A6bEcDf94CCA8829ed378",
       "owner_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo",
-      "active_key": "XOM7SSJhRa5gYx2tdqQqVefVT4BEzvui8pkqCnCNxk4jgskzwJECo"
+      "active_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "name": "omnicoin",
       "btc_address": "1JSz3ZfrmSAyrAYJFCYLKZeTP3qMr1LLy8",
@@ -852,6 +906,33 @@
       "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "init10",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init11",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init12",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init13",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init14",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init15",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init16",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init17",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init18",
+      "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
+    },{
+      "owner_name": "init19",
       "block_signing_key": "XOM5uUXUxavZSmY2Er1aD783HoFmxJJ6YCazhw4bwijo5mWWvPc8S"
     },{
       "owner_name": "developer",
