@@ -112,7 +112,7 @@ namespace omnibazaar {
 
     void mail_controller::mail_sending_tick()
     {
-        mail_ilog("Processing pending mails.");
+        mail_dlog("Processing pending mails.");
         // Re-send mails that were not successfully delivered to receivers.
         const std::vector<fc::path> pending_mails = _app.mail_storage()->get_pending_mails();
         for(const auto& path : pending_mails)
@@ -154,7 +154,7 @@ namespace omnibazaar {
             }
         }
 
-        mail_ilog("Processing delivered mails.");
+        mail_dlog("Processing delivered mails.");
         // Re-send notifications to senders for mails that were delivered to receivers.
         const std::vector<std::string> pending_notifications = _app.mail_storage()->get_received_mails();
         for(const auto& mail_uuid : pending_notifications)
