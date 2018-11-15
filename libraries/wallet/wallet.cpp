@@ -2571,6 +2571,25 @@ public:
       }
    }
 
+   void use_asset_api()
+   {
+       if( _remote_asset )
+           return;
+
+       try
+       {
+           _remote_asset = _remote_api->asset();
+       }
+       catch(const fc::exception &e)
+       {
+           std::cerr << "\nCouldn't get Asset API.  You probably are not configured\n"
+           "to access the Asset API on the witness_node you are\n"
+           "connecting to.  Please follow the instructions in README.md to set up an apiaccess file.\n"
+           "\n";
+           throw;
+       }
+   }
+
    void network_add_nodes( const vector<string>& nodes )
    {
       use_network_node_api();
@@ -2721,6 +2740,7 @@ public:
    fc::api<database_api>   _remote_db;
    fc::api<network_broadcast_api>   _remote_net_broadcast;
    fc::api<history_api>    _remote_hist;
+   optional< fc::api<asset_api> > _remote_asset;
    optional< fc::api<network_node_api> > _remote_net_node;
    optional< fc::api<graphene::debug_witness::debug_api> > _remote_debug;
 
@@ -4742,6 +4762,24 @@ signed_transaction wallet_api::propose_reserved_names(const string& proposing_ac
         return sign_transaction(tx, broadcast);
     }
     FC_CAPTURE_AND_RETHROW( (proposing_account)(expiration_time)(names_to_add)(names_to_delete)(broadcast) )
+}
+
+vector<account_asset_balance> wallet_api::get_asset_holders( asset_id_type asset_id, uint32_t start, uint32_t limit )const
+{
+    my->use_asset_api();
+    return (*my->_remote_asset)->get_asset_holders(asset_id, start, limit);
+}
+
+int wallet_api::get_asset_holders_count( asset_id_type asset_id )const
+{
+    my->use_asset_api();
+    return (*my->_remote_asset)->get_asset_holders_count(asset_id);
+}
+
+vector<asset_holders> wallet_api::get_all_asset_holders() const
+{
+    my->use_asset_api();
+    return (*my->_remote_asset)->get_all_asset_holders();
 }
 
 vector<vector<account_id_type>> wallet_api::get_key_references( const vector<public_key_type>& keys )const

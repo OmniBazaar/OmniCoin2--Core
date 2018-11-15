@@ -1647,6 +1647,10 @@ class wallet_api
        */
       vector<proposal_object> get_proposed_transactions( const string& name_or_id )const;
 
+      // Asset API.
+      vector<account_asset_balance> get_asset_holders( asset_id_type asset_id, uint32_t start, uint32_t limit )const;
+      int get_asset_holders_count( asset_id_type asset_id )const;
+      vector<asset_holders> get_all_asset_holders() const;
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1858,4 +1862,7 @@ FC_API( graphene::wallet::wallet_api,
         (propose_reserved_names)
         (get_key_references)
         (get_proposed_transactions)
+        (get_asset_holders)
+        (get_asset_holders_count)
+        (get_all_asset_holders)
       )
