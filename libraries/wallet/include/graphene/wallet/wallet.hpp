@@ -73,6 +73,13 @@ struct password_key_info
    address address_active;
 };
 
+struct account_address
+{
+    string name;
+    fc::flat_set<address> address_owner;
+    fc::flat_set<address> address_active;
+};
+
 /**
  *  Contains the confirmation receipt the sender must give the receiver and
  *  the meta data about the receipt that helps the sender identify which receipt is
@@ -1652,6 +1659,8 @@ class wallet_api
       int get_asset_holders_count( asset_id_type asset_id )const;
       vector<asset_holders> get_all_asset_holders() const;
 
+      account_address get_account_address(string name_or_id);
+
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
       fc::signal<void(bool)> lock_changed;
@@ -1728,6 +1737,11 @@ FC_REFLECT( graphene::wallet::password_key_info,
             (address_active)
             (address_owner)
             )
+
+FC_REFLECT( graphene::wallet::account_address,
+            (name)
+            (address_owner)
+            (address_active))
 
 FC_API( graphene::wallet::wallet_api,
         (help)
@@ -1865,4 +1879,5 @@ FC_API( graphene::wallet::wallet_api,
         (get_asset_holders)
         (get_asset_holders_count)
         (get_all_asset_holders)
+        (get_account_address)
       )

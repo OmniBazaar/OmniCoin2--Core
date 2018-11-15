@@ -4792,6 +4792,18 @@ vector<proposal_object> wallet_api::get_proposed_transactions(const string& name
     return my->_remote_db->get_proposed_transactions(my->get_account(name_or_id).id);
 }
 
+account_address wallet_api::get_account_address(string name_or_id)
+{
+    const account_object account = my->get_account(name_or_id);
+    account_address addr;
+    addr.name = account.name;
+    for(auto i : account.owner.key_auths)
+        addr.address_owner.insert(i.first);
+    for(auto i : account.active.key_auths)
+        addr.address_active.insert(i.first);
+    return addr;
+}
+
 signed_block_with_info::signed_block_with_info( const signed_block& block )
    : signed_block( block )
 {
