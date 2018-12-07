@@ -1602,6 +1602,15 @@ class wallet_api
        */
       signed_transaction set_account_verification(const string& account, const bool new_status);
 
+      /** Open exchange process by creating exchange_object.
+       * @param coin_name Currency name, such as BTC or ETH.
+       * @param tx_id Transaction ID in network of specified coin.
+       * @param sender Account that sends funds to exchange.
+       * @param amount XOM amount that user will receive as a result of this exchange.
+       * @returns the signed transaction on success.
+       */
+      signed_transaction create_exchange(const string &coin_name, const string &tx_id, const string &sender_name_or_id, const asset &amount);
+
       /** Set confirmed status for specified exchange object (effectively delete it from database).
        * @param exchange_id ID of the exchange object.
        * @param amount XOM amount that will be sent to user that is exchanging funds.
@@ -1868,6 +1877,7 @@ FC_API( graphene::wallet::wallet_api,
         (receive_blind_transfer)
         (get_order_book)
         (set_account_verification)
+        (create_exchange)
         (confirm_exchange)
         (get_publisher_names)
         (create_keys_from_password)

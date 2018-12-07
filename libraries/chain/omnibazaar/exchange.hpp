@@ -10,8 +10,8 @@ namespace omnibazaar {
     struct exchange_create_operation : public graphene::chain::base_operation
     {
         struct fee_parameters_type {
-           uint64_t fee             = GRAPHENE_BLOCKCHAIN_PRECISION;
-           uint32_t price_per_kbyte = 10;
+           uint64_t fee             = 0;
+           uint32_t price_per_kbyte = 0;
         };
 
         // Operation fee.
@@ -20,14 +20,16 @@ namespace omnibazaar {
         fc::string coin_name;
         // Transaction ID for specified currency.
         fc::string tx_id;
-        // Account that created the transaction.
+        // Account that created the initial transaction and will receive funds as a result of this exchange.
         graphene::chain::account_id_type sender;
+        // Transfer amount.
+        graphene::chain::asset amount;
 
         // Future extensions.
         graphene::chain::extensions_type extensions;
 
         // base_operation interface
-        graphene::chain::account_id_type fee_payer()const { return sender; }
+        graphene::chain::account_id_type fee_payer()const { return OMNIBAZAAR_EXCHANGE_ACCOUNT; }
         void validate()const;
         graphene::chain::share_type calculate_fee(const fee_parameters_type& k)const;
     };
@@ -45,8 +47,6 @@ namespace omnibazaar {
         graphene::chain::exchange_id_type exchange;
         // Account that will receive funds from Exchange account.
         graphene::chain::account_id_type receiver;
-        // Transfer amount.
-        graphene::chain::asset amount;
         // Memo data encrypted to the memo key of the "receiver" account.
         fc::optional<graphene::chain::memo_data> memo;
 
@@ -65,6 +65,7 @@ FC_REFLECT( omnibazaar::exchange_create_operation,
             (coin_name)
             (tx_id)
             (sender)
+            (amount)
             (extensions)
             )
 
@@ -73,7 +74,6 @@ FC_REFLECT( omnibazaar::exchange_complete_operation,
             (fee)
             (exchange)
             (receiver)
-            (amount)
             (memo)
             (extensions)
             )
