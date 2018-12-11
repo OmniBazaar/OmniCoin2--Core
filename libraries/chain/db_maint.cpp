@@ -243,6 +243,7 @@ void database::update_account_scores()
     const uint64_t max_listings = listing_idx.empty() ? 0 : (--listing_idx.end())->listings_count;
     pop_ddump((max_listings));
 
+    // Reputation Score
     // Get the largest number of reputation votes for any user.
     // Index is sorted in ascending order, so use last element value.
     const auto& accounts_reputations = get_index_type<account_index>().indices().get<by_reputation_votes>();
@@ -251,6 +252,28 @@ void database::update_account_scores()
 
     const omnibazaar::pop_weights pop_weights = get_global_properties().parameters.pop_weights;
     const auto& all_accounts = get_index_type<account_index>().indices();
+
+    // Reputation Score
+    // Calculate largest reputation weight of all users.
+    fc::uint128_t max_weight_sum = 0;
+    if(head_block_time() > HARDFORK_OM_713_TIME)
+    {
+        for(const account_object& account : all_accounts)
+        {
+            const account_statistics_object& stats = account.statistics(*this);
+            if(!stats.reputation_votes.empty())
+            {
+                fc::uint128_t weight_sum = 0;
+                for(const auto& iter : stats.reputation_votes)
+                {
+                    const std::pair<uint16_t, asset> vote_info = iter.second;
+                    weight_sum += vote_info.second.amount.value;
+                }
+                max_weight_sum = std::max(max_weight_sum, weight_sum);
+            }
+        }
+    }
+
     for(const account_object& account : all_accounts)
     {
         uint16_t new_referral_score = account.referral_score;
@@ -295,16 +318,33 @@ void database::update_account_scores()
             pop_ddump((weighted_votes_sum)(weight_sum));
 
             // For actual score store value with transfers number weight applied.
-            // Raw formula is:
-            //  weighted_votes_sum   account.reputation_votes_count
-            //  ------------------ * ------------------------------
-            //      weight_sum            max_reputation_votes       * GRAPHENE_100_PERCENT
-            // -----------------------------------------------------
-            //               OMNIBAZAAR_REPUTATION_MAX
-            new_reputation_score = ((weighted_votes_sum * account.reputation_votes_count * GRAPHENE_100_PERCENT)
-                    / (weight_sum * max_reputation_votes)
-                    / OMNIBAZAAR_REPUTATION_MAX
-                    ).to_integer();
+            if(head_block_time() <= HARDFORK_OM_713_TIME)
+            {
+                // Raw formula is:
+                //  weighted_votes_sum   account.reputation_votes_count
+                //  ------------------ * ------------------------------
+                //      weight_sum            max_reputation_votes       * GRAPHENE_100_PERCENT
+                // -----------------------------------------------------
+                //               OMNIBAZAAR_REPUTATION_MAX
+                new_reputation_score = ((weighted_votes_sum * account.reputation_votes_count * GRAPHENE_100_PERCENT)
+                        / (weight_sum * max_reputation_votes)
+                        / OMNIBAZAAR_REPUTATION_MAX
+                        ).to_integer();
+            }
+            else
+            {
+                // Raw formula is:
+                //  weighted_votes_sum   account.reputation_votes_count
+                //  ------------------ * ------------------------------
+                //    max_weight_sum          max_reputation_votes       * GRAPHENE_100_PERCENT
+                // -----------------------------------------------------
+                //               OMNIBAZAAR_REPUTATION_MAX
+                new_reputation_score = ((weighted_votes_sum * account.reputation_votes_count * GRAPHENE_100_PERCENT)
+                        / (max_weight_sum * max_reputation_votes)
+                        / OMNIBAZAAR_REPUTATION_MAX
+                        ).to_integer();
+            }
+
             pop_ddump((new_reputation_score)(account.reputation_score));
         }
         else
