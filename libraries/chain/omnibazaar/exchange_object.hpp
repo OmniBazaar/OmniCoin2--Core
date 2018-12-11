@@ -20,6 +20,8 @@ namespace omnibazaar {
         fc::string tx_id;
         // Account that created the transaction.
         graphene::chain::account_id_type sender;
+        // Amount that will be transferred to user as a result of this exchange.
+        graphene::chain::asset amount;
 
         // Future extensions.
         graphene::chain::extensions_type extensions;
@@ -55,5 +57,6 @@ FC_REFLECT_DERIVED(omnibazaar::exchange_object, (graphene::chain::object),
                    (coin_name)
                    (tx_id)
                    (sender)
+                   (amount)
                    (extensions)
                    )

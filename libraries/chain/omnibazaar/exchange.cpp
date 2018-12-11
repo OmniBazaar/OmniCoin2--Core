@@ -7,6 +7,7 @@ namespace omnibazaar {
         FC_ASSERT( fee.amount >= 0 );
         FC_ASSERT( coin_name.length(), "Coin name is empty." );
         FC_ASSERT( tx_id.length(), "Transaction ID is empty." );
+        FC_ASSERT( amount.amount > 0 );
     }
 
     graphene::chain::share_type exchange_create_operation::calculate_fee(const fee_parameters_type& k)const
@@ -17,7 +18,6 @@ namespace omnibazaar {
     void exchange_complete_operation::validate()const
     {
         FC_ASSERT( fee.amount >= 0 );
-        FC_ASSERT( amount.amount > 0 );
     }
 
 }
