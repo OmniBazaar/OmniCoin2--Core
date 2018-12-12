@@ -2719,7 +2719,7 @@ public:
        FC_CAPTURE_AND_RETHROW( (coin_name)(tx_id)(sender_name_or_id)(amount) )
    }
 
-   signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
+   signed_transaction confirm_exchange(const exchange_id_type exchange_id, const string& memo)
    {
        try
        {
@@ -4699,9 +4699,9 @@ signed_transaction wallet_api::create_exchange(const string &coin_name, const st
     return my->create_exchange(coin_name, tx_id, sender_name_or_id, amount);
 }
 
-signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
+signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id, const string& memo)
 {
-    return my->confirm_exchange(exchange_id, amount, memo);
+    return my->confirm_exchange(exchange_id, memo);
 }
 
 std::vector<std::string> wallet_api::get_publisher_names() const

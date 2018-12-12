@@ -1605,19 +1605,18 @@ class wallet_api
       /** Open exchange process by creating exchange_object.
        * @param coin_name Currency name, such as BTC or ETH.
        * @param tx_id Transaction ID in network of specified coin.
-       * @param sender Account that sends funds to exchange.
+       * @param sender_name_or_id Account that sends funds to exchange.
        * @param amount XOM amount that user will receive as a result of this exchange.
        * @returns the signed transaction on success.
        */
       signed_transaction create_exchange(const string &coin_name, const string &tx_id, const string &sender_name_or_id, const asset &amount);
 
-      /** Set confirmed status for specified exchange object (effectively delete it from database).
+      /** Set confirmed status for specified exchange object (effectively delete it from database) and transfer XOM.
        * @param exchange_id ID of the exchange object.
-       * @param amount XOM amount that will be sent to user that is exchanging funds.
        * @param memo Optional memo.
        * @returns the signed transaction on success.
        */
-      signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo);
+      signed_transaction confirm_exchange(const exchange_id_type exchange_id, const string& memo);
 
       std::vector<std::string> get_publisher_names() const;
 
