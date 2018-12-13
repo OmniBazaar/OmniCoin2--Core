@@ -210,6 +210,13 @@ object_id_type account_create_evaluator::do_apply( const account_create_operatio
          obj.mac_address = o.mac_address;
          obj.btc_address = o.btc_address;
          obj.eth_address = o.eth_address;
+
+         if(db().head_block_time() > HARDFORK_OM_702_TIME)
+         {
+             obj.implicit_escrow_options.active_witness = true;
+             obj.implicit_escrow_options.positive_rating = true;
+             obj.implicit_escrow_options.voted_witness = true;
+         }
    });
 
    /*
