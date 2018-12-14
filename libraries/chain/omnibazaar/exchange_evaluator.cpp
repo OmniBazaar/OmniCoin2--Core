@@ -23,6 +23,10 @@ namespace omnibazaar {
             FC_ASSERT( account.verified, "Account ${a} is not verified and cannot perform exchange operations.",
                        ("a", account.name) );
 
+            // Check that exchange has enough funds.
+            FC_ASSERT( d.get_balance(OMNIBAZAAR_EXCHANGE_ACCOUNT(d), op.amount.asset_id(d)).amount >= op.amount.amount,
+                       "Exchange does not have enough balance to complete operation." );
+
             return graphene::chain::void_result();
         }
         FC_CAPTURE_AND_RETHROW( (op) )
@@ -42,6 +46,7 @@ namespace omnibazaar {
                 e.coin_name = fc::to_lower(op.coin_name);
                 e.sender = op.sender;
                 e.tx_id = op.tx_id;
+                e.amount = op.amount;
             });
 
             return exchange_obj.id;
@@ -59,10 +64,6 @@ namespace omnibazaar {
 
             // Check that exchange object exists.
             const exchange_object& obj = op.exchange(d);
-
-            // Check that exchange has enough funds.
-            FC_ASSERT( d.get_balance(OMNIBAZAAR_EXCHANGE_ACCOUNT(d), op.amount.asset_id(d)).amount >= op.amount.amount,
-                       "Exchange does not have enough balance to complete operation." );
 
             // Check that account that will receive funds from exchange is the same account
             // that originally sent funds to exchange.
@@ -82,12 +83,13 @@ namespace omnibazaar {
 
             graphene::chain::database& d = db();
 
+            exchange_dlog("Sending funds to '${r}'.", ("r", op.receiver(d)));
+            const auto amount = op.exchange(d).amount;
+            d.adjust_balance(OMNIBAZAAR_EXCHANGE_ACCOUNT, -amount);
+            d.adjust_balance(op.receiver, amount);
+
             exchange_dlog("Removing exchange object ${obj}.", ("obj", op.exchange));
             d.remove(op.exchange(d));
-
-            exchange_dlog("Sending funds to '${r}'.", ("r", op.receiver(d)));
-            d.adjust_balance(OMNIBAZAAR_EXCHANGE_ACCOUNT, -op.amount);
-            d.adjust_balance(op.receiver, op.amount);
 
             return graphene::chain::void_result();
         }

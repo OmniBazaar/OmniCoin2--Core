@@ -2696,7 +2696,30 @@ public:
        FC_CAPTURE_AND_RETHROW( (account) )
    }
 
-   signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
+   signed_transaction create_exchange(const string &coin_name, const string &tx_id, const string &sender_name_or_id, const asset &amount)
+   {
+       try
+       {
+           FC_ASSERT( !self.is_locked() );
+
+           omnibazaar::exchange_create_operation op;
+           op.amount = amount;
+           op.coin_name = coin_name;
+           op.sender = get_account(sender_name_or_id).get_id();
+           op.tx_id = tx_id;
+
+           signed_transaction tx;
+           tx.operations.push_back(op);
+
+           set_operation_fees(tx, _remote_db->get_global_properties().parameters.current_fees);
+           tx.validate();
+
+           return sign_transaction(tx, true);
+       }
+       FC_CAPTURE_AND_RETHROW( (coin_name)(tx_id)(sender_name_or_id)(amount) )
+   }
+
+   signed_transaction confirm_exchange(const exchange_id_type exchange_id, const string& memo)
    {
        try
        {
@@ -2705,7 +2728,6 @@ public:
            omnibazaar::exchange_complete_operation op;
            op.exchange = exchange_id;
            op.receiver = get_object<omnibazaar::exchange_object>(exchange_id).sender;
-           op.amount = amount;
            if(!memo.empty())
            {
                const account_object exchange_account = get_account(OMNIBAZAAR_EXCHANGE_ACCOUNT);
@@ -4672,9 +4694,14 @@ signed_transaction wallet_api::set_account_verification(const string& account, c
     return my->set_account_verification(account, new_status);
 }
 
-signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo)
+signed_transaction wallet_api::create_exchange(const string &coin_name, const string &tx_id, const string &sender_name_or_id, const asset &amount)
 {
-    return my->confirm_exchange(exchange_id, amount, memo);
+    return my->create_exchange(coin_name, tx_id, sender_name_or_id, amount);
+}
+
+signed_transaction wallet_api::confirm_exchange(const exchange_id_type exchange_id, const string& memo)
+{
+    return my->confirm_exchange(exchange_id, memo);
 }
 
 std::vector<std::string> wallet_api::get_publisher_names() const
@@ -4790,6 +4817,18 @@ vector<vector<account_id_type>> wallet_api::get_key_references( const vector<pub
 vector<proposal_object> wallet_api::get_proposed_transactions(const string& name_or_id )const
 {
     return my->_remote_db->get_proposed_transactions(my->get_account(name_or_id).id);
+}
+
+account_address wallet_api::get_account_address(string name_or_id)
+{
+    const account_object account = my->get_account(name_or_id);
+    account_address addr;
+    addr.name = account.name;
+    for(auto i : account.owner.key_auths)
+        addr.address_owner.insert(i.first);
+    for(auto i : account.active.key_auths)
+        addr.address_active.insert(i.first);
+    return addr;
 }
 
 signed_block_with_info::signed_block_with_info( const signed_block& block )

@@ -311,6 +311,7 @@ struct get_impacted_account_visitor
 
    void operator()( const omnibazaar::exchange_create_operation& op )
    {
+      _impacted.insert( OMNIBAZAAR_EXCHANGE_ACCOUNT );
       _impacted.insert( op.sender );
    }
 

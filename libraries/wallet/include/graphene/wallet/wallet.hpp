@@ -73,6 +73,13 @@ struct password_key_info
    address address_active;
 };
 
+struct account_address
+{
+    string name;
+    fc::flat_set<address> address_owner;
+    fc::flat_set<address> address_active;
+};
+
 /**
  *  Contains the confirmation receipt the sender must give the receiver and
  *  the meta data about the receipt that helps the sender identify which receipt is
@@ -1595,13 +1602,21 @@ class wallet_api
        */
       signed_transaction set_account_verification(const string& account, const bool new_status);
 
-      /** Set confirmed status for specified exchange object (effectively delete it from database).
+      /** Open exchange process by creating exchange_object.
+       * @param coin_name Currency name, such as BTC or ETH.
+       * @param tx_id Transaction ID in network of specified coin.
+       * @param sender_name_or_id Account that sends funds to exchange.
+       * @param amount XOM amount that user will receive as a result of this exchange.
+       * @returns the signed transaction on success.
+       */
+      signed_transaction create_exchange(const string &coin_name, const string &tx_id, const string &sender_name_or_id, const asset &amount);
+
+      /** Set confirmed status for specified exchange object (effectively delete it from database) and transfer XOM.
        * @param exchange_id ID of the exchange object.
-       * @param amount XOM amount that will be sent to user that is exchanging funds.
        * @param memo Optional memo.
        * @returns the signed transaction on success.
        */
-      signed_transaction confirm_exchange(const exchange_id_type exchange_id, const share_type amount, const string& memo);
+      signed_transaction confirm_exchange(const exchange_id_type exchange_id, const string& memo);
 
       std::vector<std::string> get_publisher_names() const;
 
@@ -1651,6 +1666,8 @@ class wallet_api
       vector<account_asset_balance> get_asset_holders( asset_id_type asset_id, uint32_t start, uint32_t limit )const;
       int get_asset_holders_count( asset_id_type asset_id )const;
       vector<asset_holders> get_all_asset_holders() const;
+
+      account_address get_account_address(string name_or_id);
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
@@ -1728,6 +1745,11 @@ FC_REFLECT( graphene::wallet::password_key_info,
             (address_active)
             (address_owner)
             )
+
+FC_REFLECT( graphene::wallet::account_address,
+            (name)
+            (address_owner)
+            (address_active))
 
 FC_API( graphene::wallet::wallet_api,
         (help)
@@ -1854,6 +1876,7 @@ FC_API( graphene::wallet::wallet_api,
         (receive_blind_transfer)
         (get_order_book)
         (set_account_verification)
+        (create_exchange)
         (confirm_exchange)
         (get_publisher_names)
         (create_keys_from_password)
@@ -1865,4 +1888,5 @@ FC_API( graphene::wallet::wallet_api,
         (get_asset_holders)
         (get_asset_holders_count)
         (get_all_asset_holders)
+        (get_account_address)
       )
