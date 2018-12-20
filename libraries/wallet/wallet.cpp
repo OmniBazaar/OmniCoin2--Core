@@ -4831,6 +4831,65 @@ account_address wallet_api::get_account_address(string name_or_id)
     return addr;
 }
 
+map<string, uint64_t> wallet_api::list_account_reputation_votes(const uint64_t start, const uint32_t limit) const
+{
+    static const uint32_t max_limit = 1000;
+    map<string, uint64_t> result;
+    uint32_t current_limit = limit;
+    while(current_limit > 0)
+    {
+        const auto tmp = my->_remote_db->list_account_reputation_votes(start + result.size(), std::min(max_limit, current_limit));
+        result.insert(tmp.cbegin(), tmp.cend());
+        current_limit -= tmp.size();
+        if(tmp.size() < std::min(max_limit, current_limit))
+        {
+            break;
+        }
+    }
+    return result;
+}
+
+std::pair<string, fc::uint128_t> wallet_api::get_max_account_reputation_weight() const
+{
+    static const uint64_t step = 1000;
+    static const auto gen_accounts = [](const uint32_t start, const int count)
+    {
+        vector<account_id_type> accounts;
+        for(uint32_t i = start, end = start + count; i < end; ++i)
+        {
+            accounts.push_back(account_id_type(i));
+        }
+        return accounts;
+    };
+
+    fc::uint128_t max_weight_sum = 0;
+    account_id_type max_account;
+    uint64_t account_idx = 0;
+    const uint64_t account_count = my->_remote_db->get_account_count();
+    while(account_idx < account_count)
+    {
+        const uint64_t current_step = std::min(account_count - account_idx, step);
+        const vector<account_statistics_object> tmp_stats = my->_remote_db->get_account_statistics(gen_accounts(account_idx, current_step));
+        account_idx += current_step;
+
+        for(const account_statistics_object &stats : tmp_stats)
+        {
+            fc::uint128_t weight_sum = 0;
+            for(const auto& iter : stats.reputation_votes)
+            {
+                const std::pair<uint16_t, asset> &vote_info = iter.second;
+                weight_sum += vote_info.second.amount.value;
+            }
+            if(weight_sum > max_weight_sum)
+            {
+                max_weight_sum = weight_sum;
+                max_account = stats.owner;
+            }
+        }
+    }
+    return std::make_pair(my->get_account(max_account).name, max_weight_sum);
+}
+
 signed_block_with_info::signed_block_with_info( const signed_block& block )
    : signed_block( block )
 {

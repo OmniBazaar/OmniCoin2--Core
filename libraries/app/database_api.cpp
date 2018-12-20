@@ -96,6 +96,8 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       std::vector<std::string> get_publisher_nodes_names();
       vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
 	  uint32_t get_number_of_escrows() const;
+      map<string,uint64_t> list_account_reputation_votes(const uint64_t start, const uint32_t limit) const;
+      vector<account_statistics_object> get_account_statistics(const vector<account_id_type> &accounts) const;
 
       // Balances
       vector<asset> get_account_balances(account_id_type id, const flat_set<asset_id_type>& assets)const;
@@ -898,6 +900,47 @@ uint32_t database_api_impl::get_number_of_escrows() const
 	const auto& idx = dynamic_cast<const primary_index<account_index>&>(_db.get_index_type<account_index>());
 	const auto& escrow_idx = idx.get_secondary_index<account_escrow_index>();
 	return escrow_idx.current_escrows.size();
+}
+
+map<string,uint64_t> database_api::list_account_reputation_votes(const uint64_t start, const uint32_t limit) const
+{
+    return my->list_account_reputation_votes(start, limit);
+}
+
+map<string,uint64_t> database_api_impl::list_account_reputation_votes(const uint64_t start, const uint32_t limit) const
+{
+    FC_ASSERT(limit <= 1000);
+
+    map<string, uint64_t> result;
+    const auto& accounts_reputations = _db.get_index_type<account_index>().indices().get<by_reputation_votes>();
+    auto iter = accounts_reputations.crbegin();
+    std::advance(iter, std::min(start, uint64_t(accounts_reputations.size())));
+    while(result.size() < limit && iter != accounts_reputations.crend())
+    {
+        result[iter->name] = iter->reputation_votes_count;
+        ++iter;
+    }
+    return result;
+}
+
+vector<account_statistics_object> database_api::get_account_statistics(const vector<account_id_type> &accounts) const
+{
+    return my->get_account_statistics(accounts);
+}
+
+vector<account_statistics_object> database_api_impl::get_account_statistics(const vector<account_id_type> &accounts) const
+{
+    FC_ASSERT(accounts.size() <= 1000);
+
+    vector<account_statistics_object> result;
+    for(auto account_id : accounts)
+    {
+        if(const account_object *acc = _db.find(account_id))
+        {
+            result.push_back(acc->statistics(_db));
+        }
+    }
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////
