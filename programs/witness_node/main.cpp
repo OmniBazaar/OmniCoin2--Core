@@ -356,49 +356,49 @@ void write_default_logging_config(const fc::path& filepath)
                 fc::logger_config cfg("default");
                 cfg.appenders.push_back("stderr");
                 cfg.appenders.push_back("all");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ("p2p", [](){
                 fc::logger_config cfg("p2p");
                 cfg.appenders.push_back("p2p");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ("bonus", [](){
                 fc::logger_config cfg("bonus");
                 cfg.appenders.push_back("bonus");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ("escrow", [](){
                 fc::logger_config cfg("escrow");
                 cfg.appenders.push_back("escrow");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ("mail", [](){
                 fc::logger_config cfg("mail");
                 cfg.appenders.push_back("mail");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ("pop", [](){
                 fc::logger_config cfg("pop");
                 cfg.appenders.push_back("pop");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ("market", [](){
                 fc::logger_config cfg("market");
                 cfg.appenders.push_back("market");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ("exchange", [](){
                 fc::logger_config cfg("exchange");
                 cfg.appenders.push_back("exchange");
-                cfg.level = fc::log_level::info;
+                cfg.level = fc::log_level::warn;
                 return cfg;
             }())
             ;
