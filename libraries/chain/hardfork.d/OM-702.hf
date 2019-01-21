@@ -1,0 +1,4 @@
+// #702 All options on My Escrow Settings should be enabled by default
+#ifndef HARDFORK_OM_702_TIME
+#define HARDFORK_OM_702_TIME (fc::time_point_sec( 1545242400 ))
+#endif

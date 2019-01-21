@@ -1669,6 +1669,18 @@ class wallet_api
 
       account_address get_account_address(string name_or_id);
 
+      /**
+       * @param start Index of first item to return.
+       * @param limit Maximum number of results to return.
+       * @return accounts reputation votes count in descending order.
+       */
+      map<string, uint64_t> list_account_reputation_votes(const uint64_t start, const uint32_t limit) const;
+
+      /**
+       * @return maximum reputation weight sum from all accounts.
+       */
+      std::pair<string, fc::uint128_t> get_max_account_reputation_weight() const;
+
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
 
       fc::signal<void(bool)> lock_changed;
@@ -1889,4 +1901,6 @@ FC_API( graphene::wallet::wallet_api,
         (get_asset_holders_count)
         (get_all_asset_holders)
         (get_account_address)
+        (list_account_reputation_votes)
+        (get_max_account_reputation_weight)
       )

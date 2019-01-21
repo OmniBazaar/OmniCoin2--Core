@@ -308,6 +308,18 @@ class database_api
 	  */
       vector<account_object_name> filter_current_escrows(uint32_t start, uint32_t limit, const std::string& search_term) const;
 
+      /**
+       * @param start Index of first item to return.
+       * @param limit Maximum number of results to return - must not exceed 1000.
+       * @return accounts reputation votes count in descending order.
+       */
+      map<string, uint64_t> list_account_reputation_votes(const uint64_t start, const uint32_t limit) const;
+
+      /**
+       * @param accounts Accounts for which to return statistics - must not exceed 1000.
+       * @return statistics objects for specified accounts.
+       */
+      vector<account_statistics_object> get_account_statistics(const vector<account_id_type> &accounts) const;
 
       //////////////
       // Balances //
@@ -784,6 +796,8 @@ FC_API(graphene::app::database_api,
    (lookup_accounts)
    (get_account_count)
    (get_publisher_nodes_names)
+   (list_account_reputation_votes)
+   (get_account_statistics)
 
    // Balances
    (get_account_balances)

@@ -1,0 +1,4 @@
+// #713 change the reputation formula
+#ifndef HARDFORK_OM_713_TIME
+#define HARDFORK_OM_713_TIME (fc::time_point_sec( 1545242400 ))
+#endif
