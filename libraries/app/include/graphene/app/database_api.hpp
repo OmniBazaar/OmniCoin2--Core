@@ -723,6 +723,11 @@ class database_api
        */
       vector<omnibazaar::listing_object> get_listings_by_seller(const string& seller_name);
 
+      /**
+       *  @return Number of currently existing listings.
+       */
+      uint64_t get_listings_count()const;
+
       //////////////
       // Exchange //
       //////////////
@@ -877,6 +882,7 @@ FC_API(graphene::app::database_api,
     // Marketplace
     (check_listing_exists)
     (get_listings_by_seller)
+    (get_listings_count)
 
     // Exchange
     (lookup_exchange_objects)
