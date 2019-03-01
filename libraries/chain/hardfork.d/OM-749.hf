@@ -1,0 +1,4 @@
+// #749 implement min/max Publisher fee
+#ifndef HARDFORK_OM_749_TIME
+#define HARDFORK_OM_749_TIME (fc::time_point_sec( 1552176000 ))
+#endif

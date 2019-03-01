@@ -1056,6 +1056,19 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          p.parameters = std::move(*p.pending_parameters);
          p.pending_parameters.reset();
       }
+
+      // Set initial publisher fee limits when OM-749 takes effect.
+      if(head_block_time() >= HARDFORK_OM_749_TIME)
+      {
+          if(!p.parameters.extensions.value.publisher_fee_min.valid())
+          {
+              p.parameters.extensions.value.publisher_fee_min = OMNIBAZAAR_DEFAULT_PUBLISHER_FEE_MIN;
+          }
+          if(!p.parameters.extensions.value.publisher_fee_max.valid())
+          {
+              p.parameters.extensions.value.publisher_fee_max = OMNIBAZAAR_DEFAULT_PUBLISHER_FEE_MAX;
+          }
+      }
    });
 
    modify(get_reserved_names(), [](omnibazaar::reserved_names_object& obj){

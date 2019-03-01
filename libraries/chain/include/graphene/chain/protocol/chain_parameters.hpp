@@ -24,6 +24,7 @@
 #pragma once
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/types.hpp>
+#include <graphene/chain/protocol/ext.hpp>
 #include <fc/smart_ref_fwd.hpp>
 #include <../omnibazaar/pop_weights.hpp>
 
@@ -40,6 +41,13 @@ namespace graphene { namespace chain {
    typedef static_variant<>  parameter_extension; 
    struct chain_parameters
    {
+      struct ext
+      {
+          optional<void_t> null_ext;
+          optional<share_type> publisher_fee_min;
+          optional<share_type> publisher_fee_max;
+      };
+
       /** using a smart ref breaks the circular dependency created between operations and the fee schedule */
       smart_ref<fee_schedule> current_fees;                       ///< current schedule of fees
       uint8_t                 block_interval                      = GRAPHENE_DEFAULT_BLOCK_INTERVAL; ///< interval in seconds between blocks
@@ -73,13 +81,19 @@ namespace graphene { namespace chain {
       uint32_t                witness_count_term                  = OMNIBAZAAR_DEFAULT_WITNESS_COUNT_TERM;
       uint16_t                committee_count                     = GRAPHENE_DEFAULT_MIN_COMMITTEE_MEMBER_COUNT; /// current number of active committee members
       omnibazaar::pop_weights pop_weights;                        /// current weights of Proof of Participation components
-      extensions_type         extensions;
+      extension<ext>          extensions;
 
       /** defined in fee_schedule.cpp */
       void validate()const;
    };
 
 } }  // graphene::chain
+
+FC_REFLECT( graphene::chain::chain_parameters::ext,
+            (null_ext)
+            (publisher_fee_min)
+            (publisher_fee_max)
+            )
 
 FC_REFLECT( graphene::chain::chain_parameters,
             (current_fees)

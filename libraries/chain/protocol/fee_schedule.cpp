@@ -217,6 +217,11 @@ namespace graphene { namespace chain {
                  "Maximum listing priority fee is too high" );
       FC_ASSERT( pop_weights.total() == GRAPHENE_100_PERCENT,
                  "Proof of Participation weights do not sum to 100%");
+      if(extensions.value.publisher_fee_min.valid() && extensions.value.publisher_fee_max.valid())
+      {
+          FC_ASSERT( *extensions.value.publisher_fee_min <= *extensions.value.publisher_fee_max,
+                     "Minimum publisher fee must not be larger than maximum publisher fee" );
+      }
    }
 
 } } // graphene::chain

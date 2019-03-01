@@ -28,6 +28,7 @@
 #include <graphene/chain/protocol/fee_schedule.hpp>
 #include <graphene/chain/protocol/vote.hpp>
 #include <graphene/chain/transaction_evaluation_state.hpp>
+#include <graphene/chain/hardfork.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 
@@ -75,6 +76,20 @@ void_result committee_member_update_evaluator::do_apply( const committee_member_
 void_result committee_member_update_global_parameters_evaluator::do_evaluate(const committee_member_update_global_parameters_operation& o)
 { try {
    FC_ASSERT(trx_state->_is_proposed_trx);
+
+   // Publisher fee limits are not allowed before HARDFORK_OM_749_TIME.
+   if(db().head_block_time() < HARDFORK_OM_749_TIME)
+   {
+       FC_ASSERT(!o.new_parameters.extensions.value.null_ext.valid());
+       FC_ASSERT(!o.new_parameters.extensions.value.publisher_fee_min.valid());
+       FC_ASSERT(!o.new_parameters.extensions.value.publisher_fee_max.valid());
+   }
+   // And required after.
+   else
+   {
+       FC_ASSERT(o.new_parameters.extensions.value.publisher_fee_min.valid(), "Minimum publisher fee must be set");
+       FC_ASSERT(o.new_parameters.extensions.value.publisher_fee_max.valid(), "Maximum publisher fee must be set");
+   }
 
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (o) ) }
