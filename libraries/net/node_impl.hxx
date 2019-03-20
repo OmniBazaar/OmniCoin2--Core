@@ -9,109 +9,9 @@
 #include <graphene/net/node.hpp>
 #include <graphene/net/core_messages.hpp>
 #include <graphene/net/peer_connection.hpp>
+#include <graphene/net/concurrent_unordered_set.hpp>
 
 namespace graphene { namespace net { namespace detail {
-
-/*******
- * A class to wrap std::unordered_set for multithreading
- */
-template <class Key, class Hash = std::hash<Key>, class Pred = std::equal_to<Key> >
-class concurrent_unordered_set : private std::unordered_set<Key, Hash, Pred>
-{
-private:
-   mutable fc::mutex mux;
-
-public:
-   // iterations require a lock. This exposes the mutex. Use with care (i.e. lock_guard)
-   fc::mutex& get_mutex()const { return mux; }
-
-   // insertion
-   std::pair< typename std::unordered_set<Key, Hash, Pred>::iterator, bool> emplace( Key key)
-   {
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::emplace( key );
-   }
-   std::pair< typename std::unordered_set<Key, Hash, Pred>::iterator, bool> insert (const Key& val)
-   {
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::insert( val ); 
-   }
-   // size
-   size_t size() const 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::size(); 
-   }
-   bool empty() const noexcept
-   {
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::empty();
-   }
-   // removal
-   void clear() noexcept
-   {
-      fc::scoped_lock<fc::mutex> lock(mux);
-      std::unordered_set<Key, Hash, Pred>::clear();
-   }
-   typename std::unordered_set<Key, Hash, Pred>::iterator erase( 
-         typename std::unordered_set<Key, Hash, Pred>::const_iterator itr)
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::erase( itr); 
-   }
-   size_t erase( const Key& key)
-   {
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::erase( key ); 
-   }
-   // iteration
-   typename std::unordered_set<Key, Hash, Pred>::iterator begin() noexcept 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::begin(); 
-   }
-   typename std::unordered_set<Key, Hash, Pred>::const_iterator begin() const noexcept 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::begin(); 
-   }
-   typename std::unordered_set<Key, Hash, Pred>::local_iterator begin(size_t n) 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::begin(n); 
-   }
-   typename std::unordered_set<Key, Hash, Pred>::const_local_iterator begin(size_t n) const 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::begin(n); 
-   }
-   typename std::unordered_set<Key, Hash, Pred>::iterator end() noexcept 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::end(); 
-   }
-   typename std::unordered_set<Key, Hash, Pred>::const_iterator end() const noexcept 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::end(); 
-   }
-   typename std::unordered_set<Key, Hash, Pred>::local_iterator end(size_t n) 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::end(n); 
-   }
-   typename std::unordered_set<Key, Hash, Pred>::const_local_iterator end(size_t n) const 
-   { 
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::end(n); 
-   }
-   // search
-   typename std::unordered_set<Key, Hash, Pred>::const_iterator find(Key key)
-   {
-      fc::scoped_lock<fc::mutex> lock(mux);
-      return std::unordered_set<Key, Hash, Pred>::find(key); 
-   }
-};   
 
 // when requesting items from peers, we want to prioritize any blocks before
 // transactions, but otherwise request items in the order we heard about them
@@ -268,6 +168,7 @@ private:
 class node_impl : public peer_connection_delegate
 {
     public:
+      node& _parent;
 #ifdef P2P_IN_DEDICATED_THREAD
       std::shared_ptr<fc::thread> _thread;
 #endif // P2P_IN_DEDICATED_THREAD
@@ -412,6 +313,8 @@ class node_impl : public peer_connection_delegate
 
       fc::future<void> _dump_node_status_task_done;
 
+      std::shared_ptr<omnibazaar::mail_sender> _mail_sender;
+
       /* We have two alternate paths through the schedule_peer_for_deletion code -- one that
        * uses a mutex to prevent one fiber from adding items to the queue while another is deleting
        * items from it, and one that doesn't.  The one that doesn't is simpler and more efficient
@@ -439,7 +342,7 @@ class node_impl : public peer_connection_delegate
 
       std::list<fc::future<void> > _handle_message_calls_in_progress;
 
-      node_impl(const std::string& user_agent);
+      node_impl(const std::string& user_agent, node& parent);
       virtual ~node_impl();
 
       void save_node_configuration();
@@ -538,6 +441,13 @@ class node_impl : public peer_connection_delegate
       void on_get_current_connections_reply_message(peer_connection* originating_peer,
                                                     const get_current_connections_reply_message& get_current_connections_reply_message_received);
 
+      void on_mail_message(peer_connection* originating_peer,
+                           const mail_message& mail_message_received);
+      void on_mail_received_message(peer_connection* originating_peer,
+                                    const mail_received_message& mail_message_received);
+      void on_mail_confirm_received_message(peer_connection* originating_peer,
+                                            const mail_confirm_received_message& mail_message_received);
+
       void on_connection_closed(peer_connection* originating_peer) override;
 
       void send_sync_block_to_node_delegate(const graphene::net::block_message& block_message_to_send);
@@ -618,6 +528,14 @@ class node_impl : public peer_connection_delegate
 
       bool is_hard_fork_block(uint32_t block_number) const;
       uint32_t get_next_known_hard_fork_block_number(uint32_t block_number) const;
+
+      // <OmniBazaar methods>
+      void initialize_mail_sender();
+      void mail_send(const omnibazaar::mail_object& mail_object);
+      void mail_send_received(const std::string mail_uuid);
+      void mail_send_confirm_received(const std::string mail_uuid);
+      // </OmniBazaar methods>
+
     }; // end class node_impl
 
 }}} // end of namespace graphene::net::detail
