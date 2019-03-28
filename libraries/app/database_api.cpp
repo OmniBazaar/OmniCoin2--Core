@@ -175,6 +175,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       // Marketplace
       bool check_listing_exists( const listing_id_type &id )const;
       vector<omnibazaar::listing_object> get_listings_by_seller(const string& seller_name);
+      uint64_t get_listings_count()const;
 
       // Exchange
       vector<omnibazaar::exchange_object> lookup_exchange_objects(const exchange_id_type lower_bound_id, uint32_t limit);
@@ -2536,6 +2537,16 @@ vector<omnibazaar::listing_object> database_api_impl::get_listings_by_seller(con
     }
 
     return result;
+}
+
+uint64_t database_api::get_listings_count()const
+{
+    return my->get_listings_count();
+}
+
+uint64_t database_api_impl::get_listings_count()const
+{
+    return _db.get_index_type<omnibazaar::listing_index>().indices().size();
 }
 
 //////////////////////////////////////////////////////////////////////
