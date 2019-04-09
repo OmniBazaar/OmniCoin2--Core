@@ -4355,10 +4355,22 @@ namespace graphene { namespace net { namespace detail {
     void node_impl::move_peer_to_terminating_list(const peer_connection_ptr& peer)
     {
       VERIFY_CORRECT_THREAD();
-      _active_connections.erase(peer);
-      _handshaking_connections.erase(peer);
-      _closing_connections.erase(peer);
-      _terminating_connections.insert(peer);
+      {
+          fc::scoped_lock<fc::mutex> lock(_active_connections.get_mutex());
+          _active_connections.erase(peer);
+      }
+      {
+          fc::scoped_lock<fc::mutex> lock(_handshaking_connections.get_mutex());
+          _handshaking_connections.erase(peer);
+      }
+      {
+          fc::scoped_lock<fc::mutex> lock(_closing_connections.get_mutex());
+          _closing_connections.erase(peer);
+      }
+      {
+          fc::scoped_lock<fc::mutex> lock(_terminating_connections.get_mutex());
+          _terminating_connections.insert(peer);
+      }
     }
 
     void node_impl::dump_node_status()
