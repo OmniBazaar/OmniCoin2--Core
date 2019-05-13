@@ -66,9 +66,10 @@ namespace omnibazaar {
         {
             // No fees.
         }
-        // If listing will be moved to another publisher or stay on existing publisher but with extended expiration,
+        // If listing will be moved to another publisher (before and after OM-774)
+        // or stay on existing publisher but with extended expiration (only before OM-774)
         // then add publisher fee.
-        else if(publisher.valid() || update_expiration_time)
+        else if(publisher.valid() || ((db.head_block_time() < HARDFORK_OM_774_TIME) && update_expiration_time))
         {
             const graphene::chain::asset final_price = price.valid() ? *price : listing_id(db).price;
             graphene::chain::share_type publisher_fee = graphene::chain::cut_fee(final_price.amount, final_publisher(db).publisher_fee);

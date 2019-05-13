@@ -1,0 +1,5 @@
+// #774 LISTING TIME-TO-LIVE SETTING
+#ifndef HARDFORK_OM_774_TIME
+#define HARDFORK_OM_774_TIME (fc::time_point_sec( 1557878400 ))
+#endif
+
