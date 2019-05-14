@@ -963,6 +963,17 @@ void database::process_bids( const asset_bitasset_data_object& bad )
    _cancel_bids_and_revive_mpa( to_revive, bad );
 }
 
+void process_hf_om_774(database& db)
+{
+    const auto head_time = db.head_block_time();
+    for(const omnibazaar::listing_object &listing : db.get_index_type<omnibazaar::listing_index>().indices())
+    {
+        db.modify(listing, [&](omnibazaar::listing_object& obj){
+            obj.updated_at = head_time;
+        });
+    }
+}
+
 void database::perform_chain_maintenance(const signed_block& next_block, const global_property_object& global_props)
 {
    const auto& gpo = get_global_properties();
@@ -1115,6 +1126,12 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    }
 
    const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+
+   // Set listings update time.
+   if( (dgpo.next_maintenance_time <= HARDFORK_OM_774_TIME) && (next_maintenance_time > HARDFORK_OM_774_TIME) )
+   {
+       process_hf_om_774(*this);
+   }
 
    modify(dgpo, [next_maintenance_time](dynamic_global_property_object& d) {
       d.next_maintenance_time = next_maintenance_time;

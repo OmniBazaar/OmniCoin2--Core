@@ -238,12 +238,7 @@ void database::clear_expired_escrows()
 
 void database::clear_expired_listings()
 {
-    // Go through the list of listings and close those that are expired.
-    const auto& expiration_index = get_index_type<omnibazaar::listing_index>().indices().get<omnibazaar::by_expiration>();
-    while( !expiration_index.empty() && expiration_index.begin()->expiration_time <= head_block_time() )
-    {
-        const omnibazaar::listing_object& listing = *expiration_index.begin();
-
+    const auto clear_listing = [this](const omnibazaar::listing_object& listing){
         // Create a transaction that will delete the listing.
 
         transaction_evaluation_state eval_state(this);
@@ -285,6 +280,34 @@ void database::clear_expired_listings()
                 _applied_ops.resize( old_applied_ops_size );
             }
             elog( "e", ("e",e.to_detail_string() ) );
+        }
+    };
+
+    // Go through the list of listings and close those that are expired.
+    if( head_block_time() < HARDFORK_OM_774_TIME )
+    {
+        const auto& expiration_index = get_index_type<omnibazaar::listing_index>().indices().get<omnibazaar::by_expiration>();
+        while( !expiration_index.empty() && expiration_index.begin()->expiration_time <= head_block_time() )
+        {
+            clear_listing(*expiration_index.begin());
+        }
+    }
+    else
+    {
+        const auto& updated_index = get_index_type<omnibazaar::listing_index>().indices().get<omnibazaar::by_update_time>();
+        while( !updated_index.empty() )
+        {
+            const omnibazaar::listing_object& listing = *updated_index.begin();
+            const auto expiration_time = listing.updated_at + get_global_properties().parameters.maximum_listing_lifetime;
+            if( expiration_time <= head_block_time() )
+            {
+                clear_listing(listing);
+            }
+            else
+            {
+                // Index is sorted so we can break out of the loop once we get to a listing which expiration time is in the future.
+                break;
+            }
         }
     }
 }

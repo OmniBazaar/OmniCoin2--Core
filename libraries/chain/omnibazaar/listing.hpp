@@ -62,7 +62,7 @@ namespace omnibazaar {
         fc::optional<fc::sha256> listing_hash;
         // Quantity of product items.
         fc::optional<uint32_t> quantity;
-        // True if seller wants to extend listing registration. Involves paying publisher fee.
+        // True if seller wants to extend listing registration. Involves paying publisher fee (before OM-774 hardfork).
         bool update_expiration_time = false;
         // Listing priority fee.
         fc::optional<uint16_t> priority_fee;

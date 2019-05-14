@@ -75,6 +75,8 @@ namespace omnibazaar {
                 obj.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
                 obj.seller_score = op.seller(d).pop_score;
                 obj.priority_fee = op.priority_fee;
+                obj.created_at = d.head_block_time();
+                obj.updated_at = d.head_block_time();
             });
 
             // Pay fee to publisher.
@@ -211,6 +213,7 @@ namespace omnibazaar {
                 {
                     listing.priority_fee = *op.priority_fee;
                 }
+                listing.updated_at = d.head_block_time();
             });
 
             // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
