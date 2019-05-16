@@ -34,15 +34,17 @@ namespace omnibazaar {
         std::set<graphene::chain::account_id_type> reported_accounts;
         // Listing priority fee.
         uint16_t priority_fee = OMNIBAZAAR_DEFAULT_LISTING_PRIORITY_FEE;
-
-        // Future extensions.
-        graphene::chain::extensions_type extensions;
+        // Listing creation time.
+        fc::time_point_sec created_at;
+        // Time of last listing update.
+        fc::time_point_sec updated_at;
     };
 
     struct by_hash;
     struct by_seller;
     struct by_publisher;
     struct by_expiration;
+    struct by_update_time;
     typedef boost::multi_index_container<
         listing_object,
         graphene::chain::indexed_by<
@@ -65,6 +67,10 @@ namespace omnibazaar {
             graphene::chain::ordered_non_unique<
                 graphene::chain::tag< by_expiration >,
                 graphene::chain::member< listing_object, fc::time_point_sec, &listing_object::expiration_time >
+            >,
+            graphene::chain::ordered_non_unique<
+                graphene::chain::tag< by_update_time >,
+                graphene::chain::member< listing_object, fc::time_point_sec, &listing_object::updated_at >
             >
         >
     > listing_multi_index_container;
@@ -82,5 +88,6 @@ FC_REFLECT_DERIVED(omnibazaar::listing_object, (graphene::chain::object),
                    (reported_score)
                    (reported_accounts)
                    (priority_fee)
-                   (extensions)
+                   (created_at)
+                   (updated_at)
                    )

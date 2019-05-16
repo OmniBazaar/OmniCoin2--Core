@@ -86,7 +86,9 @@ int main( int argc, char** argv )
          ("daemon,d", "Run the wallet in daemon mode" )
          ("wallet-file,w", bpo::value<string>()->implicit_value("wallet.json"), "wallet to load")
          ("chain-id", bpo::value<string>(), "chain ID to connect to")
-         ("version,v", "Display version information");
+         ("version,v", "Display version information")
+         ("pwd", bpo::value<string>(), "Password to wallet")
+         ;
 
 
       bpo::variables_map options;
@@ -219,6 +221,15 @@ int main( int argc, char** argv )
       boost::signals2::scoped_connection locked_connection(wapiptr->lock_changed.connect([&](bool locked) {
          wallet_cli->set_prompt(  locked ? "locked >>> " : "unlocked >>> " );
       }));
+
+      if( options.count("pwd") )
+      {
+          const auto password = options.at("pwd").as<string>();
+          if(!password.empty() && !wapiptr->is_new())
+          {
+              wapiptr->unlock(password);
+          }
+      }
 
       auto _websocket_server = std::make_shared<fc::http::websocket_server>();
       if( options.count("rpc-endpoint") )

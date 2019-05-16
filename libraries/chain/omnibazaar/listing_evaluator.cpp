@@ -2,6 +2,7 @@
 #include <listing_object.hpp>
 #include <omnibazaar_util.hpp>
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/hardfork.hpp>
 
 namespace omnibazaar {
 
@@ -31,7 +32,13 @@ namespace omnibazaar {
             FC_ASSERT(!op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee.");
             FC_ASSERT(!op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee.");
             FC_ASSERT(!op.ob_fee.referrer_seller_fee.valid(), "Listing does not require seller referrer fee.");
-            FC_ASSERT(op.ob_fee.sum() <= op.price.amount, "Fees are larger than listing price.");
+
+            // Only check this before OM-749.
+            // After if takes effect - it will be possible that minimum publisher fee will be larger than listing price.
+            if(d.head_block_time() < HARDFORK_OM_749_TIME)
+            {
+                FC_ASSERT(op.ob_fee.sum() <= op.price.amount, "Fees are larger than listing price.");
+            }
 
             // Check that Seller has enough funds to pay fee to Publisher.
             market_dlog("Checking fees.");
@@ -68,6 +75,8 @@ namespace omnibazaar {
                 obj.expiration_time = d.head_block_time() + d.get_global_properties().parameters.maximum_listing_lifetime;
                 obj.seller_score = op.seller(d).pop_score;
                 obj.priority_fee = op.priority_fee;
+                obj.created_at = d.head_block_time();
+                obj.updated_at = d.head_block_time();
             });
 
             // Pay fee to publisher.
@@ -125,8 +134,14 @@ namespace omnibazaar {
             FC_ASSERT( !op.ob_fee.omnibazaar_fee.valid(), "Listing does not require OmniBazaar fee." );
             FC_ASSERT( !op.ob_fee.referrer_buyer_fee.valid(), "Listing does not require buyer referrer fee." );
             FC_ASSERT( !op.ob_fee.referrer_seller_fee.valid(), "Listing does not require seller referrer fee." );
-            const graphene::chain::asset final_price = op.price.valid() ? *op.price : listing.price;
-            FC_ASSERT( op.ob_fee.sum() <= final_price.amount, "Fees are larger than listing price." );
+
+            // Only check this before OM-749.
+            // After if takes effect - it will be possible that minimum publisher fee will be larger than listing price.
+            if(d.head_block_time() < HARDFORK_OM_749_TIME)
+            {
+                const graphene::chain::asset final_price = op.price.valid() ? *op.price : listing.price;
+                FC_ASSERT( op.ob_fee.sum() <= final_price.amount, "Fees are larger than listing price." );
+            }
 
             // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.
             // Check that Seller has enough funds to pay fee to Publisher.
@@ -198,6 +213,7 @@ namespace omnibazaar {
                 {
                     listing.priority_fee = *op.priority_fee;
                 }
+                listing.updated_at = d.head_block_time();
             });
 
             // If Seller wants to move to another Publisher or extend listing registration time, publisher fees must be paid again.

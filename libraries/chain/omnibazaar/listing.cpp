@@ -2,6 +2,7 @@
 #include <../omnibazaar/listing_object.hpp>
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/hardfork.hpp>
 
 namespace omnibazaar {
 
@@ -19,7 +20,17 @@ namespace omnibazaar {
         // Add publisher fee if seller is not hosting this listing himself.
         if(seller != publisher)
         {
-            const graphene::chain::share_type publisher_fee = graphene::chain::cut_fee(price.amount, publisher(db).publisher_fee);
+            graphene::chain::share_type publisher_fee = graphene::chain::cut_fee(price.amount, publisher(db).publisher_fee);
+            // If OM-749 is in effect - limit publisher fee value according to chain properties.
+            if(db.get_global_properties().parameters.extensions.value.publisher_fee_min.valid())
+            {
+                publisher_fee = std::max(publisher_fee, *db.get_global_properties().parameters.extensions.value.publisher_fee_min);
+            }
+            if(db.get_global_properties().parameters.extensions.value.publisher_fee_max.valid())
+            {
+                publisher_fee = std::min(publisher_fee, *db.get_global_properties().parameters.extensions.value.publisher_fee_max);
+            }
+
             if(publisher_fee > 0)
             {
                 fees.publisher_fee = graphene::chain::asset(publisher_fee, price.asset_id);
@@ -55,12 +66,23 @@ namespace omnibazaar {
         {
             // No fees.
         }
-        // If listing will be moved to another publisher or stay on existing publisher but with extended expiration,
+        // If listing will be moved to another publisher (before and after OM-774)
+        // or stay on existing publisher but with extended expiration (only before OM-774)
         // then add publisher fee.
-        else if(publisher.valid() || update_expiration_time)
+        else if(publisher.valid() || ((db.head_block_time() < HARDFORK_OM_774_TIME) && update_expiration_time))
         {
             const graphene::chain::asset final_price = price.valid() ? *price : listing_id(db).price;
-            const graphene::chain::share_type publisher_fee = graphene::chain::cut_fee(final_price.amount, final_publisher(db).publisher_fee);
+            graphene::chain::share_type publisher_fee = graphene::chain::cut_fee(final_price.amount, final_publisher(db).publisher_fee);
+            // If OM-749 is in effect - limit publisher fee value according to chain properties.
+            if(db.get_global_properties().parameters.extensions.value.publisher_fee_min.valid())
+            {
+                publisher_fee = std::max(publisher_fee, *db.get_global_properties().parameters.extensions.value.publisher_fee_min);
+            }
+            if(db.get_global_properties().parameters.extensions.value.publisher_fee_max.valid())
+            {
+                publisher_fee = std::min(publisher_fee, *db.get_global_properties().parameters.extensions.value.publisher_fee_max);
+            }
+
             if(publisher_fee > 0)
             {
                 fees.publisher_fee = graphene::chain::asset(publisher_fee, final_price.asset_id);
