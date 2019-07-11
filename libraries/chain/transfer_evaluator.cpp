@@ -115,6 +115,7 @@ void_result transfer_evaluator::do_apply( const transfer_operation& o )
                 listing.quantity -= *o.listing_count;
             });
 
+            // Sale bonus is sent to "omnibazaar" even after OM_786 hf.
             transfer_amount -= deposit_fee(OMNIBAZAAR_FOUNDER_ACCOUNT,
                                            o.ob_fee.omnibazaar_fee,
                                            vesting_balance_object::founder_sale_fee);

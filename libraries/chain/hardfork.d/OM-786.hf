@@ -1,0 +1,4 @@
+// #786 the fork to change the recipient account of founder bonus
+#ifndef HARDFORK_OM_786_TIME
+#define HARDFORK_OM_786_TIME (fc::time_point_sec( 1563494400 ))
+#endif

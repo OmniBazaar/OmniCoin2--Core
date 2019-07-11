@@ -23,6 +23,7 @@
  */
 
 #include <graphene/chain/protocol/authority.hpp>
+#include <graphene/chain/database.hpp>
 #include <graphene/app/impacted.hpp>
 
 namespace graphene { namespace app {
@@ -34,7 +35,11 @@ using namespace graphene::chain;
 struct get_impacted_account_visitor
 {
    flat_set<account_id_type>& _impacted;
-   get_impacted_account_visitor( flat_set<account_id_type>& impact ):_impacted(impact) {}
+   const database &_db;
+   get_impacted_account_visitor( const database& db, flat_set<account_id_type>& impact )
+       : _impacted(impact)
+       , _db(db)
+   {}
    typedef void result_type;
 
    void operator()( const transfer_operation& op )
@@ -231,7 +236,7 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::founder_bonus_operation& op )
    {
       _impacted.insert( op.payer );
-      _impacted.insert( OMNIBAZAAR_FOUNDER_ACCOUNT );
+      _impacted.insert( _db.get_founder_account() );
    }
 
    void operator()( const omnibazaar::witness_bonus_operation& op )
@@ -324,16 +329,16 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::reserved_names_update_operation& op ) {}
 };
 
-void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )
+void operation_get_impacted_accounts( const database& db, const operation& op, flat_set<account_id_type>& result )
 {
-   get_impacted_account_visitor vtor = get_impacted_account_visitor( result );
+   get_impacted_account_visitor vtor = get_impacted_account_visitor( db, result );
    op.visit( vtor );
 }
 
-void transaction_get_impacted_accounts( const transaction& tx, flat_set<account_id_type>& result )
+void transaction_get_impacted_accounts( const database& db, const transaction& tx, flat_set<account_id_type>& result )
 {
    for( const auto& op : tx.operations )
-      operation_get_impacted_accounts( op, result );
+      operation_get_impacted_accounts( db, op, result );
 }
 
 } }
