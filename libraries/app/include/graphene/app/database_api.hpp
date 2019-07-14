@@ -228,6 +228,10 @@ class database_api
        */
       omnibazaar::reserved_names_object get_reserved_names()const;
 
+      /**
+       * @brief Get current recipient of Founder Bonus
+       */
+      account_id_type get_founder_account()const;
       //////////
       // Keys //
       //////////
@@ -787,6 +791,7 @@ FC_API(graphene::app::database_api,
    (get_chain_id)
    (get_dynamic_global_properties)
    (get_reserved_names)
+   (get_founder_account)
 
    // Keys
    (get_key_references)

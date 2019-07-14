@@ -261,6 +261,7 @@ namespace graphene { namespace chain {
          const node_property_object&            get_node_properties()const;
          const fee_schedule&                    current_fee_schedule()const;
          const omnibazaar::reserved_names_object& get_reserved_names()const;
+         account_id_type                        get_founder_account()const;
 
          time_point_sec   head_block_time()const;
          uint32_t         head_block_num()const;

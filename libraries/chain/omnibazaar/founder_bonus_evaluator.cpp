@@ -39,7 +39,7 @@ namespace omnibazaar {
 
             // Send bonus.
             bonus_dlog("Adjusting balance.");
-            d.adjust_balance(OMNIBAZAAR_FOUNDER_ACCOUNT, bonus_sum);
+            d.adjust_balance(d.get_founder_account(), bonus_sum);
 
             // Adjust asset supply value.
             bonus_dlog("Adjusting supply value.");
