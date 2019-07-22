@@ -9,6 +9,7 @@
 #include <graphene/chain/confidential_object.hpp>
 #include <graphene/chain/market_object.hpp>
 #include <graphene/chain/committee_member_object.hpp>
+#include <graphene/chain/database.hpp>
 #include <../omnibazaar/escrow_object.hpp>
 #include <../omnibazaar/listing_object.hpp>
 #include <../omnibazaar/exchange_object.hpp>
@@ -20,7 +21,11 @@ using namespace graphene::chain;
 struct get_impacted_account_visitor
 {
    flat_set<account_id_type>& _impacted;
-   get_impacted_account_visitor( flat_set<account_id_type>& impact ):_impacted(impact) {}
+   const database &_db;
+   get_impacted_account_visitor( const database& db, flat_set<account_id_type>& impact )
+       : _impacted(impact)
+       , _db(db)
+   {}
    typedef void result_type;
 
    void operator()( const transfer_operation& op )
@@ -217,7 +222,7 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::founder_bonus_operation& op )
    {
       _impacted.insert( op.payer );
-      _impacted.insert( OMNIBAZAAR_FOUNDER_ACCOUNT );
+      _impacted.insert( _db.get_founder_account() );
    }
 
    void operator()( const omnibazaar::witness_bonus_operation& op )
@@ -310,19 +315,19 @@ struct get_impacted_account_visitor
    void operator()( const omnibazaar::reserved_names_update_operation& op ) {}
 };
 
-static void operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )
+static void operation_get_impacted_accounts( const database& db, const operation& op, flat_set<account_id_type>& result )
 {
-  get_impacted_account_visitor vtor = get_impacted_account_visitor( result );
+  get_impacted_account_visitor vtor = get_impacted_account_visitor( db, result );
   op.visit( vtor );
 }
 
-static void transaction_get_impacted_accounts( const transaction& tx, flat_set<account_id_type>& result )
+static void transaction_get_impacted_accounts( const database& db, const transaction& tx, flat_set<account_id_type>& result )
 {
   for( const auto& op : tx.operations )
-    operation_get_impacted_accounts( op, result );
+    operation_get_impacted_accounts( db, op, result );
 }
 
-static void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accounts )
+static void get_relevant_accounts( const database& db, const object* obj, flat_set<account_id_type>& accounts )
 {
    if( obj->id.space() == protocol_ids )
    {
@@ -370,12 +375,12 @@ static void get_relevant_accounts( const object* obj, flat_set<account_id_type>&
         } case proposal_object_type:{
            const auto& aobj = dynamic_cast<const proposal_object*>(obj);
            assert( aobj != nullptr );
-           transaction_get_impacted_accounts( aobj->proposed_transaction, accounts );
+           transaction_get_impacted_accounts( db, aobj->proposed_transaction, accounts );
            break;
         } case operation_history_object_type:{
            const auto& aobj = dynamic_cast<const operation_history_object*>(obj);
            assert( aobj != nullptr );
-           operation_get_impacted_accounts( aobj->op, accounts );
+           operation_get_impacted_accounts( db, aobj->op, accounts );
            break;
         } case withdraw_permission_object_type:{
            const auto& aobj = dynamic_cast<const withdraw_permission_object*>(obj);
@@ -444,7 +449,7 @@ static void get_relevant_accounts( const object* obj, flat_set<account_id_type>&
            } case impl_transaction_object_type:{
               const auto& aobj = dynamic_cast<const transaction_object*>(obj);
               assert( aobj != nullptr );
-              transaction_get_impacted_accounts( aobj->trx, accounts );
+              transaction_get_impacted_accounts( db, aobj->trx, accounts );
               break;
            } case impl_blinded_balance_object_type:{
               const auto& aobj = dynamic_cast<const blinded_balance_object*>(obj);
@@ -497,7 +502,7 @@ void database::notify_changed_objects()
           new_ids.push_back(item);
           auto obj = find_object(item);
           if(obj != nullptr)
-            get_relevant_accounts(obj, new_accounts_impacted);
+            get_relevant_accounts(*this, obj, new_accounts_impacted);
         }
 
         new_objects(new_ids, new_accounts_impacted);
@@ -511,7 +516,7 @@ void database::notify_changed_objects()
         for( const auto& item : head_undo.old_values )
         {
           changed_ids.push_back(item.first);
-          get_relevant_accounts(item.second.get(), changed_accounts_impacted);
+          get_relevant_accounts(*this, item.second.get(), changed_accounts_impacted);
         }
 
         changed_objects(changed_ids, changed_accounts_impacted);
@@ -528,7 +533,7 @@ void database::notify_changed_objects()
           removed_ids.emplace_back( item.first );
           auto obj = item.second.get();
           removed.emplace_back( obj );
-          get_relevant_accounts(obj, removed_accounts_impacted);
+          get_relevant_accounts(*this, obj, removed_accounts_impacted);
         }
 
         removed_objects(removed_ids, removed, removed_accounts_impacted);

@@ -80,6 +80,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       chain_id_type get_chain_id()const;
       dynamic_global_property_object get_dynamic_global_properties()const;
       omnibazaar::reserved_names_object get_reserved_names()const;
+      account_id_type get_founder_account()const;
 
       // Keys
       vector<vector<account_id_type>> get_key_references( vector<public_key_type> key )const;
@@ -512,6 +513,16 @@ omnibazaar::reserved_names_object database_api::get_reserved_names()const
 omnibazaar::reserved_names_object database_api_impl::get_reserved_names()const
 {
     return _db.get(reserved_names_id_type());
+}
+
+account_id_type database_api::get_founder_account()const
+{
+    return my->get_founder_account();
+}
+
+account_id_type database_api_impl::get_founder_account()const
+{
+    return _db.get_founder_account();
 }
 
 //////////////////////////////////////////////////////////////////////

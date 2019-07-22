@@ -102,4 +102,9 @@ const omnibazaar::reserved_names_object& database::get_reserved_names()const
     return get( reserved_names_id_type() );
 }
 
+account_id_type database::get_founder_account()const
+{
+    return head_block_time() < HARDFORK_OM_786_TIME ? OMNIBAZAAR_FOUNDER_ACCOUNT : OMNIBAZAAR_FOUNDER_ACCOUNT2;
+}
+
 } }

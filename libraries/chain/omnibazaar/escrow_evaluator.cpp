@@ -180,6 +180,7 @@ namespace omnibazaar {
             if(escrow_obj.listing.valid())
             {
                 escrow_dlog("Sending sale fees.");
+                // Sale bonus is sent to "omnibazaar" even after OM_786 hf.
                 transfer_amount -= deposit_fee(OMNIBAZAAR_FOUNDER_ACCOUNT,
                                                escrow_obj.ob_fee.omnibazaar_fee,
                                                graphene::chain::vesting_balance_object::founder_sale_fee);
