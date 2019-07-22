@@ -166,7 +166,7 @@
 /// Main OmniBazaar account object
 #define OMNIBAZAAR_FOUNDER_ACCOUNT (graphene::chain::account_id_type(6))
 /// Founder account object after OM-786 hardfork.
-#define OMNIBAZAAR_FOUNDER_ACCOUNT2 (graphene::chain::account_id_type(65))
+#define OMNIBAZAAR_FOUNDER_ACCOUNT2 (graphene::chain::account_id_type(10582))
 /// Account that is used to set KYC verification flag for users.
 #define OMNIBAZAAR_KYC_ACCOUNT (graphene::chain::account_id_type(7))
 /// Account for exchange operations
