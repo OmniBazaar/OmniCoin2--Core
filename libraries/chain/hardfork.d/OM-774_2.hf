@@ -1,0 +1,6 @@
+// #774 LISTING TIME-TO-LIVE SETTING
+// Update expiration chain parameter.
+#ifndef HARDFORK_OM_774_2_TIME
+#define HARDFORK_OM_774_2_TIME (fc::time_point_sec( 1574035200 ))
+#endif
+
