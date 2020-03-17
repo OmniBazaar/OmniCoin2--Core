@@ -957,8 +957,8 @@ void application::set_program_options(boost::program_options::options_descriptio
          ("seed-node,s", bpo::value<vector<string>>()->composing(), "P2P nodes to connect to on startup (may specify multiple times)")
          ("seed-nodes", bpo::value<string>()->composing(), "JSON array of P2P nodes to connect to on startup")
          ("checkpoint,c",
-            bpo::value<vector<string>>()->default_value(vector<string>(1, "[\"2981888\", \"002d80007007de8ef4e0f84e5f0f428d56666d2f\"]"),
-                                                        "[\"2981888\", \"002d80007007de8ef4e0f84e5f0f428d56666d2f\"]"
+            bpo::value<vector<string>>()->default_value(vector<string>(1, "[\"3754000\", \"0039481034a305989ea289340caaf65dbce781ef\"]"),
+                                                        "[\"3754000\", \"0039481034a305989ea289340caaf65dbce781ef\"]"
                                                         )->composing(),
             "Pairs of [BLOCK_NUM,BLOCK_ID] that should be enforced as checkpoints.")
          ("rpc-endpoint", bpo::value<string>()->default_value("127.0.0.1:8090"), "Endpoint for websocket RPC to listen on")
