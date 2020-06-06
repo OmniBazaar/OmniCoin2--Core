@@ -1136,7 +1136,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    if( (dgpo.next_maintenance_time <= HARDFORK_OM_774_2_TIME) && (next_maintenance_time > HARDFORK_OM_774_2_TIME) )
    {
        modify(gpo, [this](global_property_object& p) {
-           p.parameters.maximum_listing_lifetime = std::max(p.parameters.maximum_listing_lifetime, uint32_t(365 * 24 * 60 * 60));
+           p.parameters.maximum_listing_lifetime = std::max(p.parameters.maximum_listing_lifetime, uint32_t(100*1000*1000)); // ~3 years
        });
    }
 
