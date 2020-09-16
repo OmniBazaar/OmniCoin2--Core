@@ -54,7 +54,19 @@ class elasticsearch_plugin_impl
    public:
       elasticsearch_plugin_impl(elasticsearch_plugin& _plugin)
          : _self( _plugin )
-      {  curl = curl_easy_init(); }
+      {
+          const CURLcode curl_init = curl_global_init(CURL_GLOBAL_ALL);
+          if(curl_init != CURLE_OK)
+          {
+              elog("curl initialization error ${e}", ("e", static_cast<int>(curl_init)));
+          }
+
+          curl = curl_easy_init();
+          if(!curl)
+          {
+              elog("curl_easy_init failed!");
+          }
+      }
       virtual ~elasticsearch_plugin_impl();
 
       void update_account_histories( const signed_block& b );
@@ -72,7 +84,7 @@ class elasticsearch_plugin_impl
       uint32_t _elasticsearch_bulk_sync = 100;
       bool _elasticsearch_logs = true;
       bool _elasticsearch_visitor = false;
-      CURL *curl; // curl handler
+      CURL *curl = nullptr; // curl handler
       vector <string> bulk; //  vector of op lines
    private:
       void add_elasticsearch( const account_id_type account_id, const optional<operation_history_object>& oho, const signed_block& b );
@@ -279,7 +291,7 @@ void elasticsearch_plugin_impl::sendBulk(std::string _elasticsearch_node_url, bo
    //wlog((bulking));
 
    struct curl_slist *headers = NULL;
-   curl_slist_append(headers, "Content-Type: application/json");
+   headers = curl_slist_append(headers, "Content-Type: application/json");
    std::string url = _elasticsearch_node_url + "_bulk";
    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
    curl_easy_setopt(curl, CURLOPT_POST, true);
@@ -301,6 +313,7 @@ void elasticsearch_plugin_impl::sendBulk(std::string _elasticsearch_node_url, bo
    }
    else {
       // exit everything ?
+       wlog("sendBulk error ${http}: ${msg}", ("http", http_code)("msg", readBuffer));
    }
 
    if(_elasticsearch_logs) {
@@ -328,7 +341,13 @@ void elasticsearch_plugin_impl::sendBulk(std::string _elasticsearch_node_url, bo
       }
       else {
          // exit everything ?
+          wlog("sendBulk logs error ${http}: ${msg}", ("http", http_code)("msg", readBuffer_logs));
       }
+   }
+
+   if(headers)
+   {
+       curl_slist_free_all(headers);
    }
 }
 
